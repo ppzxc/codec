@@ -1,4 +1,4 @@
-package io.github.ppzxc.codec;
+package io.github.ppzxc.codec.decoder;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

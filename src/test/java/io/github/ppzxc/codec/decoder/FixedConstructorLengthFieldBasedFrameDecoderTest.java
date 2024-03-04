@@ -1,8 +1,10 @@
-package io.github.ppzxc.codec;
+package io.github.ppzxc.codec.decoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
+import io.github.ppzxc.codec.ByteArrayFixtureFactory;
+import io.github.ppzxc.codec.decoder.FixedConstructorLengthFieldBasedFrameDecoder;
 import io.github.ppzxc.fixh.ByteArrayUtils;
 import io.github.ppzxc.fixh.IntUtils;
 import io.netty.buffer.ByteBuf;

@@ -3,52 +3,101 @@ package io.github.ppzxc.codec.model;
 import io.github.ppzxc.fixh.ObjectUtils;
 import io.netty.buffer.ByteBuf;
 
-public class DividedRawPacket {
+/**
+ * The type Raw packet.
+ */
+public class RawPacket {
 
-  private final ByteBuf header;
+  private final Header header;
   private final ByteBuf body;
 
-  public DividedRawPacket(ByteBuf header, ByteBuf body) {
+  /**
+   * Instantiates a new Raw packet.
+   *
+   * @param header the header
+   * @param body   the body
+   */
+  public RawPacket(Header header, ByteBuf body) {
     this.header = header;
     this.body = body;
   }
 
-  public ByteBuf getHeader() {
+  /**
+   * Gets header.
+   *
+   * @return the header
+   */
+  public Header getHeader() {
     return header;
   }
 
+  /**
+   * Gets body.
+   *
+   * @return the body
+   */
   public ByteBuf getBody() {
     return body;
   }
 
-  public static DividedRawPacketBuilder builder() {
-    return new DividedRawPacketBuilder();
+  /**
+   * Builder raw packet builder.
+   *
+   * @return the raw packet builder
+   */
+  public static RawPacketBuilder builder() {
+    return new RawPacketBuilder();
   }
 
-  public static final class DividedRawPacketBuilder {
+  /**
+   * The type Raw packet builder.
+   */
+  public static final class RawPacketBuilder {
 
-    private ByteBuf header;
+    private Header header;
     private ByteBuf body;
 
-    private DividedRawPacketBuilder() {
+    private RawPacketBuilder() {
     }
 
-    public static DividedRawPacketBuilder aDividedRawPacket() {
-      return new DividedRawPacketBuilder();
+    /**
+     * A raw raw packet builder.
+     *
+     * @return the raw packet builder
+     */
+    public static RawPacketBuilder aRaw() {
+      return new RawPacketBuilder();
     }
 
-    public DividedRawPacketBuilder header(ByteBuf header) {
-      this.header = ObjectUtils.requireNonNull(header, new NullPointerException("'Header' is require non null"));
+    /**
+     * Header raw packet builder.
+     *
+     * @param header the header
+     * @return the raw packet builder
+     */
+    public RawPacketBuilder header(Header header) {
+      this.header = ObjectUtils.requireNonNull(header, "'Header' is require non null");
       return this;
     }
 
-    public DividedRawPacketBuilder body(ByteBuf body) {
-      this.body = ObjectUtils.requireNonNull(body, new NullPointerException("'Body' is require non null"));
+    /**
+     * Body raw packet builder.
+     *
+     * @param body the body
+     * @return the raw packet builder
+     */
+    public RawPacketBuilder body(ByteBuf body) {
+      this.body = ObjectUtils.requireNonNull(body, "'Body' is require non null");
       return this;
     }
 
-    public DividedRawPacket build() {
-      return new DividedRawPacket(header, body);
+    /**
+     * Build raw packet.
+     *
+     * @return the raw packet
+     */
+    public RawPacket build() {
+      return new RawPacket(header, body);
     }
   }
 }

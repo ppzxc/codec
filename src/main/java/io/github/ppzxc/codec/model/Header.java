@@ -1,4 +1,4 @@
-package io.github.ppzxc.codec;
+package io.github.ppzxc.codec.model;
 
 /**
  * The type Raw header.
