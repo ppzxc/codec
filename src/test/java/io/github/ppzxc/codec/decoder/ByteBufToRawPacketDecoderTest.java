@@ -1,8 +1,11 @@
 package io.github.ppzxc.codec.decoder;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.handler.codec.CodecException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +25,8 @@ class ByteBufToRawPacketDecoderTest {
     ByteBuf given = null;
 
     // when
-    channel.writeInbound(given);
+    assertThatCode(() -> channel.writeInbound(given))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
@@ -31,6 +35,7 @@ class ByteBufToRawPacketDecoderTest {
     ByteBuf given = Unpooled.buffer(0);
 
     // when
-    channel.writeInbound(given);
+    assertThatCode(() -> channel.writeInbound(given))
+      .isInstanceOf(CodecException.class);
   }
 }

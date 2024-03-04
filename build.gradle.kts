@@ -18,7 +18,8 @@ repositories {
 }
 
 dependencies {
-    implementation(rootProject.libs.io.netty.all)
+    implementation(rootProject.libs.io.netty.buffer)
+    implementation(rootProject.libs.io.netty.codec)
     implementation(rootProject.libs.org.slf4j.api)
     implementation(rootProject.libs.io.github.ppzxc.fixh)
 
