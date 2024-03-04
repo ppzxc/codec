@@ -1,0 +1,74 @@
+[versions]
+# spring
+org-springframework-boot = "3.2.2"
+io-spring-dependency-management = "1.1.4"
+com-google-protobuf-plugin = "0.9.4"
+
+# libs
+org-projectlombok-lombok = "1.18.30"
+org-slf4j-api = "2.0.11"
+ch-qos-logback = "1.4.14"
+com-google-guava = "33.0.0-jre"
+com-google-protobuf-java = "3.25.2"
+com-google-protobuf-javalite = "3.25.2"
+org-mongodb-bson = "4.11.1"
+com-fasterxml-jackson = "2.15.3"
+de-undercouch-bson4jackson = "2.15.0"
+org-bouncycastle-bcprov-jdk18on = "1.77"
+
+# net
+io-netty-all = "4.1.105.Final"
+
+# ppzxc
+io-github-ppzxc-fixh = "0.0.8"
+io-github-ppzxc-guid = "0.0.7"
+io-github-ppzxc-crypto = "0.0.32"
+
+# test
+org-junit-jupiter = "5.10.1"
+org-junit-pioneer = "2.2.0"
+org-assertj-core = "3.25.3"
+com-navercorp-fixture-monkey = "1.0.13"
+org-apache-commons-lang3 = "3.14.0"
+
+[libraries]
+# spring
+org-springframework-boot-starter = { group = "org.springframework.boot", name = "spring-boot-starter" }
+org-springframework-boot-starter-web = { group = "org.springframework.boot", name = "spring-boot-starter-web" }
+org-springframework-boot-starter-validation = { group = "org.springframework.boot", name = "spring-boot-starter-validation" }
+org-springframework-boot-starter-test = { group = "org.springframework.boot", name = "spring-boot-starter-test" }
+
+# libs
+org-projectlombok-lombok = { group = "org.projectlombok", name = "lombok", version.ref = "org-projectlombok-lombok" }
+org-slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "org-slf4j-api" }
+ch-qos-logback-classic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "ch-qos-logback" }
+com-google-guava = { group = "com.google.guava", name = "guava", version.ref = "com-google-guava" }
+com-google-protobuf-java = { group = "com.google.protobuf", name = "protobuf-java", version.ref = "com-google-protobuf-java" }
+com-google-protobuf-javalite = { group = "com.google.protobuf", name = "protobuf-javalite", version.ref = "com-google-protobuf-javalite" }
+org-mongodb-bson = { group = "org.mongodb", name = "bson", version.ref = "org-mongodb-bson" }
+com-fasterxml-jackson-core-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "com-fasterxml-jackson" }
+com-fasterxml-jackson-core-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "com-fasterxml-jackson" }
+com-fasterxml-jackson-datatype-jsr310 = { group = "com.fasterxml.jackson.datatype", name = "jackson-datatype-jsr310", version.ref = "com-fasterxml-jackson" }
+de-undercouch-bson4jackson = { group = "de.undercouch", name = "bson4jackson", version.ref = "de-undercouch-bson4jackson" }
+org-bouncycastle-bcprov-jdk18on = { group = "org.bouncycastle", name = "bcprov-jdk18on", version.ref = "org-bouncycastle-bcprov-jdk18on"}
+
+# net
+io-netty = { group = "io.netty", name = "netty-all", version.ref = "io-netty-all" }
+
+# ppzxc
+io-github-ppzxc-fixh = { group = "io.github.ppzxc", name = "fixh", version.ref = "io-github-ppzxc-fixh" }
+io-github-ppzxc-guid = { group = "io.github.ppzxc", name = "guid", version.ref = "io-github-ppzxc-guid" }
+io-github-ppzxc-crypto = { group = "io.github.ppzxc", name = "crypto", version.ref = "io-github-ppzxc-crypto" }
+
+# test
+org-junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "org-junit-jupiter" }
+org-junit-pioneer = { group = "org.junit-pioneer", name = "junit-pioneer", version.ref = "org-junit-pioneer" }
+org-assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "org-assertj-core" }
+com-navercorp-fixture-monkey-starter = { group = "com.navercorp.fixturemonkey", name = "fixture-monkey-starter", version.ref = "com-navercorp-fixture-monkey" }
+com-navercorp-fixture-monkey-jackson = { group = "com.navercorp.fixturemonkey", name = "fixture-monkey-jackson", version.ref = "com-navercorp-fixture-monkey" }
+org-apache-commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "org-apache-commons-lang3" }
+
+[plugins]
+org-springframework-boot = { id = "org.springframework.boot", version.ref = "org-springframework-boot" }
+io-spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "io-spring-dependency-management" }
+com-google-protobuf = { id = "com.google.protobuf", version.ref = "com-google-protobuf-plugin" }
