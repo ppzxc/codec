@@ -1,5 +1,5 @@
 [versions]
-io-netty-all = "4.1.107.Final"
+io-netty = "4.1.107.Final"
 org-slf4j-api = "2.0.11"
 io-github-ppzxc-fixh = "0.0.9"
 org-junit-jupiter = "5.10.2"
@@ -7,7 +7,8 @@ org-assertj-core = "3.25.3"
 net-thebugmc-gradle-sonatype-central-portal-publisher = "1.2.2"
 
 [libraries]
-io-netty-all = { group = "io.netty", name = "netty-all", version.ref = "io-netty-all" }
+io-netty-buffer = { group = "io.netty", name = "netty-buffer", version.ref = "io-netty" }
+io-netty-codec = { group = "io.netty", name = "netty-codec", version.ref = "io-netty" }
 org-slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "org-slf4j-api" }
 io-github-ppzxc-fixh = { group = "io.github.ppzxc", name = "fixh", version.ref = "io-github-ppzxc-fixh" }
 org-junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "org-junit-jupiter" }

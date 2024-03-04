@@ -23,11 +23,11 @@ public class FixedConstructorLengthFieldBasedFrameDecoder extends LengthFieldBas
    * @param lengthFieldLength   the length of the length field
    * @param lengthAdjustment    the compensation value to add to the value of the length field
    * @param initialBytesToStrip the number of first bytes to strip out from the decoded frame
-   * @param failFast            If <tt>true</tt>, a {@link TooLongFrameException} is thrown as soon as the decoder
+   * @param failFast            If true, a {@link TooLongFrameException} is thrown as soon as the decoder
    *                            notices the length of the frame will exceed
-   *                            <tt>maxFrameLength</tt> regardless of whether the entire frame
-   *                            has been read.  If <tt>false</tt>, a {@link TooLongFrameException} is thrown after the
-   *                            entire frame that exceeds <tt>maxFrameLength</tt> has been read.
+   *                            maxFrameLength regardless of whether the entire frame
+   *                            has been read.  If false, a {@link TooLongFrameException} is thrown after the
+   *                            entire frame that exceeds maxFrameLength has been read.
    */
   public FixedConstructorLengthFieldBasedFrameDecoder(int maxFrameLength, int lengthFieldOffset, int lengthFieldLength,
     int lengthAdjustment, int initialBytesToStrip, boolean failFast) {
