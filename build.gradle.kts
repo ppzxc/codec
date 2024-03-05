@@ -2,6 +2,7 @@ plugins {
     `java-library`
     `java-test-fixtures`
     signing
+    jacoco
     alias(libs.plugins.net.thebugmc.gradle.sonatype.central.portal.publisher)
 }
 
@@ -22,15 +23,43 @@ dependencies {
     implementation(rootProject.libs.io.netty.codec)
     implementation(rootProject.libs.org.slf4j.api)
     implementation(rootProject.libs.io.github.ppzxc.fixh)
+    implementation(rootProject.libs.io.github.ppzxc.crypto)
 
     testImplementation(rootProject.libs.org.junit.jupiter)
     testImplementation(rootProject.libs.org.assertj.core)
 
+    testFixturesImplementation(rootProject.libs.io.netty.buffer)
     testFixturesImplementation(rootProject.libs.io.github.ppzxc.fixh)
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy(tasks.withType<JacocoReport>())
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required = true
+        csv.required = true
+        html.required = true
+//        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
+    }
+    finalizedBy(tasks.jacocoTestCoverageVerification)
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = "CLASS"
+
+            limit {
+                counter = "BRANCH"
+                value = "COVEREDRATIO"
+                minimum = BigDecimal.valueOf(0.90)
+            }
+        }
+    }
 }
 
 java {

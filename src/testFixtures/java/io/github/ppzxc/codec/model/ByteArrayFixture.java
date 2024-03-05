@@ -1,16 +1,15 @@
-package io.github.ppzxc.codec;
+package io.github.ppzxc.codec.model;
 
-import io.github.ppzxc.codec.model.Header;
 import io.github.ppzxc.fixh.ByteArrayUtils;
 import io.github.ppzxc.fixh.ByteUtils;
 import io.github.ppzxc.fixh.RandomUtils;
 import java.nio.ByteBuffer;
 
-public final class ByteArrayFixtureFactory {
+public final class ByteArrayFixture {
 
   public static final RandomUtils RANDOM_UTILS = RandomUtils.getInstance();
 
-  private ByteArrayFixtureFactory() {
+  private ByteArrayFixture() {
   }
 
   public static byte[] create(int id, byte type, byte status, byte encoding, byte reserved, int bodyLength,
@@ -49,5 +48,10 @@ public final class ByteArrayFixtureFactory {
       buffer.put(ByteArrayUtils.giveMeOne(bodyLength));
     }
     return buffer.array();
+  }
+
+  public static byte[] of(RawInboundPacket rawInboundPacket) {
+    return create(
+      rawInboundPacket.getHeader().getId(), rawInboundPacket.getHeader().getType(), rawInboundPacket.getHeader().getStatus(), rawInboundPacket.getHeader().getEncoding(), rawInboundPacket.getHeader().getReserved(), rawInboundPacket.getHeader().getBodyLength(), rawInboundPacket.getBody().array());
   }
 }
