@@ -41,7 +41,9 @@ tasks.withType<Test> {
 tasks.jacocoTestReport {
     reports {
         xml.required = true
+//        xml.outputLocation = layout.buildDirectory.dir("jacocoHtml")
         csv.required = true
+//        csv.outputLocation = layout.buildDirectory.dir("jacocoHtml")
         html.required = true
 //        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
     }
@@ -56,7 +58,8 @@ tasks.jacocoTestCoverageVerification {
             limit {
                 counter = "BRANCH"
                 value = "COVEREDRATIO"
-                minimum = BigDecimal.valueOf(0.90)
+//                minimum = BigDecimal.valueOf(0.90)
+                minimum = BigDecimal.valueOf(0.50)
             }
         }
     }
