@@ -3,8 +3,7 @@ package io.github.ppzxc.codec.decoder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-import io.github.ppzxc.codec.ByteArrayFixtureFactory;
-import io.github.ppzxc.codec.decoder.FixedConstructorLengthFieldBasedFrameDecoder;
+import io.github.ppzxc.codec.model.ByteArrayFixture;
 import io.github.ppzxc.fixh.ByteArrayUtils;
 import io.github.ppzxc.fixh.IntUtils;
 import io.netty.buffer.ByteBuf;
@@ -15,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -29,10 +27,10 @@ class FixedConstructorLengthFieldBasedFrameDecoderTest {
     channel.pipeline().addLast(FixedConstructorLengthFieldBasedFrameDecoder.defaultConfiguration());
   }
 
-  @Test
+  @RepeatedTest(10)
   void should_return_given_byte_array() {
     // given: random header with empty body.
-    byte[] given = ByteArrayFixtureFactory.randomWithEmptyBody();
+    byte[] given = ByteArrayFixture.randomWithEmptyBody();
 
     // when
     channel.writeInbound(Unpooled.copiedBuffer(given));
@@ -47,7 +45,7 @@ class FixedConstructorLengthFieldBasedFrameDecoderTest {
   void should_throw_when_negative_body_length() {
     // given, when, then
     assertThatCode(() -> channel.writeInbound(
-      Unpooled.copiedBuffer(ByteArrayFixtureFactory.randomWithBody(IntUtils.giveMeNegative()))))
+      Unpooled.copiedBuffer(ByteArrayFixture.randomWithBody(IntUtils.giveMeNegative()))))
       .isInstanceOfAny(TooLongFrameException.class);
   }
 
@@ -72,7 +70,7 @@ class FixedConstructorLengthFieldBasedFrameDecoderTest {
     ByteBuf given = Unpooled.buffer(12 * packetCount);
     List<byte[]> givenPacketList = new ArrayList<>();
     for (int i = 0; i < packetCount; i++) {
-      byte[] givenPacket = ByteArrayFixtureFactory.randomWithEmptyBody();
+      byte[] givenPacket = ByteArrayFixture.randomWithEmptyBody();
       givenPacketList.add(givenPacket);
       given.writeBytes(givenPacket);
     }

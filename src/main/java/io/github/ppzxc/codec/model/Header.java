@@ -1,28 +1,21 @@
 package io.github.ppzxc.codec.model;
 
-/**
- * The type Raw header.
- *
- * <pre>
- *  0                   1                   2                   3
- *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |                               Id                              |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |      Type     |     Status    |    Encoding   |    Reserved   |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |                           Body Length                         |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  0                   1                   2                   3
- *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- * </pre>
- */
-public class Header {
+import java.io.Serializable;
 
+/**
+ * The type Header.
+ */
+public class Header implements Serializable {
+
+  /**
+   * The constant MINIMUM_BODY_LENGTH.
+   */
+  public static final int MINIMUM_BODY_LENGTH = 2;
   /**
    * The constant HEADER_LENGTH.
    */
   public static final int HEADER_LENGTH = 12;
+  private static final long serialVersionUID = 5464917518865088432L;
   private final int id;
   private final byte type;
   private final byte status;
@@ -30,17 +23,7 @@ public class Header {
   private final byte reserved;
   private final int bodyLength;
 
-  /**
-   * Instantiates a new Raw header.
-   *
-   * @param id         the id
-   * @param type       the type
-   * @param status     the status
-   * @param encoding   the encoding
-   * @param reserved   the reserved
-   * @param bodyLength the body length
-   */
-  public Header(int id, byte type, byte status, byte encoding, byte reserved, int bodyLength) {
+  private Header(int id, byte type, byte status, byte encoding, byte reserved, int bodyLength) {
     this.id = id;
     this.type = type;
     this.status = status;
@@ -128,15 +111,6 @@ public class Header {
     }
 
     /**
-     * A raw header raw header builder.
-     *
-     * @return the raw header builder
-     */
-    public static RawHeaderBuilder aRawHeader() {
-      return new RawHeaderBuilder();
-    }
-
-    /**
      * Id raw header builder.
      *
      * @param id the id
@@ -203,9 +177,9 @@ public class Header {
     }
 
     /**
-     * Build raw header.
+     * Build header.
      *
-     * @return the raw header
+     * @return the header
      */
     public Header build() {
       return new Header(id, type, status, encoding, reserved, bodyLength);
