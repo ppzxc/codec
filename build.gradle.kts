@@ -34,7 +34,6 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    finalizedBy(tasks.withType<JacocoReport>())
     finalizedBy(tasks.jacocoTestReport)
 }
 
