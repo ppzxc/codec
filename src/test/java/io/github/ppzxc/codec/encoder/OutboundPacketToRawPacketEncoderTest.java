@@ -6,7 +6,6 @@ import io.github.ppzxc.codec.model.EncryptedOutboundPacket;
 import io.github.ppzxc.codec.model.EncryptedOutboundPacketFixture;
 import io.github.ppzxc.codec.model.HeaderFixture;
 import io.github.ppzxc.codec.model.RawOutboundPacket;
-import io.github.ppzxc.codec.model.SerializedOutboundPacket;
 import io.github.ppzxc.codec.service.Mapper;
 import io.github.ppzxc.codec.service.ObjectOutputStreamMapper;
 import io.github.ppzxc.crypto.Crypto;

@@ -3,12 +3,12 @@ package io.github.ppzxc.codec.decoder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-import io.github.ppzxc.codec.model.RawInboundPacketFixture;
 import io.github.ppzxc.codec.exception.LessThanMinimumPacketLengthCodeException;
 import io.github.ppzxc.codec.exception.NotSupportedBodyLengthException;
 import io.github.ppzxc.codec.exception.NullPointerCodeException;
 import io.github.ppzxc.codec.exception.ProblemCodeException;
 import io.github.ppzxc.codec.model.RawInboundPacket;
+import io.github.ppzxc.codec.model.RawInboundPacketFixture;
 import io.github.ppzxc.fixh.ByteArrayUtils;
 import io.github.ppzxc.fixh.ExceptionUtils;
 import io.github.ppzxc.fixh.IntUtils;

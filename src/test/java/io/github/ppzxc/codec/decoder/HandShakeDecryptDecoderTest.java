@@ -2,9 +2,9 @@ package io.github.ppzxc.codec.decoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.ppzxc.codec.model.EncryptedHandShakePacketFixture;
 import io.github.ppzxc.codec.model.DecryptedHandShakePacket;
 import io.github.ppzxc.codec.model.EncryptedHandShakePacket;
+import io.github.ppzxc.codec.model.EncryptedHandShakePacketFixture;
 import io.github.ppzxc.crypto.AsymmetricKeyFactory;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
@@ -18,7 +18,6 @@ import java.security.NoSuchProviderException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
 
 class HandShakeDecryptDecoderTest {
 

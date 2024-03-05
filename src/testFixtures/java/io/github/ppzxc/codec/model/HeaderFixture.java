@@ -1,6 +1,5 @@
 package io.github.ppzxc.codec.model;
 
-import io.github.ppzxc.codec.model.Header;
 import io.github.ppzxc.fixh.ByteUtils;
 import io.github.ppzxc.fixh.IntUtils;
 

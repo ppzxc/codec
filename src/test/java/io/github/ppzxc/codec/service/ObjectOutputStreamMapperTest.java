@@ -2,11 +2,10 @@ package io.github.ppzxc.codec.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.ppzxc.codec.model.EncryptionMethodFixture;
 import io.github.ppzxc.codec.model.EncryptionMethod;
+import io.github.ppzxc.codec.model.EncryptionMethodFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
 
 class ObjectOutputStreamMapperTest {
 

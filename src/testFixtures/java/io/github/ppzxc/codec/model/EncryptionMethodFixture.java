@@ -1,6 +1,5 @@
 package io.github.ppzxc.codec.model;
 
-import io.github.ppzxc.codec.model.EncryptionMethod;
 import io.github.ppzxc.fixh.StringUtils;
 
 public final class EncryptionMethodFixture {
