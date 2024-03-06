@@ -4,9 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 import io.github.ppzxc.codec.exception.LessThanMinimumPacketLengthCodeException;
+import io.github.ppzxc.codec.exception.MissingLineDelimiterCodeException;
+import io.github.ppzxc.codec.exception.NotSameLengthCodeException;
 import io.github.ppzxc.codec.exception.NotSupportedBodyLengthException;
 import io.github.ppzxc.codec.exception.NullPointerCodeException;
 import io.github.ppzxc.codec.exception.ProblemCodeException;
+import io.github.ppzxc.codec.model.Header;
+import io.github.ppzxc.codec.model.HeaderFixture;
 import io.github.ppzxc.codec.model.RawInboundPacket;
 import io.github.ppzxc.codec.model.RawInboundPacketFixture;
 import io.github.ppzxc.fixh.ByteArrayUtils;
@@ -107,9 +111,56 @@ class ByteBufToRawInboundPacketDecoderTest {
 
     // when
     assertThatCode(() -> channel.writeInbound(RawInboundPacketFixture.toByteBuf(given))).satisfies(throwable -> {
-        assertThat(throwable).isInstanceOf(CodecException.class);
-        assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(ProblemCodeException.class);
-        assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(NotSupportedBodyLengthException.class);
-      });
+      assertThat(throwable).isInstanceOf(CodecException.class);
+      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(ProblemCodeException.class);
+      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(NotSupportedBodyLengthException.class);
+    });
+  }
+
+  @RepeatedTest(10)
+  void should_throw_exception_when_normal_header_but_overflow_body() {
+    // given
+    int bodyLength = IntUtils.giveMeOne(1024 * 1024 * 4, 1024 * 1024 * 8);
+    ByteBuf body = Unpooled.buffer(bodyLength + Header.MINIMUM_BODY_LENGTH);
+    body.writeBytes(ByteArrayUtils.giveMeOne(bodyLength));
+    body.writeBytes(RawInboundPacket.LINE_DELIMITER);
+    RawInboundPacket given = RawInboundPacketFixture.create(HeaderFixture.random(1024 * 1024), body);
+
+    // when
+    assertThatCode(() -> channel.writeInbound(RawInboundPacketFixture.toByteBuf(given))).satisfies(throwable -> {
+      assertThat(throwable).isInstanceOf(CodecException.class);
+      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(ProblemCodeException.class);
+      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(NotSupportedBodyLengthException.class);
+    });
+  }
+
+  @RepeatedTest(10)
+  void should_throw_exception_when_not_equals_header_body_length_real_body_length() {
+    // given
+    int bodyLength = IntUtils.giveMeOne(1024 * 1024 * 2);
+    ByteBuf body = Unpooled.buffer(bodyLength + Header.MINIMUM_BODY_LENGTH);
+    body.writeBytes(ByteArrayUtils.giveMeOne(bodyLength));
+    body.writeBytes(RawInboundPacket.LINE_DELIMITER);
+    RawInboundPacket given = RawInboundPacketFixture.create(HeaderFixture.random(1024 * 1024), body);
+
+    // when
+    assertThatCode(() -> channel.writeInbound(RawInboundPacketFixture.toByteBuf(given))).satisfies(throwable -> {
+      assertThat(throwable).isInstanceOf(CodecException.class);
+      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(ProblemCodeException.class);
+      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(NotSameLengthCodeException.class);
+    });
+  }
+
+  @RepeatedTest(10)
+  void should_throw_exception_when_not_contains_line_delimiter() {
+    // given
+    RawInboundPacket given = RawInboundPacketFixture.withBodyWithoutLineDelimiter(IntUtils.giveMeOne(1024 * 1024 * 2));
+
+    // when
+    assertThatCode(() -> channel.writeInbound(RawInboundPacketFixture.toByteBuf(given))).satisfies(throwable -> {
+      assertThat(throwable).isInstanceOf(CodecException.class);
+      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(ProblemCodeException.class);
+      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(MissingLineDelimiterCodeException.class);
+    });
   }
 }

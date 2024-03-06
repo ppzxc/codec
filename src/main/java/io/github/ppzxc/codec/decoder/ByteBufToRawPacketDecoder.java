@@ -1,6 +1,5 @@
 package io.github.ppzxc.codec.decoder;
 
-import io.github.ppzxc.codec.exception.CorruptedBodyLengthCodeException;
 import io.github.ppzxc.codec.exception.LessThanMinimumPacketLengthCodeException;
 import io.github.ppzxc.codec.exception.MissingLineDelimiterCodeException;
 import io.github.ppzxc.codec.exception.NotSameLengthCodeException;
@@ -73,30 +72,16 @@ public class ByteBufToRawPacketDecoder extends MessageToMessageDecoder<ByteBuf> 
   }
 
   private ByteBuf getBody(Header header, ByteBuf msg) throws Exception {
-    if (header.getBodyLength() <= 0) {
-      return Unpooled.buffer(0);
-    }
-    if (msg.readableBytes() > maximumBodyLength) {
+    if (header.getBodyLength() > maximumBodyLength || msg.readableBytes() > maximumBodyLength) {
       throw new NotSupportedBodyLengthException(header);
+    }
+    if (header.getBodyLength() != msg.readableBytes()) {
+      throw new NotSameLengthCodeException(header, msg.readableBytes());
     }
     return msg.readBytes(msg.readableBytes());
   }
 
   private void postCondition(RawInboundPacket rawInboundPacket) throws Exception {
-    if (rawInboundPacket.getHeader().getBodyLength() > maximumBodyLength) {
-      throw new NotSupportedBodyLengthException(rawInboundPacket.getHeader());
-    }
-    if (rawInboundPacket.getHeader().getBodyLength() < Header.MINIMUM_BODY_LENGTH) {
-      throw new CorruptedBodyLengthCodeException(rawInboundPacket.getHeader());
-    } else if (rawInboundPacket.getHeader().getBodyLength() > Header.MINIMUM_BODY_LENGTH) {
-      if (rawInboundPacket.getHeader().getBodyLength() != rawInboundPacket.getBody().readableBytes()) {
-        throw new NotSameLengthCodeException(rawInboundPacket.getHeader(), rawInboundPacket.getBody().readableBytes());
-      }
-    }
-    checkLineDelimiter(rawInboundPacket);
-  }
-
-  private void checkLineDelimiter(RawInboundPacket rawInboundPacket) throws MissingLineDelimiterCodeException {
     if (isNotContainsLineDelimiter(rawInboundPacket.getBody())) {
       throw new MissingLineDelimiterCodeException(rawInboundPacket.getHeader());
     }

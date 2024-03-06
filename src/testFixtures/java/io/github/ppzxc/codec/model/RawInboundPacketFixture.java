@@ -23,6 +23,12 @@ public final class RawInboundPacketFixture {
     return create(HeaderFixture.random(bodyLength + Header.MINIMUM_BODY_LENGTH), body);
   }
 
+  public static RawInboundPacket withBodyWithoutLineDelimiter(int bodyLength) {
+    ByteBuf body = Unpooled.buffer(bodyLength );
+    body.writeBytes(ByteArrayUtils.giveMeOne(bodyLength));
+    return create(HeaderFixture.random(bodyLength ), body);
+  }
+
   public static RawInboundPacket emptyBody() {
     return create(HeaderFixture.emptyBody(), Unpooled.buffer(0));
   }
