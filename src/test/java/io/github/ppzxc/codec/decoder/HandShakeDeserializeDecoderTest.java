@@ -2,6 +2,7 @@ package io.github.ppzxc.codec.decoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.ppzxc.codec.exception.SerializeFailedException;
 import io.github.ppzxc.codec.model.DecryptedHandShakePacketFixture;
 import io.github.ppzxc.codec.model.EncryptionMethod;
 import io.github.ppzxc.codec.model.EncryptionMethodFixture;
@@ -25,7 +26,7 @@ class HandShakeDeserializeDecoderTest {
   }
 
   @RepeatedTest(10)
-  void should_deserialize() {
+  void should_deserialize() throws SerializeFailedException {
     // given
     EncryptionMethod expected = EncryptionMethodFixture.random();
     byte[] given = mapper.write(expected);

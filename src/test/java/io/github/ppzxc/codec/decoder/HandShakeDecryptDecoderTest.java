@@ -21,19 +21,20 @@ import org.junit.jupiter.api.RepeatedTest;
 
 class HandShakeDecryptDecoderTest {
 
-  private static Crypto CRYPTO;
+  private static KeyPair keyPair;
+  private Crypto crypto;
   private EmbeddedChannel channel;
 
   @BeforeAll
   static void beforeAll() throws NoSuchAlgorithmException, NoSuchProviderException {
-    KeyPair keyPair = AsymmetricKeyFactory.generateRsa();
-    CRYPTO = CryptoFactory.rsa(keyPair.getPublic(), keyPair.getPrivate());
+    keyPair = AsymmetricKeyFactory.generateRsa();
   }
 
   @BeforeEach
   void setUp() {
+    crypto = CryptoFactory.rsa(keyPair.getPublic(), keyPair.getPrivate());
     channel = new EmbeddedChannel();
-    channel.pipeline().addLast(new HandShakeDecryptDecoder(CRYPTO));
+    channel.pipeline().addLast(new HandShakeDecryptDecoder(crypto));
   }
 
   @RepeatedTest(10)
@@ -41,7 +42,7 @@ class HandShakeDecryptDecoderTest {
     // given
     byte[] givenBody = ByteArrayUtils.giveMeOne(128);
     EncryptedHandShakePacket given = EncryptedHandShakePacketFixture.withBody(
-      Unpooled.wrappedBuffer(CRYPTO.encrypt(givenBody)));
+      Unpooled.wrappedBuffer(crypto.encrypt(givenBody)));
 
     // when
     channel.writeInbound(given);

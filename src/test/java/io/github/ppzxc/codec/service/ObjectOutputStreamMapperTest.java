@@ -1,11 +1,15 @@
 package io.github.ppzxc.codec.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
+import io.github.ppzxc.codec.exception.DeserializeFailedException;
+import io.github.ppzxc.codec.exception.SerializeFailedException;
 import io.github.ppzxc.codec.model.EncryptionMethod;
 import io.github.ppzxc.codec.model.EncryptionMethodFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 class ObjectOutputStreamMapperTest {
 
@@ -17,7 +21,7 @@ class ObjectOutputStreamMapperTest {
   }
 
   @RepeatedTest(10)
-  void should_serialize() {
+  void should_serialize() throws SerializeFailedException {
     // given
     EncryptionMethod given = EncryptionMethodFixture.random();
 
@@ -28,8 +32,14 @@ class ObjectOutputStreamMapperTest {
     assertThat(actual).isNotEmpty().hasSizeGreaterThanOrEqualTo(1);
   }
 
+  @Test
+  void should_throw_exception_when_input_write_null() {
+    assertThatCode(() -> mapper.write(new Object()))
+      .isInstanceOf(SerializeFailedException.class);
+  }
+
   @RepeatedTest(10)
-  void should_deserialize() {
+  void should_deserialize() throws DeserializeFailedException, SerializeFailedException {
     // given
     EncryptionMethod expected = EncryptionMethodFixture.random();
     byte[] given = mapper.write(expected);
@@ -39,5 +49,11 @@ class ObjectOutputStreamMapperTest {
 
     // then
     assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+  }
+
+  @Test
+  void should_throw_exception_when_input_read_null() {
+    assertThatCode(() -> mapper.read(null, null))
+      .isInstanceOf(DeserializeFailedException.class);
   }
 }
