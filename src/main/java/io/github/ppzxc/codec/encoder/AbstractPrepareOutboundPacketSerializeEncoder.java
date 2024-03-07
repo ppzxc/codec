@@ -23,6 +23,7 @@ public abstract class AbstractPrepareOutboundPacketSerializeEncoder extends
    *
    * @param object the object
    * @return the byte [ ]
+   * @throws SerializeFailedException the serialize failed exception
    */
   public abstract byte[] write(Object object) throws SerializeFailedException;
 
