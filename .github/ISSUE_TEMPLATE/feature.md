@@ -1,6 +1,6 @@
 ---
-name: 기능 요청서
-about: 기능 요청서
+name: 기능 개발
+about: 기능 개발
 title: "[feature]"
 labels: feature
 assignees: ''

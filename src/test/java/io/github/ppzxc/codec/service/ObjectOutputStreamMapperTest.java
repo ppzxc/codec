@@ -21,12 +21,24 @@ class ObjectOutputStreamMapperTest {
   }
 
   @RepeatedTest(10)
-  void should_serialize() throws SerializeFailedException {
+  void should_serialize_when_no_type() throws SerializeFailedException {
     // given
     EncryptionMethod given = EncryptionMethodFixture.random();
 
     // when
     byte[] actual = mapper.write(given);
+
+    // then
+    assertThat(actual).isNotEmpty().hasSizeGreaterThanOrEqualTo(1);
+  }
+
+  @RepeatedTest(10)
+  void should_serialize_when_type() throws SerializeFailedException {
+    // given
+    EncryptionMethod given = EncryptionMethodFixture.random();
+
+    // when
+    byte[] actual = mapper.write((byte) 0x01, given);
 
     // then
     assertThat(actual).isNotEmpty().hasSizeGreaterThanOrEqualTo(1);
@@ -39,13 +51,26 @@ class ObjectOutputStreamMapperTest {
   }
 
   @RepeatedTest(10)
-  void should_deserialize() throws DeserializeFailedException, SerializeFailedException {
+  void should_deserialize_when_no_type() throws DeserializeFailedException, SerializeFailedException {
     // given
     EncryptionMethod expected = EncryptionMethodFixture.random();
     byte[] given = mapper.write(expected);
 
     // when
     EncryptionMethod actual = mapper.read(given, EncryptionMethod.class);
+
+    // then
+    assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+  }
+
+  @RepeatedTest(10)
+  void should_deserialize_when_type() throws DeserializeFailedException, SerializeFailedException {
+    // given
+    EncryptionMethod expected = EncryptionMethodFixture.random();
+    byte[] given = mapper.write(expected);
+
+    // when
+    EncryptionMethod actual = mapper.read((byte) 0x01, given, EncryptionMethod.class);
 
     // then
     assertThat(actual).usingRecursiveComparison().isEqualTo(expected);

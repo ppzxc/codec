@@ -20,6 +20,18 @@ public interface Mapper {
   <T> T read(byte[] payload, Class<T> tClass) throws DeserializeFailedException;
 
   /**
+   * Read t.
+   *
+   * @param <T>          the type parameter
+   * @param encodingType the encoding type
+   * @param payload      the payload
+   * @param tClass       the t class
+   * @return the t
+   * @throws DeserializeFailedException the deserialize failed exception
+   */
+  <T> T read(byte encodingType, byte[] payload, Class<T> tClass) throws DeserializeFailedException;
+
+  /**
    * Write byte [ ].
    *
    * @param <T>    the type parameter
@@ -28,4 +40,15 @@ public interface Mapper {
    * @throws SerializeFailedException the serialize failed exception
    */
   <T> byte[] write(T object) throws SerializeFailedException;
+
+  /**
+   * Write byte [ ].
+   *
+   * @param <T>          the type parameter
+   * @param encodingType the encoding type
+   * @param object       the object
+   * @return the byte [ ]
+   * @throws SerializeFailedException the serialize failed exception
+   */
+  <T> byte[] write(byte encodingType, T object) throws SerializeFailedException;
 }

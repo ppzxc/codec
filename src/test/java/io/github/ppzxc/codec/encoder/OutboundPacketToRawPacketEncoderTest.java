@@ -14,7 +14,7 @@ import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
 import io.github.ppzxc.crypto.CryptoFactory;
 import io.github.ppzxc.fixh.IntUtils;
-import io.github.ppzxc.fixh.StringUtils;
+import io.github.ppzxc.fixh.RandomUtils;
 import io.netty.channel.embedded.EmbeddedChannel;
 import java.io.Serializable;
 import org.junit.jupiter.api.BeforeAll;
@@ -43,7 +43,7 @@ class OutboundPacketToRawPacketEncoderTest {
   void should_encode_when_encrypted_packet()
     throws CryptoException, DeserializeFailedException, SerializeFailedException {
     // given
-    TestCompany expected = new TestCompany(StringUtils.giveMeOne(), StringUtils.giveMeOne(), IntUtils.giveMeOne());
+    TestCompany expected = new TestCompany(RandomUtils.getInstance().string(), RandomUtils.getInstance().string(), IntUtils.giveMeOne());
     EncryptedOutboundPacket given = EncryptedOutboundPacketFixture.create(HeaderFixture.random(),
       CRYPTO.encrypt(MAPPER.write(expected)));
 
