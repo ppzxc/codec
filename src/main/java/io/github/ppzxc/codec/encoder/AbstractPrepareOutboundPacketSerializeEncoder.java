@@ -1,6 +1,7 @@
 package io.github.ppzxc.codec.encoder;
 
 import io.github.ppzxc.codec.exception.OutboundPacketSerializeFailedException;
+import io.github.ppzxc.codec.exception.SerializeFailedException;
 import io.github.ppzxc.codec.model.PrepareOutboundPacket;
 import io.github.ppzxc.codec.model.SerializedOutboundPacket;
 import io.netty.channel.ChannelHandlerContext;
@@ -22,8 +23,9 @@ public abstract class AbstractPrepareOutboundPacketSerializeEncoder extends
    *
    * @param object the object
    * @return the byte [ ]
+   * @throws SerializeFailedException the serialize failed exception
    */
-  public abstract byte[] write(Object object);
+  public abstract byte[] write(Object object) throws SerializeFailedException;
 
   @Override
   protected void encode(ChannelHandlerContext ctx, PrepareOutboundPacket prepareOutboundPacket, List<Object> out)

@@ -2,6 +2,7 @@ package io.github.ppzxc.codec.encoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.ppzxc.codec.exception.DeserializeFailedException;
 import io.github.ppzxc.codec.model.PrepareOutboundPacket;
 import io.github.ppzxc.codec.model.PrepareOutboundPacketFixture;
 import io.github.ppzxc.codec.model.SerializedOutboundPacket;
@@ -27,7 +28,7 @@ class OutboundPacketSerializeEncoderTest {
   }
 
   @RepeatedTest(10)
-  void should_serialized() {
+  void should_serialized() throws DeserializeFailedException {
     // given
     TestUser expected = new TestUser(StringUtils.giveMeOne(), StringUtils.giveMeOne(), IntUtils.giveMeOne());
     PrepareOutboundPacket given = PrepareOutboundPacketFixture.withBody(expected);

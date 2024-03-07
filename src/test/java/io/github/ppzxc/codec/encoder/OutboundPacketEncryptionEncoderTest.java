@@ -2,6 +2,8 @@ package io.github.ppzxc.codec.encoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.ppzxc.codec.exception.DeserializeFailedException;
+import io.github.ppzxc.codec.exception.SerializeFailedException;
 import io.github.ppzxc.codec.model.EncryptedOutboundPacket;
 import io.github.ppzxc.codec.model.HeaderFixture;
 import io.github.ppzxc.codec.model.SerializedOutboundPacket;
@@ -38,7 +40,7 @@ class OutboundPacketEncryptionEncoderTest {
   }
 
   @RepeatedTest(10)
-  void should_encrypt() throws CryptoException {
+  void should_encrypt() throws CryptoException, DeserializeFailedException, SerializeFailedException {
     // given
     TestCompany expected = new TestCompany(StringUtils.giveMeOne(), StringUtils.giveMeOne(), IntUtils.giveMeOne());
     SerializedOutboundPacket given = SerializedOutboundPacketFixture.create(HeaderFixture.random(),

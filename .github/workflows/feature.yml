@@ -1,12 +1,12 @@
-name: develop push
+name: Feature
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "feature/*" ]
 
 jobs:
-  release:
-    name: Make GitHub release and publish to Maven Central
+  feature:
+    name: build, test when feature push
     runs-on: ubuntu-latest
     env:
       GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
@@ -27,8 +27,8 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant 권한 수정
+      - name: Gradle Grant
         run: chmod +x gradlew
 
-      - name: Gradle 빌드
+      - name: Gradle Build
         run: ./gradlew build

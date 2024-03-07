@@ -1,5 +1,6 @@
 package io.github.ppzxc.codec.encoder;
 
+import io.github.ppzxc.codec.exception.SerializeFailedException;
 import io.github.ppzxc.codec.service.Mapper;
 
 /**
@@ -19,7 +20,7 @@ public class OutboundPacketSerializeEncoder extends AbstractPrepareOutboundPacke
   }
 
   @Override
-  public byte[] write(Object object) {
+  public byte[] write(Object object) throws SerializeFailedException {
     return mapper.write(object);
   }
 }
