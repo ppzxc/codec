@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FixedConstructorLengthFieldBasedFrameDecoder extends LengthFieldBasedFrameDecoder {
 
-  private final static Logger log = LoggerFactory.getLogger(FixedConstructorLengthFieldBasedFrameDecoder.class);
+  private static final Logger log = LoggerFactory.getLogger(FixedConstructorLengthFieldBasedFrameDecoder.class);
 
   /**
    * Creates a new instance.

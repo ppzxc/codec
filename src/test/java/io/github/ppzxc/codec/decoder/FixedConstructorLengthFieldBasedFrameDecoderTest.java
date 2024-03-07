@@ -60,7 +60,7 @@ class FixedConstructorLengthFieldBasedFrameDecoderTest {
 
     // then
     assertThat(actual).isFalse();
-    assertThat(channel.inboundMessages()).hasSize(0);
+    assertThat(channel.inboundMessages()).isEmpty();
   }
 
   @RepeatedTest(10)
