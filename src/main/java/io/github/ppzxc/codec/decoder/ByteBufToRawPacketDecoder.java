@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ByteBufToRawPacketDecoder extends MessageToMessageDecoder<ByteBuf> {
 
-  private final static Logger log = LoggerFactory.getLogger(ByteBufToRawPacketDecoder.class);
+  private static final Logger log = LoggerFactory.getLogger(ByteBufToRawPacketDecoder.class);
   private final int maximumBodyLength;
 
   /**

@@ -9,7 +9,6 @@ import io.github.ppzxc.codec.model.EncryptionMethod;
 import io.github.ppzxc.codec.model.EncryptionMethodFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
 
 class ObjectOutputStreamMapperTest {
 
@@ -44,7 +43,7 @@ class ObjectOutputStreamMapperTest {
     assertThat(actual).isNotEmpty().hasSizeGreaterThanOrEqualTo(1);
   }
 
-  @Test
+  @RepeatedTest(10)
   void should_throw_exception_when_input_write_null() {
     assertThatCode(() -> mapper.write(new Object()))
       .isInstanceOf(SerializeFailedException.class);
@@ -76,7 +75,7 @@ class ObjectOutputStreamMapperTest {
     assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
   }
 
-  @Test
+  @RepeatedTest(10)
   void should_throw_exception_when_input_read_null() {
     assertThatCode(() -> mapper.read(null, null))
       .isInstanceOf(DeserializeFailedException.class);

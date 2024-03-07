@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HandShakeDecoder extends MessageToMessageDecoder<EncryptedHandShakePacket> {
 
-  private final static Logger log = LoggerFactory.getLogger(HandShakeDecoder.class);
+  private static final Logger log = LoggerFactory.getLogger(HandShakeDecoder.class);
   private final Crypto crypto;
   private final Mapper mapper;
 

@@ -17,32 +17,4 @@ public class NotSupportedBodyLengthException extends ProblemCodeException {
   public NotSupportedBodyLengthException(Header header) {
     super("not supported body length: " + header.getBodyLength(), header.getId(), ProblemCode.NOT_SUPPORTED_BODY_LENGTH);
   }
-
-  /**
-   * Instantiates a new Not supported body length exception.
-   *
-   * @param id the id
-   */
-  public NotSupportedBodyLengthException(int id) {
-    super(id, ProblemCode.NOT_SUPPORTED_BODY_LENGTH);
-  }
-
-  /**
-   * Instantiates a new Not supported body length exception.
-   *
-   * @param message the message
-   */
-  public NotSupportedBodyLengthException(String message) {
-    super(message, 0, ProblemCode.NOT_SUPPORTED_BODY_LENGTH);
-  }
-
-  /**
-   * Instantiates a new Not supported body length exception.
-   *
-   * @param id      the id
-   * @param message the message
-   */
-  public NotSupportedBodyLengthException(int id, String message) {
-    super(message, id, ProblemCode.NOT_SUPPORTED_BODY_LENGTH);
-  }
 }
