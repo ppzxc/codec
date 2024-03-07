@@ -1,8 +1,8 @@
 [versions]
 io-netty = "4.1.107.Final"
 org-slf4j-api = "2.0.11"
-io-github-ppzxc-fixh = "0.0.11"
-io-github-ppzxc-crypto = "0.0.33"
+io-github-ppzxc-fixh = "0.0.16"
+io-github-ppzxc-crypto = "0.0.35"
 org-junit-jupiter = "5.10.2"
 org-assertj-core = "3.25.3"
 net-thebugmc-gradle-sonatype-central-portal-publisher = "1.2.2"

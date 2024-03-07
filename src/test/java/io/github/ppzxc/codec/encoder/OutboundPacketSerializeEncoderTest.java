@@ -9,7 +9,7 @@ import io.github.ppzxc.codec.model.SerializedOutboundPacket;
 import io.github.ppzxc.codec.service.Mapper;
 import io.github.ppzxc.codec.service.ObjectOutputStreamMapper;
 import io.github.ppzxc.fixh.IntUtils;
-import io.github.ppzxc.fixh.StringUtils;
+import io.github.ppzxc.fixh.RandomUtils;
 import io.netty.channel.embedded.EmbeddedChannel;
 import java.io.Serializable;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +30,7 @@ class OutboundPacketSerializeEncoderTest {
   @RepeatedTest(10)
   void should_serialized() throws DeserializeFailedException {
     // given
-    TestUser expected = new TestUser(StringUtils.giveMeOne(), StringUtils.giveMeOne(), IntUtils.giveMeOne());
+    TestUser expected = new TestUser(RandomUtils.getInstance().string(), RandomUtils.getInstance().string(), IntUtils.giveMeOne());
     PrepareOutboundPacket given = PrepareOutboundPacketFixture.withBody(expected);
 
     // when

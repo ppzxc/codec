@@ -23,10 +23,12 @@ public class ObjectOutputStreamMapper implements Mapper {
   }
 
   @Override
+  public <T> T read(byte encodingType, byte[] payload, Class<T> tClass) throws DeserializeFailedException {
+    return read(payload, tClass);
+  }
+
+  @Override
   public <T> byte[] write(T object) throws SerializeFailedException {
-//    if (object == null) {
-//      throw new SerializeFailedException("object is require non null");
-//    }
     try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
       objectOutputStream.writeObject(object);
@@ -34,5 +36,10 @@ public class ObjectOutputStreamMapper implements Mapper {
     } catch (Exception e) {
       throw new SerializeFailedException(e);
     }
+  }
+
+  @Override
+  public <T> byte[] write(byte encodingType, T object) throws SerializeFailedException {
+    return write(object);
   }
 }

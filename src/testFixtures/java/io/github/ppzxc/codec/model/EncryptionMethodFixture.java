@@ -1,6 +1,6 @@
 package io.github.ppzxc.codec.model;
 
-import io.github.ppzxc.fixh.StringUtils;
+import io.github.ppzxc.fixh.RandomUtils;
 
 public final class EncryptionMethodFixture {
 
@@ -18,7 +18,8 @@ public final class EncryptionMethodFixture {
   }
 
   public static EncryptionMethod random() {
-    return create(StringUtils.giveMeOne(1, 10), StringUtils.giveMeOne(1, 10), StringUtils.giveMeOne(1, 10),
-      StringUtils.giveMeOne(1, 10), StringUtils.giveMeOne(1, 10));
+    return create(RandomUtils.getInstance().string(1, 10), RandomUtils.getInstance().string(1, 10),
+      RandomUtils.getInstance().string(1, 10), RandomUtils.getInstance().string(1, 10),
+      RandomUtils.getInstance().string(1, 10));
   }
 }

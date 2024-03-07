@@ -2,12 +2,10 @@ package io.github.ppzxc.codec.model;
 
 import io.github.ppzxc.fixh.ByteArrayUtils;
 import io.github.ppzxc.fixh.ByteUtils;
-import io.github.ppzxc.fixh.RandomUtils;
+import io.github.ppzxc.fixh.IntUtils;
 import java.nio.ByteBuffer;
 
 public final class ByteArrayFixture {
-
-  public static final RandomUtils RANDOM_UTILS = RandomUtils.getInstance();
 
   private ByteArrayFixture() {
   }
@@ -28,7 +26,7 @@ public final class ByteArrayFixture {
   }
 
   public static byte[] random(byte[] body) {
-    return create(RANDOM_UTILS.integer(), ByteUtils.giveMeOne(), ByteUtils.giveMeOne(), ByteUtils.giveMeOne(),
+    return create(IntUtils.giveMeOne(), ByteUtils.giveMeOne(), ByteUtils.giveMeOne(), ByteUtils.giveMeOne(),
       ByteUtils.giveMeOne(), body.length, body);
   }
 
@@ -38,7 +36,7 @@ public final class ByteArrayFixture {
 
   public static byte[] randomWithBody(int bodyLength) {
     ByteBuffer buffer = ByteBuffer.allocate(Header.HEADER_LENGTH);
-    buffer.putInt(RANDOM_UTILS.integer());
+    buffer.putInt(IntUtils.giveMeOne());
     buffer.put(ByteUtils.giveMeOne());
     buffer.put(ByteUtils.giveMeOne());
     buffer.put(ByteUtils.giveMeOne());
