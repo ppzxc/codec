@@ -1,3 +1,5 @@
+[![Release](https://github.com/ppzxc/codec/actions/workflows/release.yml/badge.svg)](https://github.com/ppzxc/codec/actions/workflows/release.yml)
+
 # netty tcp codecs
 
 - [netty](https://github.com/netty/netty) tcp codecs

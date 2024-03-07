@@ -62,7 +62,7 @@ public class ByteBufToRawPacketDecoder extends MessageToMessageDecoder<ByteBuf> 
   }
 
   private void preCondition(ByteBuf msg) throws Exception {
-    if (msg == null || msg.readableBytes() <= 0) {
+    if (msg.readableBytes() <= 0) {
       throw new NullPointerCodeException("byte array require non null");
     }
     if (msg.readableBytes() < AbstractRawPacket.MINIMUM_PACKET_LENGTH) {

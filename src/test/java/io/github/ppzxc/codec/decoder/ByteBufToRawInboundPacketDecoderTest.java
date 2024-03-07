@@ -43,7 +43,7 @@ class ByteBufToRawInboundPacketDecoderTest {
     ByteBuf given = null;
 
     // when
-    assertThatCode(() -> channel.writeInbound(given)).isInstanceOf(java.lang.NullPointerException.class);
+    assertThatCode(() -> channel.writeInbound(given)).isInstanceOf(NullPointerException.class);
   }
 
   @RepeatedTest(10)

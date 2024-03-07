@@ -32,3 +32,13 @@ jobs:
 
       - name: Gradle Build
         run: ./gradlew build
+
+      - name: Jacoco Test Coverage Report
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.2
+        with:
+          title: 📝 테스트 커버리지 리포트
+          paths: ${{ github.workspace }}/codec/build/reports/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 90
+          min-coverage-changed-files: 90
