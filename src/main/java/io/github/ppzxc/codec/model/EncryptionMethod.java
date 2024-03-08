@@ -8,13 +8,14 @@ import java.io.Serializable;
 public class EncryptionMethod implements Serializable {
 
   private static final long serialVersionUID = -3521225365392130685L;
-  private final String type;
-  private final String mode;
-  private final String padding;
+  private final EncryptionType type;
+  private final EncryptionMode mode;
+  private final EncryptionPadding padding;
   private final String iv;
   private final String symmetricKey;
 
-  private EncryptionMethod(String type, String mode, String padding, String iv, String symmetricKey) {
+  private EncryptionMethod(EncryptionType type, EncryptionMode mode, EncryptionPadding padding, String iv,
+    String symmetricKey) {
     this.type = type;
     this.mode = mode;
     this.padding = padding;
@@ -27,7 +28,7 @@ public class EncryptionMethod implements Serializable {
    *
    * @return the type
    */
-  public String getType() {
+  public EncryptionType getType() {
     return type;
   }
 
@@ -36,7 +37,7 @@ public class EncryptionMethod implements Serializable {
    *
    * @return the mode
    */
-  public String getMode() {
+  public EncryptionMode getMode() {
     return mode;
   }
 
@@ -45,7 +46,7 @@ public class EncryptionMethod implements Serializable {
    *
    * @return the padding
    */
-  public String getPadding() {
+  public EncryptionPadding getPadding() {
     return padding;
   }
 
@@ -81,9 +82,9 @@ public class EncryptionMethod implements Serializable {
    */
   public static final class EncryptionMethodBuilder {
 
-    private String type;
-    private String mode;
-    private String padding;
+    private EncryptionType type;
+    private EncryptionMode mode;
+    private EncryptionPadding padding;
     private String iv;
     private String symmetricKey;
 
@@ -96,7 +97,7 @@ public class EncryptionMethod implements Serializable {
      * @param type the type
      * @return the encryption method builder
      */
-    public EncryptionMethodBuilder type(String type) {
+    public EncryptionMethodBuilder type(EncryptionType type) {
       this.type = type;
       return this;
     }
@@ -107,7 +108,7 @@ public class EncryptionMethod implements Serializable {
      * @param mode the mode
      * @return the encryption method builder
      */
-    public EncryptionMethodBuilder mode(String mode) {
+    public EncryptionMethodBuilder mode(EncryptionMode mode) {
       this.mode = mode;
       return this;
     }
@@ -118,7 +119,7 @@ public class EncryptionMethod implements Serializable {
      * @param padding the padding
      * @return the encryption method builder
      */
-    public EncryptionMethodBuilder padding(String padding) {
+    public EncryptionMethodBuilder padding(EncryptionPadding padding) {
       this.padding = padding;
       return this;
     }

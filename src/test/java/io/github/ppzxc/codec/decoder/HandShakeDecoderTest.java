@@ -40,7 +40,7 @@ class HandShakeDecoderTest {
 
   @BeforeAll
   static void beforeAll() throws NoSuchAlgorithmException, NoSuchProviderException {
-    keyPair = AsymmetricKeyFactory.generateRsa();
+    keyPair = AsymmetricKeyFactory.generateRsa(8192);
   }
 
   @BeforeEach
