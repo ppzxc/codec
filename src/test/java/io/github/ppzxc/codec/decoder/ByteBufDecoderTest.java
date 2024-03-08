@@ -27,14 +27,14 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-class ByteBufToRawInboundPacketDecoderTest {
+class ByteBufDecoderTest {
 
   private EmbeddedChannel channel;
 
   @BeforeEach
   void setUp() {
     channel = new EmbeddedChannel();
-    channel.pipeline().addLast(new ByteBufToRawPacketDecoder());
+    channel.pipeline().addLast(new ByteBufDecoder());
   }
 
   @RepeatedTest(10)
