@@ -49,7 +49,9 @@ public final class ByteArrayFixture {
   }
 
   public static byte[] of(RawInboundPacket rawInboundPacket) {
-    return create(
-      rawInboundPacket.getHeader().getId(), rawInboundPacket.getHeader().getType(), rawInboundPacket.getHeader().getStatus(), rawInboundPacket.getHeader().getEncoding(), rawInboundPacket.getHeader().getReserved(), rawInboundPacket.getHeader().getBodyLength(), rawInboundPacket.getBody().array());
+    return create(rawInboundPacket.getHeader().getId(), rawInboundPacket.getHeader().getType(),
+      rawInboundPacket.getHeader().getStatus(), rawInboundPacket.getHeader().getEncoding(),
+      rawInboundPacket.getHeader().getReserved(), rawInboundPacket.getHeader().getBodyLength(),
+      rawInboundPacket.getBody().array());
   }
 }
