@@ -7,11 +7,11 @@ public final class EncryptionMethodFixture {
   private EncryptionMethodFixture() {
   }
 
-  public static EncryptionMethod create(String type, String mode, String pkcs, String iv, String symmetricKey) {
+  public static EncryptionMethod create(String type, String mode, String padding, String iv, String symmetricKey) {
     return EncryptionMethod.builder()
       .type(type)
       .mode(mode)
-      .pkcs(pkcs)
+      .padding(padding)
       .iv(iv)
       .symmetricKey(symmetricKey)
       .build();
