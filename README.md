@@ -4,6 +4,19 @@
 
 - [netty](https://github.com/netty/netty) tcp codecs
 
+# codec flow
+
+```text
+                               ByteBufDecoder
+                                     |
+                                    \|/
+                            RawInboundPacketDecoder
+                             /                  \
+                            /                    \
+                          \|/                    \|/
+EncryptedHandShakePacketDecoder                 Next Decoder In PipeLine
+```
+
 # packet structure
 
 ## binary

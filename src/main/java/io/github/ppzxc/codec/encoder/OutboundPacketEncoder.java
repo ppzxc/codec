@@ -2,10 +2,12 @@ package io.github.ppzxc.codec.encoder;
 
 import io.github.ppzxc.codec.exception.OutboundPacketEncodeFailException;
 import io.github.ppzxc.codec.exception.SerializeFailedException;
+import io.github.ppzxc.codec.mapper.MultiMapper;
+import io.github.ppzxc.codec.mapper.WriteCommand;
 import io.github.ppzxc.codec.model.AbstractRawPacket;
+import io.github.ppzxc.codec.model.EncodingType;
 import io.github.ppzxc.codec.model.Header;
 import io.github.ppzxc.codec.model.PrepareOutboundPacket;
-import io.github.ppzxc.codec.service.Mapper;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
 import io.netty.buffer.ByteBuf;
@@ -23,17 +25,17 @@ public class OutboundPacketEncoder extends MessageToMessageEncoder<PrepareOutbou
 
   private static final Logger log = LoggerFactory.getLogger(OutboundPacketEncoder.class);
   private final Crypto crypto;
-  private final Mapper mapper;
+  private final MultiMapper multiMapper;
 
   /**
    * Instantiates a new Outbound packet encoder.
    *
-   * @param crypto the crypto
-   * @param mapper the mapper
+   * @param crypto      the crypto
+   * @param multiMapper the multi mapper
    */
-  public OutboundPacketEncoder(Crypto crypto, Mapper mapper) {
+  public OutboundPacketEncoder(Crypto crypto, MultiMapper multiMapper) {
     this.crypto = crypto;
-    this.mapper = mapper;
+    this.multiMapper = multiMapper;
   }
 
   @Override
@@ -59,6 +61,7 @@ public class OutboundPacketEncoder extends MessageToMessageEncoder<PrepareOutbou
 
   private byte[] makeBody(PrepareOutboundPacket msg) throws CryptoException, SerializeFailedException {
     return msg.getBody() == null ? new byte[0]
-      : crypto.encrypt(mapper.write(msg.getHeader().getEncoding(), msg.getBody()));
+      : crypto.encrypt(
+        multiMapper.write(WriteCommand.of(EncodingType.of(msg.getHeader().getEncoding()), msg.getBody())));
   }
 }

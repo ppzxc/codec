@@ -22,6 +22,9 @@ dependencies {
     implementation(rootProject.libs.io.netty.buffer)
     implementation(rootProject.libs.io.netty.codec)
     implementation(rootProject.libs.org.slf4j.api)
+    implementation(rootProject.libs.com.fasterxml.jackson.core.databind)
+    implementation(rootProject.libs.com.fasterxml.jackson.datatype.jsr310)
+    implementation(rootProject.libs.de.undercouch.bson4jackson)
     implementation(rootProject.libs.io.github.ppzxc.fixh)
     implementation(rootProject.libs.io.github.ppzxc.crypto)
 

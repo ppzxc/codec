@@ -6,10 +6,22 @@ package io.github.ppzxc.codec.model;
 public class PrepareOutboundPacket implements OutboundPacket {
 
   private static final long serialVersionUID = 8111315643882184475L;
-  private final Header header;
-  private final Object body;
+  private Header header;
+  private Object body;
 
-  private PrepareOutboundPacket(Header header, Object body) {
+  /**
+   * Instantiates a new Prepare outbound packet.
+   */
+  public PrepareOutboundPacket() {
+  }
+
+  /**
+   * Instantiates a new Prepare outbound packet.
+   *
+   * @param header the header
+   * @param body   the body
+   */
+  public PrepareOutboundPacket(Header header, Object body) {
     this.header = header;
     this.body = body;
   }
@@ -20,12 +32,30 @@ public class PrepareOutboundPacket implements OutboundPacket {
   }
 
   /**
+   * Sets header.
+   *
+   * @param header the header
+   */
+  public void setHeader(Header header) {
+    this.header = header;
+  }
+
+  /**
    * Gets body.
    *
    * @return the body
    */
   public Object getBody() {
     return body;
+  }
+
+  /**
+   * Sets body.
+   *
+   * @param body the body
+   */
+  public void setBody(Object body) {
+    this.body = body;
   }
 
   /**

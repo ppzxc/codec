@@ -1,9 +1,11 @@
 package io.github.ppzxc.codec.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 
 public enum EncryptionPadding {
-  NULL("null"),
+  NONE("NONE"),
   PKCS5PADDING("PKCS5Padding"),
   PKCS7PADDING("PKCS7Padding");
 
@@ -13,10 +15,16 @@ public enum EncryptionPadding {
     this.code = code;
   }
 
+  @JsonValue
+  public String getCode() {
+    return code;
+  }
+
+  @JsonCreator
   public static EncryptionPadding of(String value) {
     return Arrays.stream(EncryptionPadding.values())
       .filter(status -> status.code.equalsIgnoreCase(value))
       .findAny()
-      .orElse(EncryptionPadding.NULL);
+      .orElse(EncryptionPadding.NONE);
   }
 }

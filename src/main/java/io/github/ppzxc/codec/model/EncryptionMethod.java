@@ -1,10 +1,14 @@
 package io.github.ppzxc.codec.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.github.ppzxc.codec.model.EncryptionMethod.Builder;
 import java.io.Serializable;
 
 /**
  * The type Encryption method.
  */
+@JsonDeserialize(builder = Builder.class)
 public class EncryptionMethod implements Serializable {
 
   private static final long serialVersionUID = -3521225365392130685L;
@@ -69,18 +73,19 @@ public class EncryptionMethod implements Serializable {
   }
 
   /**
-   * Builder encryption method builder.
+   * Builder builder.
    *
-   * @return the encryption method builder
+   * @return the builder
    */
-  public static EncryptionMethodBuilder builder() {
-    return new EncryptionMethodBuilder();
+  public static Builder builder() {
+    return new Builder();
   }
 
   /**
-   * The type Encryption method builder.
+   * The type Builder.
    */
-  public static final class EncryptionMethodBuilder {
+  @JsonPOJOBuilder(withPrefix = "")
+  public static final class Builder {
 
     private EncryptionType type;
     private EncryptionMode mode;
@@ -88,60 +93,60 @@ public class EncryptionMethod implements Serializable {
     private String iv;
     private String symmetricKey;
 
-    private EncryptionMethodBuilder() {
+    private Builder() {
     }
 
     /**
-     * Type encryption method builder.
+     * Type builder.
      *
      * @param type the type
-     * @return the encryption method builder
+     * @return the builder
      */
-    public EncryptionMethodBuilder type(EncryptionType type) {
+    public Builder type(EncryptionType type) {
       this.type = type;
       return this;
     }
 
     /**
-     * Mode encryption method builder.
+     * Mode builder.
      *
      * @param mode the mode
-     * @return the encryption method builder
+     * @return the builder
      */
-    public EncryptionMethodBuilder mode(EncryptionMode mode) {
+    public Builder mode(EncryptionMode mode) {
       this.mode = mode;
       return this;
     }
 
     /**
-     * Padding encryption method builder.
+     * Padding builder.
      *
      * @param padding the padding
-     * @return the encryption method builder
+     * @return the builder
      */
-    public EncryptionMethodBuilder padding(EncryptionPadding padding) {
+    public Builder padding(EncryptionPadding padding) {
       this.padding = padding;
       return this;
     }
 
     /**
-     * Iv encryption method builder.
+     * Iv builder.
      *
      * @param iv the iv
-     * @return the encryption method builder
+     * @return the builder
      */
-    public EncryptionMethodBuilder iv(String iv) {
+    public Builder iv(String iv) {
       this.iv = iv;
       return this;
     }
 
     /**
-     * Symmetric key encryption method builder.
+     * Symmetric key builder.
      *
      * @param symmetricKey the symmetric key
-     * @return the encryption method builder
+     * @return the builder
      */
-    public EncryptionMethodBuilder symmetricKey(String symmetricKey) {
+    public Builder symmetricKey(String symmetricKey) {
       this.symmetricKey = symmetricKey;
       return this;
     }

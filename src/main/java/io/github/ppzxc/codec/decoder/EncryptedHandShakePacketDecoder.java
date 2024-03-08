@@ -1,10 +1,12 @@
 package io.github.ppzxc.codec.decoder;
 
 import io.github.ppzxc.codec.exception.HandShakeDecodeFailException;
+import io.github.ppzxc.codec.mapper.MultiMapper;
+import io.github.ppzxc.codec.mapper.ReadCommand;
+import io.github.ppzxc.codec.model.EncodingType;
 import io.github.ppzxc.codec.model.EncryptedHandShakePacket;
 import io.github.ppzxc.codec.model.EncryptionMethod;
 import io.github.ppzxc.codec.model.HandShakePacket;
-import io.github.ppzxc.codec.service.Mapper;
 import io.github.ppzxc.crypto.Crypto;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
@@ -13,23 +15,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The type Hand shake decoder.
+ * The type Encrypted hand shake packet decoder.
  */
-public class HandShakeDecoder extends MessageToMessageDecoder<EncryptedHandShakePacket> {
+public class EncryptedHandShakePacketDecoder extends MessageToMessageDecoder<EncryptedHandShakePacket> {
 
-  private static final Logger log = LoggerFactory.getLogger(HandShakeDecoder.class);
+  private static final Logger log = LoggerFactory.getLogger(EncryptedHandShakePacketDecoder.class);
   private final Crypto crypto;
-  private final Mapper mapper;
+  private final MultiMapper multiMapper;
 
   /**
-   * Instantiates a new Hand shake decoder.
+   * Instantiates a new Encrypted hand shake packet decoder.
    *
-   * @param crypto the crypto
-   * @param mapper the mapper
+   * @param crypto      the crypto
+   * @param multiMapper the multi mapper
    */
-  public HandShakeDecoder(Crypto crypto, Mapper mapper) {
+  public EncryptedHandShakePacketDecoder(Crypto crypto, MultiMapper multiMapper) {
     this.crypto = crypto;
-    this.mapper = mapper;
+    this.multiMapper = multiMapper;
   }
 
   @Override
@@ -37,7 +39,8 @@ public class HandShakeDecoder extends MessageToMessageDecoder<EncryptedHandShake
     log.debug("{} decode", ctx.channel().toString());
     try {
       byte[] plainText = crypto.decrypt(msg.getBody().array());
-      EncryptionMethod encryptionMethod = mapper.read(msg.getHeader().getEncoding(), plainText, EncryptionMethod.class);
+      EncryptionMethod encryptionMethod = multiMapper.read(
+        ReadCommand.of(EncodingType.of(msg.getHeader().getEncoding()), plainText, EncryptionMethod.class));
       out.add(HandShakePacket.builder()
         .header(msg.getHeader())
         .encryptionMethod(encryptionMethod)

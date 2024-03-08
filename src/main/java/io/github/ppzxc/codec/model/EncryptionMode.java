@@ -1,9 +1,11 @@
 package io.github.ppzxc.codec.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 
 public enum EncryptionMode {
-  NULL("null"),
+  NONE("NONE"),
   ELECTRONIC_CODE_BLOCK("ECB"),
   CIPHER_BLOCK_CHAINING("CBC"),
   CIPHER_FEEDBACK("CFB"),
@@ -16,10 +18,16 @@ public enum EncryptionMode {
     this.code = code;
   }
 
+  @JsonValue
+  public String getCode() {
+    return code;
+  }
+
+  @JsonCreator
   public static EncryptionMode of(String value) {
     return Arrays.stream(EncryptionMode.values())
       .filter(status -> status.code.equalsIgnoreCase(value))
       .findAny()
-      .orElse(EncryptionMode.NULL);
+      .orElse(EncryptionMode.NONE);
   }
 }

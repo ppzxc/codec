@@ -35,11 +35,31 @@ public final class HeaderFixture {
   public static Header handShake(int bodyLength) {
     return Header.builder()
       .id(IntUtils.giveMeOne())
-      .type((byte) 0x01)
+      .type((byte) 0x10)
       .status((byte) 0x00)
       .encoding((byte) 0x01)
       .reserved((byte) 0x00)
       .bodyLength(bodyLength)
       .build();
+  }
+
+  public static Header handShake(EncodingType encodingType, int bodyLength) {
+    return Header.builder()
+      .id(IntUtils.giveMeOne())
+      .type((byte) 0x10)
+      .status((byte) 0x00)
+      .encoding(encodingType.getCode())
+      .reserved((byte) 0x00)
+      .bodyLength(bodyLength)
+      .build();
+  }
+
+  public static Header with(EncodingType encodingType) {
+    return with(encodingType, 0);
+  }
+
+  public static Header with(EncodingType encodingType, int bodyLength) {
+    return create(IntUtils.giveMeOne(), ByteUtils.giveMeOne(), ByteUtils.giveMeOne(),
+      encodingType.getCode(), ByteUtils.giveMeOne(), bodyLength);
   }
 }

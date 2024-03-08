@@ -17,4 +17,12 @@ public final class EncryptedHandShakePacketFixture {
   public static EncryptedHandShakePacket withBody(ByteBuf body) {
     return create(HeaderFixture.handShake(body.readableBytes()), body);
   }
+
+  public static EncryptedHandShakePacket withJsonBody(ByteBuf body) {
+    return create(HeaderFixture.handShake(EncodingType.JSON, body.readableBytes()), body);
+  }
+
+  public static EncryptedHandShakePacket withBsonBody(ByteBuf body) {
+    return create(HeaderFixture.handShake(EncodingType.BSON, body.readableBytes()), body);
+  }
 }

@@ -31,43 +31,43 @@ public class EncryptedHandShakePacket implements InboundPacket {
   }
 
   /**
-   * Builder encrypted hand shake packet builder.
+   * Builder builder.
    *
-   * @return the encrypted hand shake packet builder
+   * @return the builder
    */
-  public static EncryptedHandShakePacketBuilder builder() {
-    return new EncryptedHandShakePacketBuilder();
+  public static Builder builder() {
+    return new Builder();
   }
 
   /**
-   * The type Encrypted hand shake packet builder.
+   * The type Builder.
    */
-  public static final class EncryptedHandShakePacketBuilder {
+  public static final class Builder {
 
     private Header header;
     private ByteBuf body;
 
-    private EncryptedHandShakePacketBuilder() {
+    private Builder() {
     }
 
     /**
-     * Header encrypted hand shake packet builder.
+     * Header builder.
      *
      * @param header the header
-     * @return the encrypted hand shake packet builder
+     * @return the builder
      */
-    public EncryptedHandShakePacketBuilder header(Header header) {
+    public Builder header(Header header) {
       this.header = header;
       return this;
     }
 
     /**
-     * Body encrypted hand shake packet builder.
+     * Body builder.
      *
      * @param body the body
-     * @return the encrypted hand shake packet builder
+     * @return the builder
      */
-    public EncryptedHandShakePacketBuilder body(ByteBuf body) {
+    public Builder body(ByteBuf body) {
       this.body = body;
       return this;
     }
