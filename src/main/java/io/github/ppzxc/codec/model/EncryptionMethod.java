@@ -10,14 +10,14 @@ public class EncryptionMethod implements Serializable {
   private static final long serialVersionUID = -3521225365392130685L;
   private final String type;
   private final String mode;
-  private final String pkcs;
+  private final String padding;
   private final String iv;
   private final String symmetricKey;
 
-  private EncryptionMethod(String type, String mode, String pkcs, String iv, String symmetricKey) {
+  private EncryptionMethod(String type, String mode, String padding, String iv, String symmetricKey) {
     this.type = type;
     this.mode = mode;
-    this.pkcs = pkcs;
+    this.padding = padding;
     this.iv = iv;
     this.symmetricKey = symmetricKey;
   }
@@ -41,12 +41,12 @@ public class EncryptionMethod implements Serializable {
   }
 
   /**
-   * Gets pkcs.
+   * Gets padding.
    *
-   * @return the pkcs
+   * @return the padding
    */
-  public String getPkcs() {
-    return pkcs;
+  public String getPadding() {
+    return padding;
   }
 
   /**
@@ -83,7 +83,7 @@ public class EncryptionMethod implements Serializable {
 
     private String type;
     private String mode;
-    private String pkcs;
+    private String padding;
     private String iv;
     private String symmetricKey;
 
@@ -113,13 +113,13 @@ public class EncryptionMethod implements Serializable {
     }
 
     /**
-     * Pkcs encryption method builder.
+     * Padding encryption method builder.
      *
-     * @param pkcs the pkcs
+     * @param padding the padding
      * @return the encryption method builder
      */
-    public EncryptionMethodBuilder pkcs(String pkcs) {
-      this.pkcs = pkcs;
+    public EncryptionMethodBuilder padding(String padding) {
+      this.padding = padding;
       return this;
     }
 
@@ -151,7 +151,7 @@ public class EncryptionMethod implements Serializable {
      * @return the encryption method
      */
     public EncryptionMethod build() {
-      return new EncryptionMethod(type, mode, pkcs, iv, symmetricKey);
+      return new EncryptionMethod(type, mode, padding, iv, symmetricKey);
     }
   }
 }
