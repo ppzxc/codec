@@ -18,26 +18,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The type Byte buf to raw packet decoder.
+ * The type Byte buf decoder.
  */
-public class ByteBufToRawPacketDecoder extends MessageToMessageDecoder<ByteBuf> {
+public class ByteBufDecoder extends MessageToMessageDecoder<ByteBuf> {
 
-  private static final Logger log = LoggerFactory.getLogger(ByteBufToRawPacketDecoder.class);
+  private static final Logger log = LoggerFactory.getLogger(ByteBufDecoder.class);
   private final int maximumBodyLength;
 
   /**
-   * Instantiates a new Byte buf to raw packet decoder.
+   * Instantiates a new Byte buf decoder.
    *
    * @param maximumBodyLength the maximum body length
    */
-  public ByteBufToRawPacketDecoder(int maximumBodyLength) {
+  public ByteBufDecoder(int maximumBodyLength) {
     this.maximumBodyLength = maximumBodyLength;
   }
 
   /**
-   * Instantiates a new Byte buf to raw packet decoder.
+   * Instantiates a new Byte buf decoder.
    */
-  public ByteBufToRawPacketDecoder() {
+  public ByteBufDecoder() {
     this(1024 * 1024 * 4); // 4 mb, 4 mega bytes
   }
 
