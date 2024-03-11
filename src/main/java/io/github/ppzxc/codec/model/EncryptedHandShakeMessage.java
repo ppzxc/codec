@@ -8,7 +8,7 @@ import io.netty.buffer.ByteBuf;
 public class EncryptedHandShakeMessage extends AbstractMessage {
 
   private static final long serialVersionUID = -3612459006902545202L;
-  private final ByteBuf body;
+  private final transient ByteBuf body;
 
   private EncryptedHandShakeMessage(Header header, ByteBuf body) {
     super(header);

@@ -46,7 +46,7 @@ public class FixedConstructorLengthFieldBasedFrameDecoder extends LengthFieldBas
 
   @Override
   protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-    log.debug("{} decode", ctx.channel().toString());
+    log.debug("{} decode", ctx.channel());
     return super.decode(ctx, in);
   }
 }

@@ -21,14 +21,14 @@ public final class RawMessageFixture {
     int bodyLength = IntUtils.giveMeOne(100, 200);
     ByteBuf body = Unpooled.buffer(bodyLength + Header.MINIMUM_BODY_LENGTH);
     body.writeBytes(ByteArrayUtils.giveMeOne(bodyLength));
-    body.writeBytes(InboundMessage.LINE_DELIMITER);
+    body.writeBytes(AbstractMessage.LINE_DELIMITER);
     return create(HeaderFixture.handShake(bodyLength + Header.MINIMUM_BODY_LENGTH), body);
   }
 
   public static InboundMessage withBody(int bodyLength) {
     ByteBuf body = Unpooled.buffer(bodyLength + Header.MINIMUM_BODY_LENGTH);
     body.writeBytes(ByteArrayUtils.giveMeOne(bodyLength));
-    body.writeBytes(InboundMessage.LINE_DELIMITER);
+    body.writeBytes(AbstractMessage.LINE_DELIMITER);
     return create(HeaderFixture.random(bodyLength + Header.MINIMUM_BODY_LENGTH), body);
   }
 
@@ -38,13 +38,9 @@ public final class RawMessageFixture {
     return create(HeaderFixture.random(bodyLength ), body);
   }
 
-  public static InboundMessage emptyBody() {
-    return create(HeaderFixture.emptyBody(), Unpooled.buffer(0));
-  }
-
   public static InboundMessage emptyBodyWithLineDelimiter() {
-    return create(HeaderFixture.random(InboundMessage.LINE_DELIMITER.length), Unpooled.copiedBuffer(
-      InboundMessage.LINE_DELIMITER));
+    return create(HeaderFixture.random(AbstractMessage.LINE_DELIMITER.length), Unpooled.copiedBuffer(
+      AbstractMessage.LINE_DELIMITER));
   }
 
   public static ByteBuf toByteBuf(InboundMessage given) {

@@ -5,6 +5,7 @@ import io.github.ppzxc.codec.exception.MissingLineDelimiterCodeException;
 import io.github.ppzxc.codec.exception.NotSameLengthCodeException;
 import io.github.ppzxc.codec.exception.NotSupportedBodyLengthException;
 import io.github.ppzxc.codec.exception.NullPointerCodeException;
+import io.github.ppzxc.codec.exception.ProblemCodeException;
 import io.github.ppzxc.codec.model.AbstractMessage;
 import io.github.ppzxc.codec.model.EncryptedHandShakeMessage;
 import io.github.ppzxc.codec.model.HandShakeMessage;
@@ -45,7 +46,7 @@ public class ByteBufDecoder extends MessageToMessageDecoder<ByteBuf> {
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
-    log.debug("{} decode", ctx.channel().toString());
+    log.debug("{} decode", ctx.channel());
     preCondition(msg);
     Header header = Header.builder()
       .id(msg.readInt())
@@ -70,17 +71,17 @@ public class ByteBufDecoder extends MessageToMessageDecoder<ByteBuf> {
     }
   }
 
-  private void preCondition(ByteBuf msg) throws Exception {
+  private void preCondition(ByteBuf msg) throws ProblemCodeException {
     if (msg.readableBytes() <= 0) {
       throw new NullPointerCodeException("byte array require non null");
     }
     if (msg.readableBytes() < AbstractMessage.MINIMUM_MESSAGE_LENGTH) {
       throw new LessThanMinimumMessageLengthCodeException(
-        msg.readableBytes() + " less than " + InboundMessage.MINIMUM_MESSAGE_LENGTH);
+        msg.readableBytes() + " less than " + AbstractMessage.MINIMUM_MESSAGE_LENGTH);
     }
   }
 
-  private ByteBuf getBody(Header header, ByteBuf msg) throws Exception {
+  private ByteBuf getBody(Header header, ByteBuf msg) throws ProblemCodeException {
     if (header.getBodyLength() > maximumBodyLength || msg.readableBytes() > maximumBodyLength) {
       throw new NotSupportedBodyLengthException(header);
     }
@@ -90,7 +91,7 @@ public class ByteBufDecoder extends MessageToMessageDecoder<ByteBuf> {
     return msg.readBytes(msg.readableBytes());
   }
 
-  private void postCondition(Header header, ByteBuf body) throws Exception {
+  private void postCondition(Header header, ByteBuf body) throws ProblemCodeException {
     if (isNotContainsLineDelimiter(body)) {
       throw new MissingLineDelimiterCodeException(header);
     }

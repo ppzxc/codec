@@ -20,7 +20,7 @@ public class JavaObjectMapper implements Mapper {
   public <T> T read(byte[] payload, Class<T> tClass) throws DeserializeFailedException {
     try (ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(payload))) {
       return (T) objectInputStream.readObject();
-    } catch (Throwable throwable) {
+    } catch (Exception throwable) {
       throw new DeserializeFailedException(throwable);
     }
   }
@@ -31,7 +31,7 @@ public class JavaObjectMapper implements Mapper {
       ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
       objectOutputStream.writeObject(payload);
       return byteArrayOutputStream.toByteArray();
-    } catch (Throwable throwable) {
+    } catch (Exception throwable) {
       throw new SerializeFailedException(throwable);
     }
   }

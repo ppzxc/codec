@@ -43,9 +43,11 @@ class FixedConstructorLengthFieldBasedFrameDecoderTest {
 
   @RepeatedTest(10)
   void should_throw_when_negative_body_length() {
-    // given, when, then
-    assertThatCode(() -> channel.writeInbound(
-      Unpooled.copiedBuffer(ByteArrayFixture.randomWithBody(IntUtils.giveMeNegative()))))
+    // given
+    ByteBuf given = Unpooled.copiedBuffer(ByteArrayFixture.randomWithBody(IntUtils.giveMeNegative()));
+
+    // when, then
+    assertThatCode(() -> channel.writeInbound(given))
       .isInstanceOfAny(TooLongFrameException.class);
   }
 

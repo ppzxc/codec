@@ -40,7 +40,7 @@ public class OutboundMessageEncoder extends MessageToMessageEncoder<OutboundMess
 
   @Override
   protected void encode(ChannelHandlerContext ctx, OutboundMessage msg, List<Object> out) throws Exception {
-    log.debug("{} encode", ctx.channel().toString());
+    log.debug("{} encode", ctx.channel());
     try {
       byte[] body = makeBody(msg);
       int bodyLength = body.length + Header.MINIMUM_BODY_LENGTH;
@@ -54,8 +54,8 @@ public class OutboundMessageEncoder extends MessageToMessageEncoder<OutboundMess
       buffer.writeBytes(body);
       buffer.writeBytes(AbstractMessage.LINE_DELIMITER);
       out.add(buffer);
-    } catch (Throwable throwable) {
-      throw new MessageEncodeFailException(msg.getHeader(), throwable);
+    } catch (Exception e) {
+      throw new MessageEncodeFailException(msg.getHeader(), e);
     }
   }
 
