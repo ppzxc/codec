@@ -9,6 +9,7 @@ import io.github.ppzxc.codec.exception.NotSameLengthCodeException;
 import io.github.ppzxc.codec.exception.NotSupportedBodyLengthException;
 import io.github.ppzxc.codec.exception.NullPointerCodeException;
 import io.github.ppzxc.codec.exception.ProblemCodeException;
+import io.github.ppzxc.codec.model.AbstractMessage;
 import io.github.ppzxc.codec.model.EncryptedHandShakeMessage;
 import io.github.ppzxc.codec.model.Header;
 import io.github.ppzxc.codec.model.HeaderFixture;
@@ -125,7 +126,7 @@ class ByteBufDecoderTest {
     int bodyLength = IntUtils.giveMeOne(1024 * 1024 * 4, 1024 * 1024 * 8);
     ByteBuf body = Unpooled.buffer(bodyLength + Header.MINIMUM_BODY_LENGTH);
     body.writeBytes(ByteArrayUtils.giveMeOne(bodyLength));
-    body.writeBytes(InboundMessage.LINE_DELIMITER);
+    body.writeBytes(AbstractMessage.LINE_DELIMITER);
     InboundMessage given = RawMessageFixture.create(HeaderFixture.random(1024 * 1024), body);
 
     // when
@@ -142,7 +143,7 @@ class ByteBufDecoderTest {
     int bodyLength = IntUtils.giveMeOne(1024 * 1024 * 2);
     ByteBuf body = Unpooled.buffer(bodyLength + Header.MINIMUM_BODY_LENGTH);
     body.writeBytes(ByteArrayUtils.giveMeOne(bodyLength));
-    body.writeBytes(InboundMessage.LINE_DELIMITER);
+    body.writeBytes(AbstractMessage.LINE_DELIMITER);
     InboundMessage given = RawMessageFixture.create(HeaderFixture.random(1024 * 1024), body);
 
     // when
