@@ -1,4 +1,4 @@
-[![Release](https://github.com/ppzxc/codec/actions/workflows/release.yml/badge.svg)](https://github.com/ppzxc/codec/actions/workflows/release.yml)
+[![Release](https://github.com/ppzxc/codec/actions/workflows/release.yml/badge.svg)](https://github.com/ppzxc/codec/actions/workflows/release.yml) [![Coverage](.github/badges/jacoco.svg)](https://github.com/ppzxc/codec/actions/workflows/main.yml)
 
 # netty tcp codecs
 
