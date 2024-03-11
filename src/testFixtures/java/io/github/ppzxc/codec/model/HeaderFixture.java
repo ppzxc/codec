@@ -20,7 +20,7 @@ public final class HeaderFixture {
   }
 
   public static Header random(int bodyLength) {
-    return create(IntUtils.giveMeOne(), ByteUtils.giveMeOne(), ByteUtils.giveMeOne(),
+    return create(IntUtils.giveMeOne(), ByteUtils.giveMeOneWithout(Byte.MIN_VALUE, Byte.MAX_VALUE, HandShakeMessage.HEADER_TYPE_CODE), ByteUtils.giveMeOne(),
       ByteUtils.giveMeOne(), ByteUtils.giveMeOne(), bodyLength);
   }
 
@@ -35,11 +35,31 @@ public final class HeaderFixture {
   public static Header handShake(int bodyLength) {
     return Header.builder()
       .id(IntUtils.giveMeOne())
-      .type((byte) 0x01)
+      .type(HandShakeMessage.HEADER_TYPE_CODE)
       .status((byte) 0x00)
       .encoding((byte) 0x01)
       .reserved((byte) 0x00)
       .bodyLength(bodyLength)
       .build();
+  }
+
+  public static Header handShake(EncodingType encodingType, int bodyLength) {
+    return Header.builder()
+      .id(IntUtils.giveMeOne())
+      .type(HandShakeMessage.HEADER_TYPE_CODE)
+      .status((byte) 0x00)
+      .encoding(encodingType.getCode())
+      .reserved((byte) 0x00)
+      .bodyLength(bodyLength)
+      .build();
+  }
+
+  public static Header with(EncodingType encodingType) {
+    return with(encodingType, 0);
+  }
+
+  public static Header with(EncodingType encodingType, int bodyLength) {
+    return create(IntUtils.giveMeOne(), ByteUtils.giveMeOne(), ByteUtils.giveMeOne(),
+      encodingType.getCode(), ByteUtils.giveMeOne(), bodyLength);
   }
 }

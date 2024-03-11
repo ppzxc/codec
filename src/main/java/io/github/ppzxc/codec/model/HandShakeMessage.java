@@ -1,16 +1,19 @@
 package io.github.ppzxc.codec.model;
 
 /**
- * The type Hand shake packet.
+ * The type Hand shake message.
  */
-public class HandShakePacket implements InboundPacket {
+public class HandShakeMessage extends AbstractMessage {
 
+  /**
+   * The constant HEADER_TYPE_CODE.
+   */
+  public static final byte HEADER_TYPE_CODE = 0x10;
   private static final long serialVersionUID = 7566973783972528091L;
-  private final Header header;
   private final EncryptionMethod encryptionMethod;
 
-  private HandShakePacket(Header header, EncryptionMethod encryptionMethod) {
-    this.header = header;
+  private HandShakeMessage(Header header, EncryptionMethod encryptionMethod) {
+    super(header);
     this.encryptionMethod = encryptionMethod;
   }
 
@@ -70,12 +73,12 @@ public class HandShakePacket implements InboundPacket {
     }
 
     /**
-     * Build hand shake packet.
+     * Build hand shake message.
      *
-     * @return the hand shake packet
+     * @return the hand shake message
      */
-    public HandShakePacket build() {
-      return new HandShakePacket(header, encryptionMethod);
+    public HandShakeMessage build() {
+      return new HandShakeMessage(header, encryptionMethod);
     }
   }
 }

@@ -9,6 +9,13 @@ public class SerializeFailedException extends ProblemCodeException {
 
   /**
    * Instantiates a new Serialize failed exception.
+   */
+  public SerializeFailedException() {
+    super("serialize failed", 0, ProblemCode.SERIALIZE_FAILED);
+  }
+
+  /**
+   * Instantiates a new Serialize failed exception.
    *
    * @param throwable the throwable
    */

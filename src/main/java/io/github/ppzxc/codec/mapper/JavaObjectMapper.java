@@ -1,4 +1,4 @@
-package io.github.ppzxc.codec.service;
+package io.github.ppzxc.codec.mapper;
 
 import io.github.ppzxc.codec.exception.DeserializeFailedException;
 import io.github.ppzxc.codec.exception.SerializeFailedException;
@@ -8,38 +8,40 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 /**
- * The type Object output stream mapper.
+ * The type Java object mapper.
  */
-@SuppressWarnings("unchecked")
-public class ObjectOutputStreamMapper implements Mapper {
+public class JavaObjectMapper implements Mapper {
 
+  private JavaObjectMapper() {
+  }
+
+  @SuppressWarnings("unchecked")
   @Override
   public <T> T read(byte[] payload, Class<T> tClass) throws DeserializeFailedException {
     try (ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(payload))) {
       return (T) objectInputStream.readObject();
-    } catch (Exception e) {
-      throw new DeserializeFailedException(e);
+    } catch (Throwable throwable) {
+      throw new DeserializeFailedException(throwable);
     }
   }
 
   @Override
-  public <T> T read(byte encodingType, byte[] payload, Class<T> tClass) throws DeserializeFailedException {
-    return read(payload, tClass);
-  }
-
-  @Override
-  public <T> byte[] write(T object) throws SerializeFailedException {
+  public <T> byte[] write(T payload) throws SerializeFailedException {
     try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
-      objectOutputStream.writeObject(object);
+      objectOutputStream.writeObject(payload);
       return byteArrayOutputStream.toByteArray();
-    } catch (Exception e) {
-      throw new SerializeFailedException(e);
+    } catch (Throwable throwable) {
+      throw new SerializeFailedException(throwable);
     }
   }
 
-  @Override
-  public <T> byte[] write(byte encodingType, T object) throws SerializeFailedException {
-    return write(object);
+  /**
+   * Create java object mapper.
+   *
+   * @return the java object mapper
+   */
+  public static JavaObjectMapper create() {
+    return new JavaObjectMapper();
   }
 }

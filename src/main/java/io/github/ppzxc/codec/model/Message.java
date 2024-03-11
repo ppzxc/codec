@@ -3,9 +3,9 @@ package io.github.ppzxc.codec.model;
 import java.io.Serializable;
 
 /**
- * The interface Packet.
+ * The interface Message.
  */
-public interface Packet extends Serializable {
+public interface Message extends Serializable {
 
   /**
    * Gets header.

@@ -64,23 +64,23 @@ class FixedConstructorLengthFieldBasedFrameDecoderTest {
   }
 
   @RepeatedTest(10)
-  void should_success_received_when_inbound_relay_empty_body_packet() {
-    // given: three empty packet
-    int packetCount = IntUtils.giveMeOne(1, 100);
-    ByteBuf given = Unpooled.buffer(12 * packetCount);
-    List<byte[]> givenPacketList = new ArrayList<>();
-    for (int i = 0; i < packetCount; i++) {
-      byte[] givenPacket = ByteArrayFixture.randomWithEmptyBody();
-      givenPacketList.add(givenPacket);
-      given.writeBytes(givenPacket);
+  void should_success_received_when_inbound_relay_empty_body_message() {
+    // given: three empty message
+    int messageCount = IntUtils.giveMeOne(1, 100);
+    ByteBuf given = Unpooled.buffer(12 * messageCount);
+    List<byte[]> givenList = new ArrayList<>();
+    for (int i = 0; i < messageCount; i++) {
+      byte[] givenMessage = ByteArrayFixture.randomWithEmptyBody();
+      givenList.add(givenMessage);
+      given.writeBytes(givenMessage);
     }
 
     // when
     channel.writeInbound(given);
 
     // then
-    assertThat(channel.inboundMessages()).hasSize(packetCount);
-    for (byte[] actual : givenPacketList) {
+    assertThat(channel.inboundMessages()).hasSize(messageCount);
+    for (byte[] actual : givenList) {
       byte[] read = new byte[12];
       channel.<ByteBuf>readInbound().readBytes(read);
       assertThat(read).isEqualTo(actual);

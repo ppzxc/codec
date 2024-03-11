@@ -1,13 +1,15 @@
 package io.github.ppzxc.codec.decoder;
 
-import io.github.ppzxc.codec.exception.LessThanMinimumPacketLengthCodeException;
+import io.github.ppzxc.codec.exception.LessThanMinimumMessageLengthCodeException;
 import io.github.ppzxc.codec.exception.MissingLineDelimiterCodeException;
 import io.github.ppzxc.codec.exception.NotSameLengthCodeException;
 import io.github.ppzxc.codec.exception.NotSupportedBodyLengthException;
 import io.github.ppzxc.codec.exception.NullPointerCodeException;
-import io.github.ppzxc.codec.model.AbstractRawPacket;
+import io.github.ppzxc.codec.model.AbstractMessage;
+import io.github.ppzxc.codec.model.EncryptedHandShakeMessage;
+import io.github.ppzxc.codec.model.HandShakeMessage;
 import io.github.ppzxc.codec.model.Header;
-import io.github.ppzxc.codec.model.RawInboundPacket;
+import io.github.ppzxc.codec.model.InboundMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -53,21 +55,28 @@ public class ByteBufDecoder extends MessageToMessageDecoder<ByteBuf> {
       .reserved(msg.readByte())
       .bodyLength(msg.readInt())
       .build();
-    RawInboundPacket rawInboundPacket = RawInboundPacket.builder()
-      .header(header)
-      .body(getBody(header, msg))
-      .build();
-    postCondition(rawInboundPacket);
-    out.add(rawInboundPacket);
+    ByteBuf body = getBody(header, msg);
+    postCondition(header, body);
+    if (header.getType() == HandShakeMessage.HEADER_TYPE_CODE) {
+      out.add(EncryptedHandShakeMessage.builder()
+        .header(header)
+        .body(body)
+        .build());
+    } else {
+      out.add(InboundMessage.builder()
+        .header(header)
+        .body(body)
+        .build());
+    }
   }
 
   private void preCondition(ByteBuf msg) throws Exception {
     if (msg.readableBytes() <= 0) {
       throw new NullPointerCodeException("byte array require non null");
     }
-    if (msg.readableBytes() < AbstractRawPacket.MINIMUM_PACKET_LENGTH) {
-      throw new LessThanMinimumPacketLengthCodeException(
-        msg.readableBytes() + " less than " + RawInboundPacket.MINIMUM_PACKET_LENGTH);
+    if (msg.readableBytes() < AbstractMessage.MINIMUM_MESSAGE_LENGTH) {
+      throw new LessThanMinimumMessageLengthCodeException(
+        msg.readableBytes() + " less than " + InboundMessage.MINIMUM_MESSAGE_LENGTH);
     }
   }
 
@@ -81,9 +90,9 @@ public class ByteBufDecoder extends MessageToMessageDecoder<ByteBuf> {
     return msg.readBytes(msg.readableBytes());
   }
 
-  private void postCondition(RawInboundPacket rawInboundPacket) throws Exception {
-    if (isNotContainsLineDelimiter(rawInboundPacket.getBody())) {
-      throw new MissingLineDelimiterCodeException(rawInboundPacket.getHeader());
+  private void postCondition(Header header, ByteBuf body) throws Exception {
+    if (isNotContainsLineDelimiter(body)) {
+      throw new MissingLineDelimiterCodeException(header);
     }
   }
 
