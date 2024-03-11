@@ -135,3 +135,11 @@ The end of the body should always end with 'CrLf'.
 ```text
 If 'ID' is out of the range of signed int32, it is set to the initial value.
 ```
+
+# usage
+
+- [sonatype](https://central.sonatype.com/artifact/io.github.ppzxc/crypto)
+
+```
+implementation("io.github.ppzxc:crypto:0.0.35")
+```
