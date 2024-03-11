@@ -138,8 +138,8 @@ If 'ID' is out of the range of signed int32, it is set to the initial value.
 
 # usage
 
-- [sonatype](https://central.sonatype.com/artifact/io.github.ppzxc/crypto)
+- [sonatype](https://central.sonatype.com/artifact/io.github.ppzxc/codec)
 
 ```
-implementation("io.github.ppzxc:crypto:0.0.35")
+implementation("io.github.ppzxc:codec:X.X.X")
 ```
