@@ -21,10 +21,9 @@ public interface MultiMapper {
   /**
    * Write byte [ ].
    *
-   * @param <T>     the type parameter
    * @param command the command
    * @return the byte [ ]
    * @throws SerializeFailedException the serialize failed exception
    */
-  <T> byte[] write(WriteCommand command) throws SerializeFailedException;
+  byte[] write(WriteCommand command) throws SerializeFailedException;
 }

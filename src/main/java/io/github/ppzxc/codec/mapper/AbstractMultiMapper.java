@@ -112,7 +112,7 @@ public abstract class AbstractMultiMapper implements MultiMapper {
   }
 
   @Override
-  public <T> byte[] write(WriteCommand command) throws SerializeFailedException {
+  public byte[] write(WriteCommand command) throws SerializeFailedException {
     switch (command.getType()) {
       case PROTOBUF:
         return writeUsingProtoBuf(command.getPayload());

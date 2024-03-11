@@ -26,8 +26,8 @@ public class ProtoObjectMapper implements Mapper {
           .iv(encryptionMethodProtobuf.getIv())
           .symmetricKey(encryptionMethodProtobuf.getSymmetricKey())
           .build();
-      } catch (Throwable throwable) {
-        throw new DeserializeFailedException(throwable);
+      } catch (Exception e) {
+        throw new DeserializeFailedException(e);
       }
     } else {
       throw new DeserializeFailedException();

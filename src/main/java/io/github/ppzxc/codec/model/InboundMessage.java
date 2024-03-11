@@ -9,7 +9,7 @@ import io.netty.buffer.ByteBuf;
 public class InboundMessage extends AbstractMessage {
 
   private static final long serialVersionUID = 3043297001961428382L;
-  private final ByteBuf body;
+  private final transient ByteBuf body;
 
   private InboundMessage(Header header, ByteBuf body) {
     super(header);
