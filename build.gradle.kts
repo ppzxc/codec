@@ -3,6 +3,7 @@ plugins {
     `java-test-fixtures`
     signing
     jacoco
+    alias(libs.plugins.com.google.protobuf)
     alias(libs.plugins.net.thebugmc.gradle.sonatype.central.portal.publisher)
 }
 
@@ -27,12 +28,15 @@ dependencies {
     implementation(rootProject.libs.de.undercouch.bson4jackson)
     implementation(rootProject.libs.io.github.ppzxc.fixh)
     implementation(rootProject.libs.io.github.ppzxc.crypto)
+    implementation(rootProject.libs.com.google.protobuf.javalite)
 
     testImplementation(rootProject.libs.org.junit.jupiter)
     testImplementation(rootProject.libs.org.assertj.core)
+    testImplementation(rootProject.libs.com.google.protobuf.javalite)
 
     testFixturesImplementation(rootProject.libs.io.netty.buffer)
     testFixturesImplementation(rootProject.libs.io.github.ppzxc.fixh)
+    testFixturesImplementation(rootProject.libs.com.google.protobuf.javalite)
 }
 
 tasks.withType<Test> {
@@ -49,6 +53,13 @@ tasks.jacocoTestReport {
         html.required = true
 //        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
     }
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                exclude("**/protobuf/**")
+            }
+        })
+    )
     finalizedBy(tasks.jacocoTestCoverageVerification)
 }
 
@@ -62,6 +73,7 @@ tasks.jacocoTestCoverageVerification {
                 value = "COVEREDRATIO"
                 minimum = BigDecimal.valueOf(0.90)
             }
+            excludes = listOf("*.protobuf.*")
         }
     }
 }
@@ -116,6 +128,39 @@ centralPortal {
             url = providers.gradleProperty("POM_SCM_URL").get()
             connection = providers.gradleProperty("POM_SCM_CONNECTION").get()
             developerConnection = providers.gradleProperty("POM_SCM_DEV_CONNECTION").get()
+        }
+    }
+}
+
+sourceSets {
+    main {
+        proto {
+            srcDir("src/main/protobuf")
+        }
+    }
+    test {
+        proto {
+            srcDir("src/main/protobuf")
+        }
+    }
+    testFixtures {
+        proto {
+            srcDir("src/main/protobuf")
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.25.2"
+    }
+    generateProtoTasks {
+        all().forEach {
+            it.builtins {
+                named("java") {
+                    option("lite")
+                }
+            }
         }
     }
 }

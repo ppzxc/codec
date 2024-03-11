@@ -48,10 +48,10 @@ public final class ByteArrayFixture {
     return buffer.array();
   }
 
-  public static byte[] of(RawInboundPacket rawInboundPacket) {
-    return create(rawInboundPacket.getHeader().getId(), rawInboundPacket.getHeader().getType(),
-      rawInboundPacket.getHeader().getStatus(), rawInboundPacket.getHeader().getEncoding(),
-      rawInboundPacket.getHeader().getReserved(), rawInboundPacket.getHeader().getBodyLength(),
-      rawInboundPacket.getBody().array());
+  public static byte[] of(InboundMessage inboundMessage) {
+    return create(inboundMessage.getHeader().getId(), inboundMessage.getHeader().getType(),
+      inboundMessage.getHeader().getStatus(), inboundMessage.getHeader().getEncoding(),
+      inboundMessage.getHeader().getReserved(), inboundMessage.getHeader().getBodyLength(),
+      inboundMessage.getBody().array());
   }
 }

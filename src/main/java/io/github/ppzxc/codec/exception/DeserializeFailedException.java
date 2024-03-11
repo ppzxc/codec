@@ -9,6 +9,13 @@ public class DeserializeFailedException extends ProblemCodeException {
 
   /**
    * Instantiates a new Deserialize failed exception.
+   */
+  public DeserializeFailedException() {
+    super("deserialize failed", 0, ProblemCode.DESERIALIZE_FAILED);
+  }
+
+  /**
+   * Instantiates a new Deserialize failed exception.
    *
    * @param throwable the throwable
    */

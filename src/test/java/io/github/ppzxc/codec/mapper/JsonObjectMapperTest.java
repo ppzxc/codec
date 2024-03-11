@@ -1,7 +1,9 @@
 package io.github.ppzxc.codec.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.ppzxc.codec.exception.DeserializeFailedException;
 import io.github.ppzxc.codec.exception.SerializeFailedException;
 import io.github.ppzxc.codec.model.EncodingType;
@@ -45,5 +47,25 @@ class JsonObjectMapperTest {
 
     // then
     assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+  }
+
+  @Test
+  void should_throw_exception_when_serialize() {
+    // given
+    Object given = new Object();
+
+    // when, then
+    assertThatCode(() -> multiMapper.write(WriteCommand.of(EncodingType.JSON, given)))
+      .isInstanceOf(SerializeFailedException.class);
+  }
+
+  @Test
+  void should_throw_exception_when_non_setting_mapper() {
+    // given
+    Object given = new Object();
+
+    // when, then
+    assertThatCode(() -> JsonObjectMapper.create(new ObjectMapper()).write(WriteCommand.of(EncodingType.JSON, given)))
+      .isInstanceOf(SerializeFailedException.class);
   }
 }

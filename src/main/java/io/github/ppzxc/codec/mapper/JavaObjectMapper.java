@@ -7,6 +7,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+/**
+ * The type Java object mapper.
+ */
 public class JavaObjectMapper implements Mapper {
 
   private JavaObjectMapper() {
@@ -33,6 +36,11 @@ public class JavaObjectMapper implements Mapper {
     }
   }
 
+  /**
+   * Create java object mapper.
+   *
+   * @return the java object mapper
+   */
   public static JavaObjectMapper create() {
     return new JavaObjectMapper();
   }

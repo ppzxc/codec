@@ -23,11 +23,31 @@ public class DefaultMultiMapper extends AbstractMultiMapper {
     this.protobufMapper = protobufMapper;
   }
 
+  /**
+   * Create multi mapper.
+   *
+   * @return the multi mapper
+   */
   public static MultiMapper create() {
     return DefaultMultiMapper.builder()
       .jsonMapper(JsonObjectMapper.create())
       .bsonMapper(BsonObjectMapper.create())
       .javaMapper(JavaObjectMapper.create())
+      .build();
+  }
+
+  /**
+   * Create multi mapper.
+   *
+   * @param protobufMapper the protobuf mapper
+   * @return the multi mapper
+   */
+  public static MultiMapper create(Mapper protobufMapper) {
+    return DefaultMultiMapper.builder()
+      .jsonMapper(JsonObjectMapper.create())
+      .bsonMapper(BsonObjectMapper.create())
+      .javaMapper(JavaObjectMapper.create())
+      .protobufMapper(protobufMapper)
       .build();
   }
 

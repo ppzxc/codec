@@ -11,6 +11,8 @@ public class NotSupportedEncodingTypeException extends ProblemCodeException {
 
   /**
    * Instantiates a new Not supported encoding type exception.
+   *
+   * @param encodingType the encoding type
    */
   public NotSupportedEncodingTypeException(EncodingType encodingType) {
     super(encodingType.toString(), 0, ProblemCode.NOT_SUPPORTED_ENCODING_TYPE);

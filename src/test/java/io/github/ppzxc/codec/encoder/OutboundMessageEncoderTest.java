@@ -4,15 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 import io.github.ppzxc.codec.exception.DeserializeFailedException;
-import io.github.ppzxc.codec.exception.OutboundPacketEncodeFailException;
+import io.github.ppzxc.codec.exception.MessageEncodeFailException;
 import io.github.ppzxc.codec.exception.ProblemCodeException;
 import io.github.ppzxc.codec.mapper.DefaultMultiMapper;
 import io.github.ppzxc.codec.mapper.MultiMapper;
 import io.github.ppzxc.codec.mapper.ReadCommand;
 import io.github.ppzxc.codec.model.EncodingType;
 import io.github.ppzxc.codec.model.HeaderFixture;
-import io.github.ppzxc.codec.model.PrepareOutboundPacket;
-import io.github.ppzxc.codec.model.PrepareOutboundPacketFixture;
+import io.github.ppzxc.codec.model.OutboundMessage;
+import io.github.ppzxc.codec.model.OutboundMessageFixture;
 import io.github.ppzxc.codec.model.TestUser;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
@@ -24,7 +24,7 @@ import io.netty.handler.codec.EncoderException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 
-class OutboundPacketEncoderTest {
+class OutboundMessageEncoderTest {
 
   private Crypto crypto;
   private MultiMapper multiMapper;
@@ -35,14 +35,14 @@ class OutboundPacketEncoderTest {
     crypto = CryptoFactory.aes128();
     multiMapper = DefaultMultiMapper.create();
     channel = new EmbeddedChannel();
-    channel.pipeline().addLast(new OutboundPacketEncoder(crypto, multiMapper));
+    channel.pipeline().addLast(new OutboundMessageEncoder(crypto, multiMapper));
   }
 
   @RepeatedTest(10)
-  void should_encode_prepare_outbound_packet() throws CryptoException, DeserializeFailedException {
+  void should_encode_prepare_outbound_message() throws CryptoException, DeserializeFailedException {
     // given
     TestUser given = TestUser.random();
-    PrepareOutboundPacket expected = PrepareOutboundPacketFixture.create(HeaderFixture.with(EncodingType.JSON), given);
+    OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.with(EncodingType.JSON), given);
 
     // when
     channel.writeOutbound(expected);
@@ -59,9 +59,9 @@ class OutboundPacketEncoderTest {
   }
 
   @RepeatedTest(10)
-  void should_encode_prepare_outbound_packet_when_null_body() {
+  void should_encode_prepare_outbound_message_when_null_body() {
     // given
-    PrepareOutboundPacket expected = PrepareOutboundPacketFixture.create(HeaderFixture.random(), null);
+    OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.random(), null);
 
     // when
     channel.writeOutbound(expected);
@@ -80,15 +80,15 @@ class OutboundPacketEncoderTest {
   @RepeatedTest(10)
   void should_throw_exception_when_invalid_body() {
     // given
-    PrepareOutboundPacket expected = PrepareOutboundPacketFixture.create(HeaderFixture.random(), new TestInvalidUser());
+    OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.random(), new TestInvalidUser());
 
     // when, then
     assertThatCode(() -> channel.writeOutbound(expected)).satisfies(throwable -> {
       assertThat(throwable).isInstanceOf(EncoderException.class);
       assertThat(ExceptionUtils.findCause(throwable, ProblemCodeException.class))
         .isInstanceOf(ProblemCodeException.class);
-      assertThat(ExceptionUtils.findCause(throwable, OutboundPacketEncodeFailException.class))
-        .isInstanceOf(OutboundPacketEncodeFailException.class);
+      assertThat(ExceptionUtils.findCause(throwable, MessageEncodeFailException.class))
+        .isInstanceOf(MessageEncodeFailException.class);
     });
   }
 

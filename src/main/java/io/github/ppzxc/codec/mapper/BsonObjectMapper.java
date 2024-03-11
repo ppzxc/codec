@@ -11,6 +11,9 @@ import java.time.OffsetDateTime;
 import java.util.Locale;
 import java.util.TimeZone;
 
+/**
+ * The type Bson object mapper.
+ */
 public class BsonObjectMapper implements Mapper {
 
   private final ObjectMapper objectMapper;
@@ -47,10 +50,21 @@ public class BsonObjectMapper implements Mapper {
     }
   }
 
+  /**
+   * Create bson object mapper.
+   *
+   * @param objectMapper the object mapper
+   * @return the bson object mapper
+   */
   public static BsonObjectMapper create(ObjectMapper objectMapper) {
     return new BsonObjectMapper(objectMapper);
   }
 
+  /**
+   * Create bson object mapper.
+   *
+   * @return the bson object mapper
+   */
   public static BsonObjectMapper create() {
     return new BsonObjectMapper();
   }

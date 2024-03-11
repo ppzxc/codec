@@ -1,18 +1,20 @@
 package io.github.ppzxc.codec.model;
 
-import io.netty.buffer.ByteBuf;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.github.ppzxc.codec.model.OutboundMessage.Builder;
 
 /**
- * The type Encrypted hand shake packet.
+ * The type Outbound message.
  */
-public class EncryptedHandShakePacket implements InboundPacket {
+@JsonDeserialize(builder = Builder.class)
+public class OutboundMessage extends AbstractMessage {
 
-  private static final long serialVersionUID = -3612459006902545202L;
-  private final Header header;
-  private final ByteBuf body;
+  private static final long serialVersionUID = 8111315643882184475L;
+  private final Object body;
 
-  private EncryptedHandShakePacket(Header header, ByteBuf body) {
-    this.header = header;
+  private OutboundMessage(Header header, Object body) {
+    super(header);
     this.body = body;
   }
 
@@ -26,7 +28,7 @@ public class EncryptedHandShakePacket implements InboundPacket {
    *
    * @return the body
    */
-  public ByteBuf getBody() {
+  public Object getBody() {
     return body;
   }
 
@@ -42,10 +44,11 @@ public class EncryptedHandShakePacket implements InboundPacket {
   /**
    * The type Builder.
    */
+  @JsonPOJOBuilder(withPrefix = "")
   public static final class Builder {
 
     private Header header;
-    private ByteBuf body;
+    private Object body;
 
     private Builder() {
     }
@@ -67,18 +70,18 @@ public class EncryptedHandShakePacket implements InboundPacket {
      * @param body the body
      * @return the builder
      */
-    public Builder body(ByteBuf body) {
+    public Builder body(Object body) {
       this.body = body;
       return this;
     }
 
     /**
-     * Build encrypted hand shake packet.
+     * Build outbound message.
      *
-     * @return the encrypted hand shake packet
+     * @return the outbound message
      */
-    public EncryptedHandShakePacket build() {
-      return new EncryptedHandShakePacket(header, body);
+    public OutboundMessage build() {
+      return new OutboundMessage(header, body);
     }
   }
 }

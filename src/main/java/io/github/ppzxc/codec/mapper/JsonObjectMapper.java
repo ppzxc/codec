@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.TimeZone;
 
+/**
+ * The type Json object mapper.
+ */
 public class JsonObjectMapper implements Mapper {
 
   private final ObjectMapper objectMapper;
@@ -41,10 +44,21 @@ public class JsonObjectMapper implements Mapper {
     }
   }
 
+  /**
+   * Create json object mapper.
+   *
+   * @param objectMapper the object mapper
+   * @return the json object mapper
+   */
   public static JsonObjectMapper create(ObjectMapper objectMapper) {
     return new JsonObjectMapper(objectMapper);
   }
 
+  /**
+   * Create json object mapper.
+   *
+   * @return the json object mapper
+   */
   public static JsonObjectMapper create() {
     return new JsonObjectMapper();
   }

@@ -4,20 +4,78 @@
 
 - [netty](https://github.com/netty/netty) tcp codecs
 
-# codec flow
+# codec inbound flow
 
 ```text
-                               ByteBufDecoder
+                             "Byte Array Stream"
+                                     |
                                      |
                                     \|/
-                            RawInboundPacketDecoder
-                             /                  \
-                            /                    \
-                          \|/                    \|/
-EncryptedHandShakePacketDecoder                 Next Decoder In PipeLine
+                FixedConstructorLengthFieldBasedFrameDecoder
+                                     |
+                                     |
+                                    \|/
+                               ByteBufDecoder
+                               /            \
+                              /              \
+                            \|/              \|/
+EncryptedHandShakeMessageDecoder            "InboundMessage" ( require next decoder )
+               |                                       
+               |
+              \|/
+       "HandShakeMessage"
 ```
 
-# packet structure
+# codec outbound flow
+
+```text
+   "Byte Array Stream"
+          /|\
+           |
+           |
+ OutboundMessageEncoder
+          /|\
+           |
+           |
+    "OutboundMessage"
+```
+
+# Protocol Buffer IDL
+
+## EncryptionMethodProtobuf
+
+- [./src/main/protobuf/encryption_method.proto](./src/main/protobuf/encryption_method.proto)
+
+```protobuf
+syntax = "proto3";
+
+message EncryptionMethodProtobuf {
+  EncryptionTypeProtobuf type = 1;
+  EncryptionModeProtobuf mode = 2;
+  EncryptionPaddingProtobuf padding = 3;
+  string iv = 4;
+  string symmetricKey = 5;
+}
+
+enum EncryptionTypeProtobuf {
+  ADVANCED_ENCRYPTION_STANDARD = 0;
+}
+
+enum EncryptionModeProtobuf {
+  ELECTRONIC_CODE_BLOCK = 0;
+  CIPHER_BLOCK_CHAINING = 1;
+  CIPHER_FEEDBACK = 2;
+  OUTPUT_FEEDBACK = 3;
+  COUNTER = 4;
+}
+
+enum EncryptionPaddingProtobuf {
+  PKCS5PADDING = 0;
+  PKCS7PADDING = 1;
+}
+```
+
+# message structure
 
 ## binary
 
@@ -60,7 +118,7 @@ EncryptedHandShakePacketDecoder                 Next Decoder In PipeLine
 ### after handshake rule
 
 ```text
-After 'handshake', the body of all packets communicates using 'AES'.
+After 'handshake', the body of all messages communicates using 'AES'.
 ```
 
 ### body end rule

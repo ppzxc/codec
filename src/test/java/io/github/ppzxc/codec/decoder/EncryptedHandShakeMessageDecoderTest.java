@@ -11,11 +11,11 @@ import io.github.ppzxc.codec.mapper.DefaultMultiMapper;
 import io.github.ppzxc.codec.mapper.MultiMapper;
 import io.github.ppzxc.codec.mapper.WriteCommand;
 import io.github.ppzxc.codec.model.EncodingType;
-import io.github.ppzxc.codec.model.EncryptedHandShakePacket;
-import io.github.ppzxc.codec.model.EncryptedHandShakePacketFixture;
+import io.github.ppzxc.codec.model.EncryptedHandShakeMessage;
+import io.github.ppzxc.codec.model.EncryptedHandShakeMessageFixture;
 import io.github.ppzxc.codec.model.EncryptionMethod;
 import io.github.ppzxc.codec.model.EncryptionMethodFixture;
-import io.github.ppzxc.codec.model.HandShakePacket;
+import io.github.ppzxc.codec.model.HandShakeMessage;
 import io.github.ppzxc.crypto.AsymmetricKeyFactory;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
@@ -33,7 +33,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 
-class EncryptedHandShakePacketDecoderTest {
+class EncryptedHandShakeMessageDecoderTest {
 
   private static KeyPair keyPair;
   private Crypto crypto;
@@ -50,13 +50,13 @@ class EncryptedHandShakePacketDecoderTest {
     crypto = CryptoFactory.rsa(keyPair.getPublic(), keyPair.getPrivate());
     multiMapper = DefaultMultiMapper.create();
     channel = new EmbeddedChannel();
-    channel.pipeline().addLast(new EncryptedHandShakePacketDecoder(crypto, multiMapper));
+    channel.pipeline().addLast(new EncryptedHandShakeMessageDecoder(crypto, multiMapper));
   }
 
   @RepeatedTest(10)
   void should_throw_exception_when_empty_body() {
     // given
-    EncryptedHandShakePacket given = EncryptedHandShakePacketFixture.withJsonBody(Unpooled.buffer(0));
+    EncryptedHandShakeMessage given = EncryptedHandShakeMessageFixture.withJsonBody(Unpooled.buffer(0));
 
     // when, then
     assertThatCode(() -> channel.writeInbound(given)).satisfies(throwable -> {
@@ -73,7 +73,7 @@ class EncryptedHandShakePacketDecoderTest {
   void should_throw_exception_when_invalid_body() {
     // given
     byte[] expected = ByteArrayUtils.giveMeOne(1024);
-    EncryptedHandShakePacket given = EncryptedHandShakePacketFixture.withBody(Unpooled.wrappedBuffer(expected));
+    EncryptedHandShakeMessage given = EncryptedHandShakeMessageFixture.withBody(Unpooled.wrappedBuffer(expected));
 
     // when, then
     assertThatCode(() -> channel.writeInbound(given)).satisfies(throwable -> {
@@ -88,16 +88,16 @@ class EncryptedHandShakePacketDecoderTest {
   }
 
   @RepeatedTest(10)
-  void should_return_HandShakePacket_when_json() throws SerializeFailedException, CryptoException {
+  void should_return_HandShakeMessage_when_json() throws SerializeFailedException, CryptoException {
     // given
     EncryptionMethod expected = EncryptionMethodFixture.random();
     byte[] plainText = multiMapper.write(WriteCommand.of(EncodingType.JSON, expected));
     byte[] cipherText = crypto.encrypt(plainText);
-    EncryptedHandShakePacket given = EncryptedHandShakePacketFixture.withJsonBody(Unpooled.wrappedBuffer(cipherText));
+    EncryptedHandShakeMessage given = EncryptedHandShakeMessageFixture.withJsonBody(Unpooled.wrappedBuffer(cipherText));
 
     // when
     channel.writeInbound(given);
-    HandShakePacket actual = channel.readInbound();
+    HandShakeMessage actual = channel.readInbound();
 
     // then
     assertThat(actual.getHeader()).usingRecursiveComparison().isEqualTo(given.getHeader());
@@ -105,16 +105,16 @@ class EncryptedHandShakePacketDecoderTest {
   }
 
   @RepeatedTest(10)
-  void should_return_HandShakePacket_when_bson() throws SerializeFailedException, CryptoException {
+  void should_return_HandShakeMessage_when_bson() throws SerializeFailedException, CryptoException {
     // given
     EncryptionMethod expected = EncryptionMethodFixture.random();
     byte[] plainText = multiMapper.write(WriteCommand.of(EncodingType.BSON, expected));
     byte[] cipherText = crypto.encrypt(plainText);
-    EncryptedHandShakePacket given = EncryptedHandShakePacketFixture.withJsonBody(Unpooled.wrappedBuffer(cipherText));
+    EncryptedHandShakeMessage given = EncryptedHandShakeMessageFixture.withBsonBody(Unpooled.wrappedBuffer(cipherText));
 
     // when
     channel.writeInbound(given);
-    HandShakePacket actual = channel.readInbound();
+    HandShakeMessage actual = channel.readInbound();
 
     // then
     assertThat(actual.getHeader()).usingRecursiveComparison().isEqualTo(given.getHeader());

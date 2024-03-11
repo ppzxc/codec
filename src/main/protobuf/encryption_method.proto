@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package io.github.ppzxc.codec;
+
+option java_package = "io.github.ppzxc.codec.model.protobuf";
+option java_outer_classname = "EncryptionMethodProtobufWrapper";
+option java_multiple_files = true;
+
+message EncryptionMethodProtobuf {
+  EncryptionTypeProtobuf type = 1;
+  EncryptionModeProtobuf mode = 2;
+  EncryptionPaddingProtobuf padding = 3;
+  string iv = 4;
+  string symmetricKey = 5;
+}
+
+enum EncryptionTypeProtobuf {
+  ADVANCED_ENCRYPTION_STANDARD = 0;
+}
+
+enum EncryptionModeProtobuf {
+  ELECTRONIC_CODE_BLOCK = 0;
+  CIPHER_BLOCK_CHAINING = 1;
+  CIPHER_FEEDBACK = 2;
+  OUTPUT_FEEDBACK = 3;
+  COUNTER = 4;
+}
+
+enum EncryptionPaddingProtobuf {
+  PKCS5PADDING = 0;
+  PKCS7PADDING = 1;
+}
