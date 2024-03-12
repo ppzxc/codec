@@ -1,8 +1,8 @@
 ---
-name: 버그 보고서
-about: 버그 보고서
-title: "[bugfix]"
-labels: bugfix
+name: 버그
+about: 버그
+title: "[bug] "
+labels: bug
 assignees: ''
 
 ---

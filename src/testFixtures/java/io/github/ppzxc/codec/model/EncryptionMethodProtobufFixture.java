@@ -5,7 +5,7 @@ import io.github.ppzxc.codec.model.protobuf.EncryptionModeProtobuf;
 import io.github.ppzxc.codec.model.protobuf.EncryptionPaddingProtobuf;
 import io.github.ppzxc.codec.model.protobuf.EncryptionTypeProtobuf;
 import io.github.ppzxc.fixh.IntUtils;
-import io.github.ppzxc.fixh.RandomUtils;
+import io.github.ppzxc.fixh.StringUtils;
 
 public final class EncryptionMethodProtobufFixture {
 
@@ -17,13 +17,14 @@ public final class EncryptionMethodProtobufFixture {
       .setType(getEncryptionTypeProtobuf())
       .setMode(getEncryptionModeProtobuf())
       .setPadding(getEncryptionPaddingProtobuf())
-      .setIv(RandomUtils.getInstance().string(16))
-      .setSymmetricKey(RandomUtils.getInstance().string(32))
+      .setIv(StringUtils.giveMeOne(16))
+      .setSymmetricKey(StringUtils.giveMeOne(32))
       .build();
   }
 
   public static EncryptionTypeProtobuf getEncryptionTypeProtobuf() {
-    EncryptionTypeProtobuf type = EncryptionTypeProtobuf.values()[IntUtils.giveMeOne(EncryptionTypeProtobuf.values().length)];
+    EncryptionTypeProtobuf type = EncryptionTypeProtobuf.values()[IntUtils.giveMeOne(
+      EncryptionTypeProtobuf.values().length)];
     while (type == EncryptionTypeProtobuf.UNRECOGNIZED) {
       type = EncryptionTypeProtobuf.values()[IntUtils.giveMeOne(EncryptionTypeProtobuf.values().length)];
     }
@@ -31,7 +32,8 @@ public final class EncryptionMethodProtobufFixture {
   }
 
   public static EncryptionModeProtobuf getEncryptionModeProtobuf() {
-    EncryptionModeProtobuf type = EncryptionModeProtobuf.values()[IntUtils.giveMeOne(EncryptionModeProtobuf.values().length)];
+    EncryptionModeProtobuf type = EncryptionModeProtobuf.values()[IntUtils.giveMeOne(
+      EncryptionModeProtobuf.values().length)];
     while (type == EncryptionModeProtobuf.UNRECOGNIZED) {
       type = EncryptionModeProtobuf.values()[IntUtils.giveMeOne(EncryptionModeProtobuf.values().length)];
     }
@@ -39,7 +41,8 @@ public final class EncryptionMethodProtobufFixture {
   }
 
   public static EncryptionPaddingProtobuf getEncryptionPaddingProtobuf() {
-    EncryptionPaddingProtobuf type = EncryptionPaddingProtobuf.values()[IntUtils.giveMeOne(EncryptionPaddingProtobuf.values().length)];
+    EncryptionPaddingProtobuf type = EncryptionPaddingProtobuf.values()[IntUtils.giveMeOne(
+      EncryptionPaddingProtobuf.values().length)];
     while (type == EncryptionPaddingProtobuf.UNRECOGNIZED) {
       type = EncryptionPaddingProtobuf.values()[IntUtils.giveMeOne(EncryptionPaddingProtobuf.values().length)];
     }

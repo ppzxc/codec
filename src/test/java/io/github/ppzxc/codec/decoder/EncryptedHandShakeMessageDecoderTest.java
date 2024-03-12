@@ -20,6 +20,7 @@ import io.github.ppzxc.crypto.AsymmetricKeyFactory;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
 import io.github.ppzxc.crypto.CryptoFactory;
+import io.github.ppzxc.crypto.CryptoProvider;
 import io.github.ppzxc.fixh.ByteArrayUtils;
 import io.github.ppzxc.fixh.ExceptionUtils;
 import io.netty.buffer.Unpooled;
@@ -42,6 +43,7 @@ class EncryptedHandShakeMessageDecoderTest {
 
   @BeforeAll
   static void beforeAll() throws NoSuchAlgorithmException, NoSuchProviderException {
+    CryptoProvider.BOUNCY_CASTLE.addProvider();
     keyPair = AsymmetricKeyFactory.generateRsa(2048);
   }
 

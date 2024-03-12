@@ -1,7 +1,7 @@
 ---
 name: 기능 개발
 about: 기능 개발
-title: "[feature]"
+title: "[feature] "
 labels: feature
 assignees: ''
 

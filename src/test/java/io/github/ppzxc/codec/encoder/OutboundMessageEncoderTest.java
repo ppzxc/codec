@@ -17,10 +17,12 @@ import io.github.ppzxc.codec.model.TestUser;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
 import io.github.ppzxc.crypto.CryptoFactory;
+import io.github.ppzxc.crypto.CryptoProvider;
 import io.github.ppzxc.fixh.ExceptionUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.EncoderException;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 
@@ -29,6 +31,11 @@ class OutboundMessageEncoderTest {
   private Crypto crypto;
   private MultiMapper multiMapper;
   private EmbeddedChannel channel;
+
+  @BeforeAll
+  static void beforeAll() {
+    CryptoProvider.BOUNCY_CASTLE.addProvider();
+  }
 
   @BeforeEach
   void setUp() {
