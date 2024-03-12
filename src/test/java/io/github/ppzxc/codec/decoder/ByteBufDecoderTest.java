@@ -87,7 +87,7 @@ class ByteBufDecoderTest {
     InboundMessage actual = channel.readInbound();
 
     // then
-    assertThat(actual.getHeader()).usingRecursiveComparison().isEqualTo(given.getHeader());
+    assertThat(actual.header()).usingRecursiveComparison().isEqualTo(given.header());
     assertThat(ByteBufUtil.equals(actual.getBody(), given.getBody())).isTrue();
   }
 
@@ -101,7 +101,7 @@ class ByteBufDecoderTest {
     InboundMessage actual = channel.readInbound();
 
     // then
-    assertThat(actual.getHeader()).usingRecursiveComparison().isEqualTo(given.getHeader());
+    assertThat(actual.header()).usingRecursiveComparison().isEqualTo(given.header());
     byte[] actualBody = new byte[actual.getBody().readableBytes()];
     actual.getBody().readBytes(actualBody);
     assertThat(actualBody).isEqualTo(given.getBody().array());
@@ -177,7 +177,7 @@ class ByteBufDecoderTest {
     EncryptedHandShakeMessage actual = channel.readInbound();
 
     // then
-    assertThat(actual.getHeader()).usingRecursiveComparison().isEqualTo(given.getHeader());
+    assertThat(actual.header()).usingRecursiveComparison().isEqualTo(given.header());
     assertThat(ByteBufUtil.equals(actual.getBody(), given.getBody())).isTrue();
   }
 }

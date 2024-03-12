@@ -102,7 +102,7 @@ class EncryptedHandShakeMessageDecoderTest {
     HandShakeMessage actual = channel.readInbound();
 
     // then
-    assertThat(actual.getHeader()).usingRecursiveComparison().isEqualTo(given.getHeader());
+    assertThat(actual.header()).usingRecursiveComparison().isEqualTo(given.header());
     assertThat(actual.getEncryptionMethod()).usingRecursiveComparison().isEqualTo(expected);
   }
 
@@ -119,7 +119,7 @@ class EncryptedHandShakeMessageDecoderTest {
     HandShakeMessage actual = channel.readInbound();
 
     // then
-    assertThat(actual.getHeader()).usingRecursiveComparison().isEqualTo(given.getHeader());
+    assertThat(actual.header()).usingRecursiveComparison().isEqualTo(given.header());
     assertThat(actual.getEncryptionMethod()).usingRecursiveComparison().isEqualTo(expected);
   }
 }

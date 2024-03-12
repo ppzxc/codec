@@ -40,13 +40,13 @@ public class EncryptedHandShakeMessageDecoder extends MessageToMessageDecoder<En
     try {
       byte[] plainText = crypto.decrypt(msg.getBody().array());
       EncryptionMethod encryptionMethod = multiMapper.read(
-        ReadCommand.of(EncodingType.of(msg.getHeader().getEncoding()), plainText, EncryptionMethod.class));
+        ReadCommand.of(EncodingType.of(msg.header().getEncoding()), plainText, EncryptionMethod.class));
       out.add(HandShakeMessage.builder()
-        .header(msg.getHeader())
+        .header(msg.header())
         .encryptionMethod(encryptionMethod)
         .build());
     } catch (Exception e) {
-      throw new HandShakeDecodeFailException(msg.getHeader(), e);
+      throw new HandShakeDecodeFailException(msg.header(), e);
     }
   }
 }

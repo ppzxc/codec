@@ -8,9 +8,9 @@ import java.io.Serializable;
 public interface Message extends Serializable {
 
   /**
-   * Gets header.
+   * Header header.
    *
    * @return the header
    */
-  Header getHeader();
+  Header header();
 }
