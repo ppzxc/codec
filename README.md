@@ -95,7 +95,7 @@ enum EncryptionPaddingProtobuf {
 
 ## binary description
 
-| name        | length | binary | decimal                        | hexadecimal             | unit         |
+| name        | length | binary | range                          | hexadecimal             | type         |
 |-------------|--------|--------|--------------------------------|-------------------------|--------------|
 | Id          | 4 byte | 32 bit | -2,147,483,648 ~ 2,147,483,647 | 0x00000000 ~ 0xffffffff | Signed int32 |
 | Type        | 1 byte | 8 bit  | -128 ~ 127                     | 0x00 ~ 0xff             | Signed int8  |
