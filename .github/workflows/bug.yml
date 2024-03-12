@@ -1,12 +1,12 @@
-name: Feature
+name: bug
 
 on:
   push:
-    branches: [ "*-bug-*", "*-feature-*" ]
+    branches: [ "*-bug-*" ]
 
 jobs:
   feature:
-    name: build, test when feature push
+    name: build, test when bug push
     runs-on: ubuntu-latest
     env:
       GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
