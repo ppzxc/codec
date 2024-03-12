@@ -26,7 +26,7 @@ public class InboundMessage extends AbstractMessage {
   }
 
   @Override
-  public Header getHeader() {
+  public Header header() {
     return header;
   }
 

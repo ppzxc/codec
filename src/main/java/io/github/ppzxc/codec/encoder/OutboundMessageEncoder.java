@@ -45,23 +45,23 @@ public class OutboundMessageEncoder extends MessageToMessageEncoder<OutboundMess
       byte[] body = makeBody(msg);
       int bodyLength = body.length + Header.MINIMUM_BODY_LENGTH;
       ByteBuf buffer = Unpooled.buffer(bodyLength);
-      buffer.writeInt(msg.getHeader().getId());
-      buffer.writeByte(msg.getHeader().getType());
-      buffer.writeByte(msg.getHeader().getStatus());
-      buffer.writeByte(msg.getHeader().getEncoding());
-      buffer.writeByte(msg.getHeader().getReserved());
+      buffer.writeInt(msg.header().getId());
+      buffer.writeByte(msg.header().getType());
+      buffer.writeByte(msg.header().getStatus());
+      buffer.writeByte(msg.header().getEncoding());
+      buffer.writeByte(msg.header().getReserved());
       buffer.writeInt(bodyLength);
       buffer.writeBytes(body);
       buffer.writeBytes(AbstractMessage.LINE_DELIMITER);
       out.add(buffer);
     } catch (Exception e) {
-      throw new MessageEncodeFailException(msg.getHeader(), e);
+      throw new MessageEncodeFailException(msg.header(), e);
     }
   }
 
   private byte[] makeBody(OutboundMessage msg) throws CryptoException, SerializeFailedException {
     return msg.getBody() == null ? new byte[0]
       : crypto.encrypt(
-        multiMapper.write(WriteCommand.of(EncodingType.of(msg.getHeader().getEncoding()), msg.getBody())));
+        multiMapper.write(WriteCommand.of(EncodingType.of(msg.header().getEncoding()), msg.getBody())));
   }
 }

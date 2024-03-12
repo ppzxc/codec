@@ -56,11 +56,11 @@ class OutboundMessageEncoderTest {
     ByteBuf actual = channel.readOutbound();
 
     // then
-    assertThat(actual.readInt()).isEqualTo(expected.getHeader().getId());
-    assertThat(actual.readByte()).isEqualTo(expected.getHeader().getType());
-    assertThat(actual.readByte()).isEqualTo(expected.getHeader().getStatus());
-    assertThat(actual.readByte()).isEqualTo(expected.getHeader().getEncoding());
-    assertThat(actual.readByte()).isEqualTo(expected.getHeader().getReserved());
+    assertThat(actual.readInt()).isEqualTo(expected.header().getId());
+    assertThat(actual.readByte()).isEqualTo(expected.header().getType());
+    assertThat(actual.readByte()).isEqualTo(expected.header().getStatus());
+    assertThat(actual.readByte()).isEqualTo(expected.header().getEncoding());
+    assertThat(actual.readByte()).isEqualTo(expected.header().getReserved());
     assertThat(actual.readInt()).isGreaterThan(2);
     equalsBody(getBody(actual), given);
   }
@@ -75,11 +75,11 @@ class OutboundMessageEncoderTest {
     ByteBuf actual = channel.readOutbound();
 
     // then
-    assertThat(actual.readInt()).isEqualTo(expected.getHeader().getId());
-    assertThat(actual.readByte()).isEqualTo(expected.getHeader().getType());
-    assertThat(actual.readByte()).isEqualTo(expected.getHeader().getStatus());
-    assertThat(actual.readByte()).isEqualTo(expected.getHeader().getEncoding());
-    assertThat(actual.readByte()).isEqualTo(expected.getHeader().getReserved());
+    assertThat(actual.readInt()).isEqualTo(expected.header().getId());
+    assertThat(actual.readByte()).isEqualTo(expected.header().getType());
+    assertThat(actual.readByte()).isEqualTo(expected.header().getStatus());
+    assertThat(actual.readByte()).isEqualTo(expected.header().getEncoding());
+    assertThat(actual.readByte()).isEqualTo(expected.header().getReserved());
     assertThat(actual.readInt()).isEqualTo(2);
     checkLineDelimiter(getBody(actual));
   }

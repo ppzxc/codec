@@ -17,7 +17,7 @@ public class HandShakeMessage extends AbstractMessage {
     this.encryptionMethod = encryptionMethod;
   }
 
-  public Header getHeader() {
+  public Header header() {
     return header;
   }
 

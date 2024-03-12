@@ -19,7 +19,7 @@ public class OutboundMessage extends AbstractMessage {
   }
 
   @Override
-  public Header getHeader() {
+  public Header header() {
     return header;
   }
 

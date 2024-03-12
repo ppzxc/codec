@@ -44,14 +44,14 @@ public final class RawMessageFixture {
   }
 
   public static ByteBuf toByteBuf(InboundMessage given) {
-    ByteBuf buffer = Unpooled.buffer(Header.HEADER_LENGTH + given.getHeader().getBodyLength());
-    buffer.writeInt(given.getHeader().getId());
-    buffer.writeByte(given.getHeader().getType());
-    buffer.writeByte(given.getHeader().getStatus());
-    buffer.writeByte(given.getHeader().getEncoding());
-    buffer.writeByte(given.getHeader().getReserved());
-    buffer.writeInt(given.getHeader().getBodyLength());
-    if (given.getHeader().getBodyLength() > 0) {
+    ByteBuf buffer = Unpooled.buffer(Header.HEADER_LENGTH + given.header().getBodyLength());
+    buffer.writeInt(given.header().getId());
+    buffer.writeByte(given.header().getType());
+    buffer.writeByte(given.header().getStatus());
+    buffer.writeByte(given.header().getEncoding());
+    buffer.writeByte(given.header().getReserved());
+    buffer.writeInt(given.header().getBodyLength());
+    if (given.header().getBodyLength() > 0) {
       byte[] bodyBuffer = new byte[given.getBody().readableBytes()];
       given.getBody().getBytes(0, bodyBuffer);
       buffer.writeBytes(bodyBuffer);

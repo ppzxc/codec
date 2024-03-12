@@ -49,9 +49,9 @@ public final class ByteArrayFixture {
   }
 
   public static byte[] of(InboundMessage inboundMessage) {
-    return create(inboundMessage.getHeader().getId(), inboundMessage.getHeader().getType(),
-      inboundMessage.getHeader().getStatus(), inboundMessage.getHeader().getEncoding(),
-      inboundMessage.getHeader().getReserved(), inboundMessage.getHeader().getBodyLength(),
+    return create(inboundMessage.header().getId(), inboundMessage.header().getType(),
+      inboundMessage.header().getStatus(), inboundMessage.header().getEncoding(),
+      inboundMessage.header().getReserved(), inboundMessage.header().getBodyLength(),
       inboundMessage.getBody().array());
   }
 }
