@@ -2,7 +2,7 @@ package io.github.ppzxc.codec.model;
 
 import io.github.ppzxc.fixh.BooleanUtils;
 import io.github.ppzxc.fixh.IntUtils;
-import io.github.ppzxc.fixh.RandomUtils;
+import io.github.ppzxc.fixh.StringUtils;
 import java.io.Serializable;
 
 public class TestUser implements Serializable {
@@ -56,7 +56,7 @@ public class TestUser implements Serializable {
   }
 
   public static TestUser random() {
-    return new TestUser(RandomUtils.getInstance().string(100), RandomUtils.getInstance().string(100),
+    return new TestUser(StringUtils.giveMeOne(100), StringUtils.giveMeOne(100),
       IntUtils.giveMeOne(), BooleanUtils.giveMeOne());
   }
 }
