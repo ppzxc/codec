@@ -1,6 +1,6 @@
 ---
-name: 버그
-about: 버그
+name: 버그 보고
+about: 버그 보고
 title: "[bug] "
 labels: bug
 assignees: ''

@@ -8,7 +8,7 @@ public class HandShakeMessage extends AbstractMessage {
   /**
    * The constant HEADER_TYPE_CODE.
    */
-  public static final byte HEADER_TYPE_CODE = 0x10;
+  public static final byte HEADER_TYPE_CODE = 0x01;
   private static final long serialVersionUID = 7566973783972528091L;
   private final EncryptionMethod encryptionMethod;
 
