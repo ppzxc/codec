@@ -1,6 +1,6 @@
 package io.github.ppzxc.codec.decoder;
 
-import io.github.ppzxc.codec.exception.HandShakeDecodeFailProblemException;
+import io.github.ppzxc.codec.exception.HandShakeDecodeFailedException;
 import io.github.ppzxc.codec.mapper.MultiMapper;
 import io.github.ppzxc.codec.mapper.ReadCommand;
 import io.github.ppzxc.codec.model.EncodingType;
@@ -14,21 +14,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The type Encrypted hand shake message decoder.
- */
 public class EncryptedHandShakeMessageDecoder extends MessageToMessageDecoder<EncryptedHandShakeMessage> {
 
   private static final Logger log = LoggerFactory.getLogger(EncryptedHandShakeMessageDecoder.class);
   private final Crypto crypto;
   private final MultiMapper multiMapper;
 
-  /**
-   * Instantiates a new Encrypted hand shake message decoder.
-   *
-   * @param crypto      the crypto
-   * @param multiMapper the multi mapper
-   */
   public EncryptedHandShakeMessageDecoder(Crypto crypto, MultiMapper multiMapper) {
     this.crypto = crypto;
     this.multiMapper = multiMapper;
@@ -46,7 +37,7 @@ public class EncryptedHandShakeMessageDecoder extends MessageToMessageDecoder<En
         .encryptionMethod(encryptionMethod)
         .build());
     } catch (Exception e) {
-      throw new HandShakeDecodeFailProblemException(msg.header().getId(), e);
+      throw new HandShakeDecodeFailedException(msg.header().getId(), e);
     }
   }
 }

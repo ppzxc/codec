@@ -4,9 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.github.ppzxc.codec.model.OutboundMessage.Builder;
 
-/**
- * The type Outbound message.
- */
 @JsonDeserialize(builder = Builder.class)
 public class OutboundMessage extends AbstractMessage {
 
@@ -23,27 +20,14 @@ public class OutboundMessage extends AbstractMessage {
     return header;
   }
 
-  /**
-   * Gets body.
-   *
-   * @return the body
-   */
   public Object getBody() {
     return body;
   }
 
-  /**
-   * Builder builder.
-   *
-   * @return the builder
-   */
   public static Builder builder() {
     return new Builder();
   }
 
-  /**
-   * The type Builder.
-   */
   @JsonPOJOBuilder(withPrefix = "")
   public static final class Builder {
 
@@ -53,33 +37,16 @@ public class OutboundMessage extends AbstractMessage {
     private Builder() {
     }
 
-    /**
-     * Header builder.
-     *
-     * @param header the header
-     * @return the builder
-     */
     public Builder header(Header header) {
       this.header = header;
       return this;
     }
 
-    /**
-     * Body builder.
-     *
-     * @param body the body
-     * @return the builder
-     */
     public Builder body(Object body) {
       this.body = body;
       return this;
     }
 
-    /**
-     * Build outbound message.
-     *
-     * @return the outbound message
-     */
     public OutboundMessage build() {
       return new OutboundMessage(header, body);
     }

@@ -4,16 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.undercouch.bson4jackson.BsonFactory;
-import io.github.ppzxc.codec.exception.DeserializeFailedProblemException;
-import io.github.ppzxc.codec.exception.SerializeFailedProblemException;
+import io.github.ppzxc.codec.exception.DeserializeFailedException;
+import io.github.ppzxc.codec.exception.SerializeFailedException;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Locale;
 import java.util.TimeZone;
 
-/**
- * The type Bson object mapper.
- */
 public class BsonObjectMapper implements Mapper {
 
   private final ObjectMapper objectMapper;
@@ -33,38 +30,27 @@ public class BsonObjectMapper implements Mapper {
   }
 
   @Override
-  public <T> T read(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException {
+  public <T> T read(byte[] payload, Class<T> tClass) throws DeserializeFailedException {
     try {
       return objectMapper.readValue(payload, tClass);
     } catch (IOException e) {
-      throw new DeserializeFailedProblemException(e);
+      throw new DeserializeFailedException(e);
     }
   }
 
   @Override
-  public <T> byte[] write(T payload) throws SerializeFailedProblemException {
+  public <T> byte[] write(T payload) throws SerializeFailedException {
     try {
       return objectMapper.writeValueAsBytes(payload);
     } catch (IOException e) {
-      throw new SerializeFailedProblemException(e);
+      throw new SerializeFailedException(e);
     }
   }
 
-  /**
-   * Create bson object mapper.
-   *
-   * @param objectMapper the object mapper
-   * @return the bson object mapper
-   */
   public static BsonObjectMapper create(ObjectMapper objectMapper) {
     return new BsonObjectMapper(objectMapper);
   }
 
-  /**
-   * Create bson object mapper.
-   *
-   * @return the bson object mapper
-   */
   public static BsonObjectMapper create() {
     return new BsonObjectMapper();
   }
