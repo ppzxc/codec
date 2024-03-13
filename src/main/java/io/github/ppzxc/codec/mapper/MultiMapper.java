@@ -1,7 +1,7 @@
 package io.github.ppzxc.codec.mapper;
 
-import io.github.ppzxc.codec.exception.DeserializeFailedException;
-import io.github.ppzxc.codec.exception.SerializeFailedException;
+import io.github.ppzxc.codec.exception.DeserializeFailedProblemException;
+import io.github.ppzxc.codec.exception.SerializeFailedProblemException;
 
 /**
  * The interface Multi mapper.
@@ -14,16 +14,16 @@ public interface MultiMapper {
    * @param <T>     the type parameter
    * @param command the command
    * @return the t
-   * @throws DeserializeFailedException the deserialize failed exception
+   * @throws DeserializeFailedProblemException the deserialize failed problem exception
    */
-  <T> T read(ReadCommand<T> command) throws DeserializeFailedException;
+  <T> T read(ReadCommand<T> command) throws DeserializeFailedProblemException;
 
   /**
    * Write byte [ ].
    *
    * @param command the command
    * @return the byte [ ]
-   * @throws SerializeFailedException the serialize failed exception
+   * @throws SerializeFailedProblemException the serialize failed problem exception
    */
-  byte[] write(WriteCommand command) throws SerializeFailedException;
+  byte[] write(WriteCommand command) throws SerializeFailedProblemException;
 }

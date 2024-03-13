@@ -3,7 +3,6 @@ package io.github.ppzxc.codec.decoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.codec.TooLongFrameException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,20 +14,14 @@ public class FixedConstructorLengthFieldBasedFrameDecoder extends LengthFieldBas
   private static final Logger log = LoggerFactory.getLogger(FixedConstructorLengthFieldBasedFrameDecoder.class);
 
   /**
-   * Creates a new instance.
+   * Instantiates a new Fixed constructor length field based frame decoder.
    *
-   * @param maxFrameLength      the maximum length of the frame.  If the length of the frame is greater than this value,
-   *                            {@link TooLongFrameException} will be thrown.
-   * @param lengthFieldOffset   the offset of the length field
-   * @param lengthFieldLength   the length of the length field
-   * @param lengthAdjustment    the compensation value to add to the value of the length field
-   * @param initialBytesToStrip the number of first bytes to strip out from the decoded frame
-   * @param failFast            If true, a {@link TooLongFrameException} is thrown as soon as the decoder
-   *                                                    notices the length of the frame will exceed
-   *                                  maxFrameLength regardless of whether the entire frame
-   *                            has                            been read.  If false, a {@link TooLongFrameException} is
-   *                            thrown after the                            entire frame that exceeds maxFrameLength has
-   *                            been read.
+   * @param maxFrameLength      the max frame length
+   * @param lengthFieldOffset   the length field offset
+   * @param lengthFieldLength   the length field length
+   * @param lengthAdjustment    the length adjustment
+   * @param initialBytesToStrip the initial bytes to strip
+   * @param failFast            the fail fast
    */
   public FixedConstructorLengthFieldBasedFrameDecoder(int maxFrameLength, int lengthFieldOffset, int lengthFieldLength,
     int lengthAdjustment, int initialBytesToStrip, boolean failFast) {

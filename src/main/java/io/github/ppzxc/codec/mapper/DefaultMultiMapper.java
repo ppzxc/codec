@@ -1,9 +1,7 @@
 package io.github.ppzxc.codec.mapper;
 
-import io.github.ppzxc.codec.exception.DeserializeFailedException;
-import io.github.ppzxc.codec.exception.NotSupportedEncodingTypeException;
-import io.github.ppzxc.codec.exception.SerializeFailedException;
-import io.github.ppzxc.codec.model.EncodingType;
+import io.github.ppzxc.codec.exception.DeserializeFailedProblemException;
+import io.github.ppzxc.codec.exception.SerializeFailedProblemException;
 import io.github.ppzxc.fixh.ObjectUtils;
 
 /**
@@ -61,50 +59,50 @@ public class DefaultMultiMapper extends AbstractMultiMapper {
   }
 
   @Override
-  <T> T readFromProtoBuf(byte[] payload, Class<T> tClass) throws DeserializeFailedException {
+  <T> T readFromProtoBuf(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException {
     if (protobufMapper == null) {
-      throw new DeserializeFailedException(new NotSupportedEncodingTypeException(EncodingType.PROTOBUF));
+      throw new DeserializeFailedProblemException("not supported protobuf encoding");
     } else {
       return protobufMapper.read(payload, tClass);
     }
   }
 
   @Override
-  <T> T readFromJson(byte[] payload, Class<T> tClass) throws DeserializeFailedException {
+  <T> T readFromJson(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException {
     return jsonMapper.read(payload, tClass);
   }
 
   @Override
-  <T> T readFromBson(byte[] payload, Class<T> tClass) throws DeserializeFailedException {
+  <T> T readFromBson(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException {
     return bsonMapper.read(payload, tClass);
   }
 
   @Override
-  <T> T readFromJava(byte[] payload, Class<T> tClass) throws DeserializeFailedException {
+  <T> T readFromJava(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException {
     return javaMapper.read(payload, tClass);
   }
 
   @Override
-  <T> byte[] writeUsingProtoBuf(T payload) throws SerializeFailedException {
+  <T> byte[] writeUsingProtoBuf(T payload) throws SerializeFailedProblemException {
     if (protobufMapper == null) {
-      throw new SerializeFailedException(new NotSupportedEncodingTypeException(EncodingType.PROTOBUF));
+      throw new SerializeFailedProblemException("not supported protobuf encoding");
     } else {
       return protobufMapper.write(payload);
     }
   }
 
   @Override
-  <T> byte[] writeUsingJson(T payload) throws SerializeFailedException {
+  <T> byte[] writeUsingJson(T payload) throws SerializeFailedProblemException {
     return jsonMapper.write(payload);
   }
 
   @Override
-  <T> byte[] writeUsingBson(T payload) throws SerializeFailedException {
+  <T> byte[] writeUsingBson(T payload) throws SerializeFailedProblemException {
     return bsonMapper.write(payload);
   }
 
   @Override
-  <T> byte[] writeUsingJava(T payload) throws SerializeFailedException {
+  <T> byte[] writeUsingJava(T payload) throws SerializeFailedProblemException {
     return javaMapper.write(payload);
   }
 

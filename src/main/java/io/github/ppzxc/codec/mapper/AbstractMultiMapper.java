@@ -1,9 +1,7 @@
 package io.github.ppzxc.codec.mapper;
 
-import io.github.ppzxc.codec.exception.DeserializeFailedException;
-import io.github.ppzxc.codec.exception.NotSupportedEncodingTypeException;
-import io.github.ppzxc.codec.exception.SerializeFailedException;
-import io.github.ppzxc.codec.model.EncodingType;
+import io.github.ppzxc.codec.exception.DeserializeFailedProblemException;
+import io.github.ppzxc.codec.exception.SerializeFailedProblemException;
 
 /**
  * The type Abstract multi mapper.
@@ -17,9 +15,9 @@ public abstract class AbstractMultiMapper implements MultiMapper {
    * @param payload the payload
    * @param tClass  the t class
    * @return the t
-   * @throws DeserializeFailedException the deserialize failed exception
+   * @throws DeserializeFailedProblemException the deserialize failed problem exception
    */
-  abstract <T> T readFromProtoBuf(byte[] payload, Class<T> tClass) throws DeserializeFailedException;
+  abstract <T> T readFromProtoBuf(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException;
 
   /**
    * Read from json t.
@@ -28,9 +26,9 @@ public abstract class AbstractMultiMapper implements MultiMapper {
    * @param payload the payload
    * @param tClass  the t class
    * @return the t
-   * @throws DeserializeFailedException the deserialize failed exception
+   * @throws DeserializeFailedProblemException the deserialize failed problem exception
    */
-  abstract <T> T readFromJson(byte[] payload, Class<T> tClass) throws DeserializeFailedException;
+  abstract <T> T readFromJson(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException;
 
   /**
    * Read from bson t.
@@ -39,9 +37,9 @@ public abstract class AbstractMultiMapper implements MultiMapper {
    * @param payload the payload
    * @param tClass  the t class
    * @return the t
-   * @throws DeserializeFailedException the deserialize failed exception
+   * @throws DeserializeFailedProblemException the deserialize failed problem exception
    */
-  abstract <T> T readFromBson(byte[] payload, Class<T> tClass) throws DeserializeFailedException;
+  abstract <T> T readFromBson(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException;
 
   /**
    * Read from java t.
@@ -50,9 +48,9 @@ public abstract class AbstractMultiMapper implements MultiMapper {
    * @param payload the payload
    * @param tClass  the t class
    * @return the t
-   * @throws DeserializeFailedException the deserialize failed exception
+   * @throws DeserializeFailedProblemException the deserialize failed problem exception
    */
-  abstract <T> T readFromJava(byte[] payload, Class<T> tClass) throws DeserializeFailedException;
+  abstract <T> T readFromJava(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException;
 
   /**
    * Write using proto buf byte [ ].
@@ -60,9 +58,9 @@ public abstract class AbstractMultiMapper implements MultiMapper {
    * @param <T>     the type parameter
    * @param payload the payload
    * @return the byte [ ]
-   * @throws SerializeFailedException the serialize failed exception
+   * @throws SerializeFailedProblemException the serialize failed problem exception
    */
-  abstract <T> byte[] writeUsingProtoBuf(T payload) throws SerializeFailedException;
+  abstract <T> byte[] writeUsingProtoBuf(T payload) throws SerializeFailedProblemException;
 
   /**
    * Write using json byte [ ].
@@ -70,9 +68,9 @@ public abstract class AbstractMultiMapper implements MultiMapper {
    * @param <T>     the type parameter
    * @param payload the payload
    * @return the byte [ ]
-   * @throws SerializeFailedException the serialize failed exception
+   * @throws SerializeFailedProblemException the serialize failed problem exception
    */
-  abstract <T> byte[] writeUsingJson(T payload) throws SerializeFailedException;
+  abstract <T> byte[] writeUsingJson(T payload) throws SerializeFailedProblemException;
 
   /**
    * Write using bson byte [ ].
@@ -80,9 +78,9 @@ public abstract class AbstractMultiMapper implements MultiMapper {
    * @param <T>     the type parameter
    * @param payload the payload
    * @return the byte [ ]
-   * @throws SerializeFailedException the serialize failed exception
+   * @throws SerializeFailedProblemException the serialize failed problem exception
    */
-  abstract <T> byte[] writeUsingBson(T payload) throws SerializeFailedException;
+  abstract <T> byte[] writeUsingBson(T payload) throws SerializeFailedProblemException;
 
   /**
    * Write using java byte [ ].
@@ -90,12 +88,12 @@ public abstract class AbstractMultiMapper implements MultiMapper {
    * @param <T>     the type parameter
    * @param payload the payload
    * @return the byte [ ]
-   * @throws SerializeFailedException the serialize failed exception
+   * @throws SerializeFailedProblemException the serialize failed problem exception
    */
-  abstract <T> byte[] writeUsingJava(T payload) throws SerializeFailedException;
+  abstract <T> byte[] writeUsingJava(T payload) throws SerializeFailedProblemException;
 
   @Override
-  public <T> T read(ReadCommand<T> command) throws DeserializeFailedException {
+  public <T> T read(ReadCommand<T> command) throws DeserializeFailedProblemException {
     switch (command.getType()) {
       case PROTOBUF:
         return readFromProtoBuf(command.getPayload(), command.getTargetClass());
@@ -107,12 +105,12 @@ public abstract class AbstractMultiMapper implements MultiMapper {
         return readFromJava(command.getPayload(), command.getTargetClass());
       case NULL:
       default:
-        throw new DeserializeFailedException(new NotSupportedEncodingTypeException(EncodingType.NULL));
+        throw new DeserializeFailedProblemException("not found encoding type");
     }
   }
 
   @Override
-  public byte[] write(WriteCommand command) throws SerializeFailedException {
+  public byte[] write(WriteCommand command) throws SerializeFailedProblemException {
     switch (command.getType()) {
       case PROTOBUF:
         return writeUsingProtoBuf(command.getPayload());
@@ -124,7 +122,7 @@ public abstract class AbstractMultiMapper implements MultiMapper {
         return writeUsingJava(command.getPayload());
       case NULL:
       default:
-        throw new SerializeFailedException(new NotSupportedEncodingTypeException(EncodingType.NULL));
+        throw new SerializeFailedProblemException("not found encoding type");
     }
   }
 }

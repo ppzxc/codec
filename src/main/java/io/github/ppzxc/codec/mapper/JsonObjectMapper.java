@@ -2,8 +2,8 @@ package io.github.ppzxc.codec.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import io.github.ppzxc.codec.exception.DeserializeFailedException;
-import io.github.ppzxc.codec.exception.SerializeFailedException;
+import io.github.ppzxc.codec.exception.DeserializeFailedProblemException;
+import io.github.ppzxc.codec.exception.SerializeFailedProblemException;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -27,20 +27,20 @@ public class JsonObjectMapper implements Mapper {
   }
 
   @Override
-  public <T> T read(byte[] payload, Class<T> tClass) throws DeserializeFailedException {
+  public <T> T read(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException {
     try {
       return objectMapper.readValue(payload, tClass);
     } catch (IOException e) {
-      throw new DeserializeFailedException(e);
+      throw new DeserializeFailedProblemException(e);
     }
   }
 
   @Override
-  public <T> byte[] write(T payload) throws SerializeFailedException {
+  public <T> byte[] write(T payload) throws SerializeFailedProblemException {
     try {
       return objectMapper.writeValueAsBytes(payload);
     } catch (IOException e) {
-      throw new SerializeFailedException(e);
+      throw new SerializeFailedProblemException(e);
     }
   }
 
