@@ -3,9 +3,9 @@ package io.github.ppzxc.codec.encoder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-import io.github.ppzxc.codec.exception.DeserializeFailedException;
-import io.github.ppzxc.codec.exception.MessageEncodeFailException;
-import io.github.ppzxc.codec.exception.ProblemCodeException;
+import io.github.ppzxc.codec.exception.DeserializeFailedProblemException;
+import io.github.ppzxc.codec.exception.MessageEncodeFailProblemException;
+import io.github.ppzxc.codec.exception.CodecProblemException;
 import io.github.ppzxc.codec.mapper.DefaultMultiMapper;
 import io.github.ppzxc.codec.mapper.MultiMapper;
 import io.github.ppzxc.codec.mapper.ReadCommand;
@@ -46,7 +46,7 @@ class OutboundMessageEncoderTest {
   }
 
   @RepeatedTest(10)
-  void should_encode_prepare_outbound_message() throws CryptoException, DeserializeFailedException {
+  void should_encode_prepare_outbound_message() throws CryptoException, DeserializeFailedProblemException {
     // given
     TestUser given = TestUser.random();
     OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.with(EncodingType.JSON), given);
@@ -92,10 +92,10 @@ class OutboundMessageEncoderTest {
     // when, then
     assertThatCode(() -> channel.writeOutbound(expected)).satisfies(throwable -> {
       assertThat(throwable).isInstanceOf(EncoderException.class);
-      assertThat(ExceptionUtils.findCause(throwable, ProblemCodeException.class))
-        .isInstanceOf(ProblemCodeException.class);
-      assertThat(ExceptionUtils.findCause(throwable, MessageEncodeFailException.class))
-        .isInstanceOf(MessageEncodeFailException.class);
+      assertThat(ExceptionUtils.findCause(throwable, CodecProblemException.class))
+        .isInstanceOf(CodecProblemException.class);
+      assertThat(ExceptionUtils.findCause(throwable, MessageEncodeFailProblemException.class))
+        .isInstanceOf(MessageEncodeFailProblemException.class);
     });
   }
 
@@ -105,7 +105,7 @@ class OutboundMessageEncoderTest {
     return body;
   }
 
-  private void equalsBody(byte[] body, TestUser given) throws DeserializeFailedException, CryptoException {
+  private void equalsBody(byte[] body, TestUser given) throws DeserializeFailedProblemException, CryptoException {
     assertThat(multiMapper.read(ReadCommand.of(EncodingType.JSON, crypto.decrypt(body), TestUser.class)))
       .usingRecursiveComparison().isEqualTo(given);
     assertThat((char) body[body.length - 2]).isEqualTo('\r');

@@ -1,11 +1,11 @@
 package io.github.ppzxc.codec.decoder;
 
-import io.github.ppzxc.codec.exception.LessThanMinimumMessageLengthCodeException;
-import io.github.ppzxc.codec.exception.MissingLineDelimiterCodeException;
-import io.github.ppzxc.codec.exception.NotSameLengthCodeException;
-import io.github.ppzxc.codec.exception.NotSupportedBodyLengthException;
-import io.github.ppzxc.codec.exception.NullPointerCodeException;
-import io.github.ppzxc.codec.exception.ProblemCodeException;
+import io.github.ppzxc.codec.exception.CodecProblemException;
+import io.github.ppzxc.codec.exception.LessThanMinimumMessageLengthCodeProblemException;
+import io.github.ppzxc.codec.exception.MissingLineDelimiterCodeProblemException;
+import io.github.ppzxc.codec.exception.NotSameLengthCodeProblemException;
+import io.github.ppzxc.codec.exception.NotSupportedBodyLengthProblemException;
+import io.github.ppzxc.codec.exception.NullPointerCodeProblemException;
 import io.github.ppzxc.codec.model.AbstractMessage;
 import io.github.ppzxc.codec.model.EncryptedHandShakeMessage;
 import io.github.ppzxc.codec.model.HandShakeMessage;
@@ -71,29 +71,32 @@ public class ByteBufDecoder extends MessageToMessageDecoder<ByteBuf> {
     }
   }
 
-  private void preCondition(ByteBuf msg) throws ProblemCodeException {
+  private void preCondition(ByteBuf msg) throws CodecProblemException {
     if (msg.readableBytes() <= 0) {
-      throw new NullPointerCodeException("byte array require non null");
+      throw new NullPointerCodeProblemException("byte array require non null");
     }
     if (msg.readableBytes() < AbstractMessage.MINIMUM_MESSAGE_LENGTH) {
-      throw new LessThanMinimumMessageLengthCodeException(
+      throw new LessThanMinimumMessageLengthCodeProblemException(
         msg.readableBytes() + " less than " + AbstractMessage.MINIMUM_MESSAGE_LENGTH);
     }
   }
 
-  private ByteBuf getBody(Header header, ByteBuf msg) throws ProblemCodeException {
-    if (header.getBodyLength() > maximumBodyLength || msg.readableBytes() > maximumBodyLength) {
-      throw new NotSupportedBodyLengthException(header);
+  private ByteBuf getBody(Header header, ByteBuf msg) throws CodecProblemException {
+    if (header.getBodyLength() > maximumBodyLength) {
+      throw new NotSupportedBodyLengthProblemException(header, String.valueOf(header.getBodyLength()));
+    }
+    if (msg.readableBytes() > maximumBodyLength) {
+      throw new NotSupportedBodyLengthProblemException(header, String.valueOf(msg.readableBytes()));
     }
     if (header.getBodyLength() != msg.readableBytes()) {
-      throw new NotSameLengthCodeException(header, msg.readableBytes());
+      throw new NotSameLengthCodeProblemException(header, String.valueOf(msg.readableBytes()));
     }
     return msg.readBytes(msg.readableBytes());
   }
 
-  private void postCondition(Header header, ByteBuf body) throws ProblemCodeException {
+  private void postCondition(Header header, ByteBuf body) throws CodecProblemException {
     if (isNotContainsLineDelimiter(body)) {
-      throw new MissingLineDelimiterCodeException(header);
+      throw new MissingLineDelimiterCodeProblemException(header);
     }
   }
 

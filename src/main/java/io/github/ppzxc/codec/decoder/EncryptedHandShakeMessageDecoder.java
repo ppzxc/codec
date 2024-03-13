@@ -1,6 +1,6 @@
 package io.github.ppzxc.codec.decoder;
 
-import io.github.ppzxc.codec.exception.HandShakeDecodeFailException;
+import io.github.ppzxc.codec.exception.HandShakeDecodeFailProblemException;
 import io.github.ppzxc.codec.mapper.MultiMapper;
 import io.github.ppzxc.codec.mapper.ReadCommand;
 import io.github.ppzxc.codec.model.EncodingType;
@@ -26,7 +26,7 @@ public class EncryptedHandShakeMessageDecoder extends MessageToMessageDecoder<En
   /**
    * Instantiates a new Encrypted hand shake message decoder.
    *
-   * @param crypto the crypto
+   * @param crypto      the crypto
    * @param multiMapper the multi mapper
    */
   public EncryptedHandShakeMessageDecoder(Crypto crypto, MultiMapper multiMapper) {
@@ -46,7 +46,7 @@ public class EncryptedHandShakeMessageDecoder extends MessageToMessageDecoder<En
         .encryptionMethod(encryptionMethod)
         .build());
     } catch (Exception e) {
-      throw new HandShakeDecodeFailException(msg.header(), e);
+      throw new HandShakeDecodeFailProblemException(msg.header().getId(), e);
     }
   }
 }

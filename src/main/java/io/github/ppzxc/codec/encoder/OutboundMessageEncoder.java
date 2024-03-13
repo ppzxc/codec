@@ -1,7 +1,7 @@
 package io.github.ppzxc.codec.encoder;
 
-import io.github.ppzxc.codec.exception.MessageEncodeFailException;
-import io.github.ppzxc.codec.exception.SerializeFailedException;
+import io.github.ppzxc.codec.exception.MessageEncodeFailProblemException;
+import io.github.ppzxc.codec.exception.SerializeFailedProblemException;
 import io.github.ppzxc.codec.mapper.MultiMapper;
 import io.github.ppzxc.codec.mapper.WriteCommand;
 import io.github.ppzxc.codec.model.AbstractMessage;
@@ -30,7 +30,7 @@ public class OutboundMessageEncoder extends MessageToMessageEncoder<OutboundMess
   /**
    * Instantiates a new Outbound message encoder.
    *
-   * @param crypto the crypto
+   * @param crypto      the crypto
    * @param multiMapper the multi mapper
    */
   public OutboundMessageEncoder(Crypto crypto, MultiMapper multiMapper) {
@@ -55,11 +55,11 @@ public class OutboundMessageEncoder extends MessageToMessageEncoder<OutboundMess
       buffer.writeBytes(AbstractMessage.LINE_DELIMITER);
       out.add(buffer);
     } catch (Exception e) {
-      throw new MessageEncodeFailException(msg.header(), e);
+      throw new MessageEncodeFailProblemException(msg.header(), e);
     }
   }
 
-  private byte[] makeBody(OutboundMessage msg) throws CryptoException, SerializeFailedException {
+  private byte[] makeBody(OutboundMessage msg) throws CryptoException, SerializeFailedProblemException {
     return msg.getBody() == null ? new byte[0]
       : crypto.encrypt(
         multiMapper.write(WriteCommand.of(EncodingType.of(msg.header().getEncoding()), msg.getBody())));

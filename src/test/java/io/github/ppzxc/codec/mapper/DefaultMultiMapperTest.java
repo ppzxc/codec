@@ -3,8 +3,8 @@ package io.github.ppzxc.codec.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-import io.github.ppzxc.codec.exception.DeserializeFailedException;
-import io.github.ppzxc.codec.exception.SerializeFailedException;
+import io.github.ppzxc.codec.exception.DeserializeFailedProblemException;
+import io.github.ppzxc.codec.exception.SerializeFailedProblemException;
 import io.github.ppzxc.codec.model.EncodingType;
 import io.github.ppzxc.codec.model.EncryptionMethod;
 import io.github.ppzxc.codec.model.EncryptionMethodProtobufFixture;
@@ -23,7 +23,7 @@ class DefaultMultiMapperTest {
   }
 
   @Test
-  void should_serialize_when_json_command() throws SerializeFailedException {
+  void should_serialize_when_json_command() throws SerializeFailedProblemException {
     // given
     TestUser given = TestUser.random();
 
@@ -35,7 +35,7 @@ class DefaultMultiMapperTest {
   }
 
   @Test
-  void should_deserialize_when_json_command() throws SerializeFailedException, DeserializeFailedException {
+  void should_deserialize_when_json_command() throws SerializeFailedProblemException, DeserializeFailedProblemException {
     // given
     TestUser expected = TestUser.random();
     byte[] given = multiMapper.write(WriteCommand.of(EncodingType.JSON, expected));
@@ -48,7 +48,7 @@ class DefaultMultiMapperTest {
   }
 
   @Test
-  void should_serialize_when_bson_command() throws SerializeFailedException {
+  void should_serialize_when_bson_command() throws SerializeFailedProblemException {
     // given
     TestUser given = TestUser.random();
 
@@ -60,7 +60,7 @@ class DefaultMultiMapperTest {
   }
 
   @Test
-  void should_deserialize_when_bson_command() throws SerializeFailedException, DeserializeFailedException {
+  void should_deserialize_when_bson_command() throws SerializeFailedProblemException, DeserializeFailedProblemException {
     // given
     TestUser expected = TestUser.random();
     byte[] given = multiMapper.write(WriteCommand.of(EncodingType.BSON, expected));
@@ -73,7 +73,7 @@ class DefaultMultiMapperTest {
   }
 
   @Test
-  void should_serialize_when_java_command() throws SerializeFailedException {
+  void should_serialize_when_java_command() throws SerializeFailedProblemException {
     // given
     TestUser given = TestUser.random();
 
@@ -85,7 +85,7 @@ class DefaultMultiMapperTest {
   }
 
   @Test
-  void should_deserialize_when_java_command() throws SerializeFailedException, DeserializeFailedException {
+  void should_deserialize_when_java_command() throws SerializeFailedProblemException, DeserializeFailedProblemException {
     // given
     TestUser expected = TestUser.random();
     byte[] given = multiMapper.write(WriteCommand.of(EncodingType.JAVA_BINARY, expected));
@@ -100,25 +100,25 @@ class DefaultMultiMapperTest {
   @Test
   void should_throw_exception_when_null_proto_mapper_1() {
     assertThatCode(() -> DefaultMultiMapper.create().write(WriteCommand.of(EncodingType.PROTOBUF, new Object())))
-      .isInstanceOf(SerializeFailedException.class);
+      .isInstanceOf(SerializeFailedProblemException.class);
   }
 
   @Test
   void should_throw_exception_when_null_proto_mapper_2() {
     assertThatCode(
       () -> DefaultMultiMapper.create().read(ReadCommand.of(EncodingType.PROTOBUF, new byte[0], Object.class)))
-      .isInstanceOf(DeserializeFailedException.class);
+      .isInstanceOf(DeserializeFailedProblemException.class);
   }
 
   @Test
   void should_throw_exception_when_null_proto_mapper_3() {
     assertThatCode(
       () -> DefaultMultiMapper.create().read(ReadCommand.of(EncodingType.NULL, new byte[0], Object.class)))
-      .isInstanceOf(DeserializeFailedException.class);
+      .isInstanceOf(DeserializeFailedProblemException.class);
   }
 
   @Test
-  void should_serialize_when_proto_command() throws SerializeFailedException {
+  void should_serialize_when_proto_command() throws SerializeFailedProblemException {
     WriteCommand command = WriteCommand.of(EncodingType.PROTOBUF, TestUser.random());
     assertThat(command.getType()).isEqualByComparingTo(EncodingType.PROTOBUF);
     assertThat(multiMapper.write(command)).isEmpty();
@@ -127,11 +127,11 @@ class DefaultMultiMapperTest {
   @Test
   void should_serialize_when_proto_command_2() {
     assertThatCode(() -> multiMapper.write(WriteCommand.of(EncodingType.NULL, TestUser.random())))
-      .isInstanceOf(SerializeFailedException.class);
+      .isInstanceOf(SerializeFailedProblemException.class);
   }
 
   @Test
-  void should_deserialize_when_proto_command() throws DeserializeFailedException {
+  void should_deserialize_when_proto_command() throws DeserializeFailedProblemException {
     // given
     EncryptionMethodProtobuf expected = EncryptionMethodProtobufFixture.random();
 

@@ -1,7 +1,7 @@
 package io.github.ppzxc.codec.mapper;
 
-import io.github.ppzxc.codec.exception.DeserializeFailedException;
-import io.github.ppzxc.codec.exception.SerializeFailedException;
+import io.github.ppzxc.codec.exception.DeserializeFailedProblemException;
+import io.github.ppzxc.codec.exception.SerializeFailedProblemException;
 
 /**
  * The interface Mapper.
@@ -15,9 +15,9 @@ public interface Mapper {
    * @param payload the payload
    * @param tClass  the t class
    * @return the t
-   * @throws DeserializeFailedException the deserialize failed exception
+   * @throws DeserializeFailedProblemException the deserialize failed problem exception
    */
-  <T> T read(byte[] payload, Class<T> tClass) throws DeserializeFailedException;
+  <T> T read(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException;
 
   /**
    * Write byte [ ].
@@ -25,7 +25,7 @@ public interface Mapper {
    * @param <T>     the type parameter
    * @param payload the payload
    * @return the byte [ ]
-   * @throws SerializeFailedException the serialize failed exception
+   * @throws SerializeFailedProblemException the serialize failed problem exception
    */
-  <T> byte[] write(T payload) throws SerializeFailedException;
+  <T> byte[] write(T payload) throws SerializeFailedProblemException;
 }

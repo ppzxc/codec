@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.ppzxc.codec.exception.DeserializeFailedException;
-import io.github.ppzxc.codec.exception.SerializeFailedException;
+import io.github.ppzxc.codec.exception.DeserializeFailedProblemException;
+import io.github.ppzxc.codec.exception.SerializeFailedProblemException;
 import io.github.ppzxc.codec.model.EncodingType;
 import io.github.ppzxc.codec.model.TestUser;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +25,7 @@ class JsonObjectMapperTest {
   }
 
   @Test
-  void should_serialize() throws SerializeFailedException {
+  void should_serialize() throws SerializeFailedProblemException {
     // given
     TestUser given = TestUser.random();
 
@@ -37,7 +37,7 @@ class JsonObjectMapperTest {
   }
 
   @Test
-  void should_deserialize() throws SerializeFailedException, DeserializeFailedException {
+  void should_deserialize() throws SerializeFailedProblemException, DeserializeFailedProblemException {
     // given
     TestUser expected = TestUser.random();
 
@@ -56,7 +56,7 @@ class JsonObjectMapperTest {
 
     // when, then
     assertThatCode(() -> multiMapper.write(WriteCommand.of(EncodingType.JSON, given)))
-      .isInstanceOf(SerializeFailedException.class);
+      .isInstanceOf(SerializeFailedProblemException.class);
   }
 
   @Test
@@ -66,6 +66,6 @@ class JsonObjectMapperTest {
 
     // when, then
     assertThatCode(() -> JsonObjectMapper.create(new ObjectMapper()).write(WriteCommand.of(EncodingType.JSON, given)))
-      .isInstanceOf(SerializeFailedException.class);
+      .isInstanceOf(SerializeFailedProblemException.class);
   }
 }
