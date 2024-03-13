@@ -3,8 +3,8 @@ package io.github.ppzxc.codec.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-import io.github.ppzxc.codec.exception.DeserializeFailedProblemException;
-import io.github.ppzxc.codec.exception.SerializeFailedProblemException;
+import io.github.ppzxc.codec.exception.DeserializeFailedException;
+import io.github.ppzxc.codec.exception.SerializeFailedException;
 import io.github.ppzxc.codec.model.EncryptionMethod;
 import io.github.ppzxc.codec.model.EncryptionMethodProtobufFixture;
 import io.github.ppzxc.codec.model.protobuf.EncryptionMethodProtobuf;
@@ -21,24 +21,24 @@ class ProtoObjectMapperTest {
   }
 
   @Test
-  void should_throw_exception_when_serialize() throws SerializeFailedProblemException {
+  void should_throw_exception_when_serialize() throws SerializeFailedException {
     assertThat(mapper.write(new Object())).isEmpty();
   }
 
   @Test
   void should_deserialize_when_protobuf_1() {
     assertThatCode(() -> mapper.read(null, EncryptionMethod.class))
-      .isInstanceOf(DeserializeFailedProblemException.class);
+      .isInstanceOf(DeserializeFailedException.class);
   }
 
   @Test
   void should_deserialize_when_protobuf_2() {
     assertThatCode(() -> mapper.read(null, Object.class))
-      .isInstanceOf(DeserializeFailedProblemException.class);
+      .isInstanceOf(DeserializeFailedException.class);
   }
 
   @Test
-  void should_deserialize_when_protobuf_3() throws DeserializeFailedProblemException {
+  void should_deserialize_when_protobuf_3() throws DeserializeFailedException {
     // given
     EncryptionMethodProtobuf expected = EncryptionMethodProtobufFixture.random();
 

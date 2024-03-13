@@ -3,8 +3,8 @@ package io.github.ppzxc.codec.encoder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-import io.github.ppzxc.codec.exception.DeserializeFailedProblemException;
-import io.github.ppzxc.codec.exception.MessageEncodeFailProblemException;
+import io.github.ppzxc.codec.exception.DeserializeFailedException;
+import io.github.ppzxc.codec.exception.MessageEncodeFailedException;
 import io.github.ppzxc.codec.exception.CodecProblemException;
 import io.github.ppzxc.codec.mapper.DefaultMultiMapper;
 import io.github.ppzxc.codec.mapper.MultiMapper;
@@ -46,7 +46,7 @@ class OutboundMessageEncoderTest {
   }
 
   @RepeatedTest(10)
-  void should_encode_prepare_outbound_message() throws CryptoException, DeserializeFailedProblemException {
+  void should_encode_prepare_outbound_message() throws CryptoException, DeserializeFailedException {
     // given
     TestUser given = TestUser.random();
     OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.with(EncodingType.JSON), given);
@@ -94,8 +94,8 @@ class OutboundMessageEncoderTest {
       assertThat(throwable).isInstanceOf(EncoderException.class);
       assertThat(ExceptionUtils.findCause(throwable, CodecProblemException.class))
         .isInstanceOf(CodecProblemException.class);
-      assertThat(ExceptionUtils.findCause(throwable, MessageEncodeFailProblemException.class))
-        .isInstanceOf(MessageEncodeFailProblemException.class);
+      assertThat(ExceptionUtils.findCause(throwable, MessageEncodeFailedException.class))
+        .isInstanceOf(MessageEncodeFailedException.class);
     });
   }
 
@@ -105,7 +105,7 @@ class OutboundMessageEncoderTest {
     return body;
   }
 
-  private void equalsBody(byte[] body, TestUser given) throws DeserializeFailedProblemException, CryptoException {
+  private void equalsBody(byte[] body, TestUser given) throws DeserializeFailedException, CryptoException {
     assertThat(multiMapper.read(ReadCommand.of(EncodingType.JSON, crypto.decrypt(body), TestUser.class)))
       .usingRecursiveComparison().isEqualTo(given);
     assertThat((char) body[body.length - 2]).isEqualTo('\r');

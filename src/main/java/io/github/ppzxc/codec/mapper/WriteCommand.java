@@ -3,9 +3,6 @@ package io.github.ppzxc.codec.mapper;
 import io.github.ppzxc.codec.model.EncodingType;
 import io.github.ppzxc.fixh.ObjectUtils;
 
-/**
- * The type Write command.
- */
 public final class WriteCommand {
 
   private final EncodingType type;
@@ -16,31 +13,14 @@ public final class WriteCommand {
     this.payload = ObjectUtils.requireNonNull(payload, "'payload' is require non null");
   }
 
-  /**
-   * Of write command.
-   *
-   * @param type    the type
-   * @param payload the payload
-   * @return the write command
-   */
   public static WriteCommand of(EncodingType type, Object payload) {
     return new WriteCommand(type, payload);
   }
 
-  /**
-   * Gets type.
-   *
-   * @return the type
-   */
   public EncodingType getType() {
     return type;
   }
 
-  /**
-   * Gets payload.
-   *
-   * @return the payload
-   */
   public Object getPayload() {
     return payload;
   }

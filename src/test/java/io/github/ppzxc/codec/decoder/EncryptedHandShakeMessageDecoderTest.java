@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import io.github.ppzxc.codec.exception.HandShakeDecodeFailProblemException;
+import io.github.ppzxc.codec.exception.HandShakeDecodeFailedException;
 import io.github.ppzxc.codec.exception.CodecProblemException;
-import io.github.ppzxc.codec.exception.SerializeFailedProblemException;
+import io.github.ppzxc.codec.exception.SerializeFailedException;
 import io.github.ppzxc.codec.mapper.DefaultMultiMapper;
 import io.github.ppzxc.codec.mapper.MultiMapper;
 import io.github.ppzxc.codec.mapper.WriteCommand;
@@ -66,8 +66,8 @@ class EncryptedHandShakeMessageDecoderTest {
       assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(MismatchedInputException.class);
       assertThat(ExceptionUtils.findCause(throwable, CodecProblemException.class))
         .isInstanceOf(CodecProblemException.class);
-      assertThat(ExceptionUtils.findCause(throwable, HandShakeDecodeFailProblemException.class))
-        .isInstanceOf(HandShakeDecodeFailProblemException.class);
+      assertThat(ExceptionUtils.findCause(throwable, HandShakeDecodeFailedException.class))
+        .isInstanceOf(HandShakeDecodeFailedException.class);
     });
   }
 
@@ -84,13 +84,13 @@ class EncryptedHandShakeMessageDecoderTest {
         ArrayIndexOutOfBoundsException.class);
       assertThat(ExceptionUtils.findCause(throwable, CodecProblemException.class))
         .isInstanceOf(CodecProblemException.class);
-      assertThat(ExceptionUtils.findCause(throwable, HandShakeDecodeFailProblemException.class))
-        .isInstanceOf(HandShakeDecodeFailProblemException.class);
+      assertThat(ExceptionUtils.findCause(throwable, HandShakeDecodeFailedException.class))
+        .isInstanceOf(HandShakeDecodeFailedException.class);
     });
   }
 
   @RepeatedTest(10)
-  void should_return_HandShakeMessage_when_json() throws SerializeFailedProblemException, CryptoException {
+  void should_return_HandShakeMessage_when_json() throws SerializeFailedException, CryptoException {
     // given
     EncryptionMethod expected = EncryptionMethodFixture.random();
     byte[] plainText = multiMapper.write(WriteCommand.of(EncodingType.JSON, expected));
@@ -107,7 +107,7 @@ class EncryptedHandShakeMessageDecoderTest {
   }
 
   @RepeatedTest(10)
-  void should_return_HandShakeMessage_when_bson() throws SerializeFailedProblemException, CryptoException {
+  void should_return_HandShakeMessage_when_bson() throws SerializeFailedException, CryptoException {
     // given
     EncryptionMethod expected = EncryptionMethodFixture.random();
     byte[] plainText = multiMapper.write(WriteCommand.of(EncodingType.BSON, expected));

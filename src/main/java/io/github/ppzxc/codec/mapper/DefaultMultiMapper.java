@@ -1,12 +1,9 @@
 package io.github.ppzxc.codec.mapper;
 
-import io.github.ppzxc.codec.exception.DeserializeFailedProblemException;
-import io.github.ppzxc.codec.exception.SerializeFailedProblemException;
+import io.github.ppzxc.codec.exception.DeserializeFailedException;
+import io.github.ppzxc.codec.exception.SerializeFailedException;
 import io.github.ppzxc.fixh.ObjectUtils;
 
-/**
- * The type Default multi mapper.
- */
 public class DefaultMultiMapper extends AbstractMultiMapper {
 
   private final Mapper jsonMapper;
@@ -21,11 +18,6 @@ public class DefaultMultiMapper extends AbstractMultiMapper {
     this.protobufMapper = protobufMapper;
   }
 
-  /**
-   * Create multi mapper.
-   *
-   * @return the multi mapper
-   */
   public static MultiMapper create() {
     return DefaultMultiMapper.builder()
       .jsonMapper(JsonObjectMapper.create())
@@ -34,12 +26,6 @@ public class DefaultMultiMapper extends AbstractMultiMapper {
       .build();
   }
 
-  /**
-   * Create multi mapper.
-   *
-   * @param protobufMapper the protobuf mapper
-   * @return the multi mapper
-   */
   public static MultiMapper create(Mapper protobufMapper) {
     return DefaultMultiMapper.builder()
       .jsonMapper(JsonObjectMapper.create())
@@ -49,66 +35,58 @@ public class DefaultMultiMapper extends AbstractMultiMapper {
       .build();
   }
 
-  /**
-   * Builder default multi mapper builder.
-   *
-   * @return the default multi mapper builder
-   */
   public static DefaultMultiMapperBuilder builder() {
     return new DefaultMultiMapperBuilder();
   }
 
   @Override
-  <T> T readFromProtoBuf(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException {
+  <T> T readFromProtoBuf(byte[] payload, Class<T> tClass) throws DeserializeFailedException {
     if (protobufMapper == null) {
-      throw new DeserializeFailedProblemException("not supported protobuf encoding");
+      throw new DeserializeFailedException("not supported protobuf encoding");
     } else {
       return protobufMapper.read(payload, tClass);
     }
   }
 
   @Override
-  <T> T readFromJson(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException {
+  <T> T readFromJson(byte[] payload, Class<T> tClass) throws DeserializeFailedException {
     return jsonMapper.read(payload, tClass);
   }
 
   @Override
-  <T> T readFromBson(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException {
+  <T> T readFromBson(byte[] payload, Class<T> tClass) throws DeserializeFailedException {
     return bsonMapper.read(payload, tClass);
   }
 
   @Override
-  <T> T readFromJava(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException {
+  <T> T readFromJava(byte[] payload, Class<T> tClass) throws DeserializeFailedException {
     return javaMapper.read(payload, tClass);
   }
 
   @Override
-  <T> byte[] writeUsingProtoBuf(T payload) throws SerializeFailedProblemException {
+  <T> byte[] writeUsingProtoBuf(T payload) throws SerializeFailedException {
     if (protobufMapper == null) {
-      throw new SerializeFailedProblemException("not supported protobuf encoding");
+      throw new SerializeFailedException("not supported protobuf encoding");
     } else {
       return protobufMapper.write(payload);
     }
   }
 
   @Override
-  <T> byte[] writeUsingJson(T payload) throws SerializeFailedProblemException {
+  <T> byte[] writeUsingJson(T payload) throws SerializeFailedException {
     return jsonMapper.write(payload);
   }
 
   @Override
-  <T> byte[] writeUsingBson(T payload) throws SerializeFailedProblemException {
+  <T> byte[] writeUsingBson(T payload) throws SerializeFailedException {
     return bsonMapper.write(payload);
   }
 
   @Override
-  <T> byte[] writeUsingJava(T payload) throws SerializeFailedProblemException {
+  <T> byte[] writeUsingJava(T payload) throws SerializeFailedException {
     return javaMapper.write(payload);
   }
 
-  /**
-   * The type Default multi mapper builder.
-   */
   public static final class DefaultMultiMapperBuilder {
 
     private Mapper jsonMapper;
@@ -119,55 +97,26 @@ public class DefaultMultiMapper extends AbstractMultiMapper {
     private DefaultMultiMapperBuilder() {
     }
 
-    /**
-     * Json mapper default multi mapper builder.
-     *
-     * @param jsonMapper the json mapper
-     * @return the default multi mapper builder
-     */
     public DefaultMultiMapperBuilder jsonMapper(Mapper jsonMapper) {
       this.jsonMapper = jsonMapper;
       return this;
     }
 
-    /**
-     * Bson mapper default multi mapper builder.
-     *
-     * @param bsonMapper the bson mapper
-     * @return the default multi mapper builder
-     */
     public DefaultMultiMapperBuilder bsonMapper(Mapper bsonMapper) {
       this.bsonMapper = bsonMapper;
       return this;
     }
 
-    /**
-     * Java mapper default multi mapper builder.
-     *
-     * @param javaMapper the java mapper
-     * @return the default multi mapper builder
-     */
     public DefaultMultiMapperBuilder javaMapper(Mapper javaMapper) {
       this.javaMapper = javaMapper;
       return this;
     }
 
-    /**
-     * Protobuf mapper default multi mapper builder.
-     *
-     * @param protobufMapper the protobuf mapper
-     * @return the default multi mapper builder
-     */
     public DefaultMultiMapperBuilder protobufMapper(Mapper protobufMapper) {
       this.protobufMapper = protobufMapper;
       return this;
     }
 
-    /**
-     * Build default multi mapper.
-     *
-     * @return the default multi mapper
-     */
     public DefaultMultiMapper build() {
       return new DefaultMultiMapper(jsonMapper, bsonMapper, javaMapper, protobufMapper);
     }

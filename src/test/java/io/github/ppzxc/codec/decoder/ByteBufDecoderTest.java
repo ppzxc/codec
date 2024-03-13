@@ -3,11 +3,11 @@ package io.github.ppzxc.codec.decoder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-import io.github.ppzxc.codec.exception.LessThanMinimumMessageLengthCodeProblemException;
-import io.github.ppzxc.codec.exception.MissingLineDelimiterCodeProblemException;
-import io.github.ppzxc.codec.exception.NotSameLengthCodeProblemException;
-import io.github.ppzxc.codec.exception.NotSupportedBodyLengthProblemException;
-import io.github.ppzxc.codec.exception.NullPointerCodeProblemException;
+import io.github.ppzxc.codec.exception.MinimumLengthLimitException;
+import io.github.ppzxc.codec.exception.MissingDelimiterException;
+import io.github.ppzxc.codec.exception.NotEqualLengthException;
+import io.github.ppzxc.codec.exception.UnsupportedBodyLengthException;
+import io.github.ppzxc.codec.exception.BlankBodyException;
 import io.github.ppzxc.codec.exception.CodecProblemException;
 import io.github.ppzxc.codec.model.AbstractMessage;
 import io.github.ppzxc.codec.model.EncryptedHandShakeMessage;
@@ -58,7 +58,7 @@ class ByteBufDecoderTest {
       assertThat(throwable).isInstanceOf(DecoderException.class);
       assertThat(throwable).isInstanceOf(Object.class);
       assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(CodecProblemException.class);
-      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(NullPointerCodeProblemException.class);
+      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(BlankBodyException.class);
     });
   }
 
@@ -72,7 +72,7 @@ class ByteBufDecoderTest {
     assertThatCode(() -> channel.writeInbound(given)).satisfies(throwable -> {
       assertThat(throwable).isInstanceOf(DecoderException.class);
       assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(CodecProblemException.class);
-      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(LessThanMinimumMessageLengthCodeProblemException.class);
+      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(MinimumLengthLimitException.class);
     });
   }
 
@@ -115,7 +115,7 @@ class ByteBufDecoderTest {
     assertThatCode(() -> channel.writeInbound(RawMessageFixture.toByteBuf(given))).satisfies(throwable -> {
       assertThat(throwable).isInstanceOf(io.netty.handler.codec.CodecException.class);
       assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(CodecProblemException.class);
-      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(NotSupportedBodyLengthProblemException.class);
+      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(UnsupportedBodyLengthException.class);
     });
   }
 
@@ -132,7 +132,7 @@ class ByteBufDecoderTest {
     assertThatCode(() -> channel.writeInbound(RawMessageFixture.toByteBuf(given))).satisfies(throwable -> {
       assertThat(throwable).isInstanceOf(io.netty.handler.codec.CodecException.class);
       assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(CodecProblemException.class);
-      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(NotSupportedBodyLengthProblemException.class);
+      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(UnsupportedBodyLengthException.class);
     });
   }
 
@@ -149,7 +149,7 @@ class ByteBufDecoderTest {
     assertThatCode(() -> channel.writeInbound(RawMessageFixture.toByteBuf(given))).satisfies(throwable -> {
       assertThat(throwable).isInstanceOf(io.netty.handler.codec.CodecException.class);
       assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(CodecProblemException.class);
-      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(NotSameLengthCodeProblemException.class);
+      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(NotEqualLengthException.class);
     });
   }
 
@@ -162,7 +162,7 @@ class ByteBufDecoderTest {
     assertThatCode(() -> channel.writeInbound(RawMessageFixture.toByteBuf(given))).satisfies(throwable -> {
       assertThat(throwable).isInstanceOf(io.netty.handler.codec.CodecException.class);
       assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(CodecProblemException.class);
-      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(MissingLineDelimiterCodeProblemException.class);
+      assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(MissingDelimiterException.class);
     });
   }
 

@@ -1,21 +1,18 @@
 package io.github.ppzxc.codec.mapper;
 
-import io.github.ppzxc.codec.exception.DeserializeFailedProblemException;
-import io.github.ppzxc.codec.exception.SerializeFailedProblemException;
+import io.github.ppzxc.codec.exception.DeserializeFailedException;
+import io.github.ppzxc.codec.exception.SerializeFailedException;
 import io.github.ppzxc.codec.model.EncryptionMethod;
 import io.github.ppzxc.codec.model.EncryptionMode;
 import io.github.ppzxc.codec.model.EncryptionPadding;
 import io.github.ppzxc.codec.model.EncryptionType;
 import io.github.ppzxc.codec.model.protobuf.EncryptionMethodProtobuf;
 
-/**
- * The type Proto object mapper.
- */
 public class ProtoObjectMapper implements Mapper {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T read(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException {
+  public <T> T read(byte[] payload, Class<T> tClass) throws DeserializeFailedException {
     if (tClass.equals(EncryptionMethod.class)) {
       try {
         EncryptionMethodProtobuf encryptionMethodProtobuf = EncryptionMethodProtobuf.parseFrom(payload);
@@ -27,15 +24,15 @@ public class ProtoObjectMapper implements Mapper {
           .symmetricKey(encryptionMethodProtobuf.getSymmetricKey())
           .build();
       } catch (Exception e) {
-        throw new DeserializeFailedProblemException(e);
+        throw new DeserializeFailedException(e);
       }
     } else {
-      throw new DeserializeFailedProblemException();
+      throw new DeserializeFailedException();
     }
   }
 
   @Override
-  public <T> byte[] write(T payload) throws SerializeFailedProblemException {
+  public <T> byte[] write(T payload) throws SerializeFailedException {
     return new byte[0];
   }
 }

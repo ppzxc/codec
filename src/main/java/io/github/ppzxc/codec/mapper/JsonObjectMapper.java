@@ -2,15 +2,12 @@ package io.github.ppzxc.codec.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import io.github.ppzxc.codec.exception.DeserializeFailedProblemException;
-import io.github.ppzxc.codec.exception.SerializeFailedProblemException;
+import io.github.ppzxc.codec.exception.DeserializeFailedException;
+import io.github.ppzxc.codec.exception.SerializeFailedException;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.TimeZone;
 
-/**
- * The type Json object mapper.
- */
 public class JsonObjectMapper implements Mapper {
 
   private final ObjectMapper objectMapper;
@@ -27,38 +24,27 @@ public class JsonObjectMapper implements Mapper {
   }
 
   @Override
-  public <T> T read(byte[] payload, Class<T> tClass) throws DeserializeFailedProblemException {
+  public <T> T read(byte[] payload, Class<T> tClass) throws DeserializeFailedException {
     try {
       return objectMapper.readValue(payload, tClass);
     } catch (IOException e) {
-      throw new DeserializeFailedProblemException(e);
+      throw new DeserializeFailedException(e);
     }
   }
 
   @Override
-  public <T> byte[] write(T payload) throws SerializeFailedProblemException {
+  public <T> byte[] write(T payload) throws SerializeFailedException {
     try {
       return objectMapper.writeValueAsBytes(payload);
     } catch (IOException e) {
-      throw new SerializeFailedProblemException(e);
+      throw new SerializeFailedException(e);
     }
   }
 
-  /**
-   * Create json object mapper.
-   *
-   * @param objectMapper the object mapper
-   * @return the json object mapper
-   */
   public static JsonObjectMapper create(ObjectMapper objectMapper) {
     return new JsonObjectMapper(objectMapper);
   }
 
-  /**
-   * Create json object mapper.
-   *
-   * @return the json object mapper
-   */
   public static JsonObjectMapper create() {
     return new JsonObjectMapper();
   }
