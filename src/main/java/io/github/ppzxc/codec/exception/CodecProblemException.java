@@ -62,10 +62,6 @@ public class CodecProblemException extends Exception {
     return id;
   }
 
-  public CodecProblem getProblemCode() {
-    return codecProblem;
-  }
-
   public String getRejectedValue() {
     return rejectedValue;
   }

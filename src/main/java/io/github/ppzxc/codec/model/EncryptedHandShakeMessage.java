@@ -47,4 +47,9 @@ public class EncryptedHandShakeMessage extends AbstractMessage {
       return new EncryptedHandShakeMessage(header, body);
     }
   }
+
+  @Override
+  public String toString() {
+    return "EncryptedHandShakeMessage{" + header + "}";
+  }
 }
