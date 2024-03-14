@@ -37,4 +37,9 @@ public enum EncryptionMode {
       .findAny()
       .orElse(EncryptionMode.NONE);
   }
+
+  @Override
+  public String toString() {
+    return name() + "(" + code + ")";
+  }
 }

@@ -50,6 +50,9 @@ public class EncryptedHandShakeMessage extends AbstractMessage {
 
   @Override
   public String toString() {
-    return "EncryptedHandShakeMessage{" + header + "}";
+    return "EncryptedHandShakeMessage{" +
+      "header=" + header +
+      ", body=[MASKED]" +
+      "}";
   }
 }

@@ -51,6 +51,18 @@ public class Header implements Serializable {
     return new RawHeaderBuilder();
   }
 
+  @Override
+  public String toString() {
+    return "Header{" +
+      "id=" + id +
+      ", type=" + type +
+      ", status=" + status +
+      ", encoding=" + encoding +
+      ", reserved=" + reserved +
+      ", bodyLength=" + bodyLength +
+      '}';
+  }
+
   public static final class RawHeaderBuilder {
 
     private int id;
@@ -96,17 +108,5 @@ public class Header implements Serializable {
     public Header build() {
       return new Header(id, type, status, encoding, reserved, bodyLength);
     }
-  }
-
-  @Override
-  public String toString() {
-    return "Header{" +
-      "id=" + id +
-      ", type=" + type +
-      ", status=" + status +
-      ", encoding=" + encoding +
-      ", reserved=" + reserved +
-      ", bodyLength=" + bodyLength +
-      '}';
   }
 }

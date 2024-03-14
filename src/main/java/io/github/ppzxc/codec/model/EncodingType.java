@@ -28,6 +28,6 @@ public enum EncodingType {
 
   @Override
   public String toString() {
-    return String.format("EncodingType{%s(0x%02x)}", name(), code);
+    return String.format("%s(0x%02x)", name(), code);
   }
 }
