@@ -27,7 +27,7 @@ public class EncryptedHandShakeMessageDecoder extends MessageToMessageDecoder<En
 
   @Override
   protected void decode(ChannelHandlerContext ctx, EncryptedHandShakeMessage msg, List<Object> out) throws Exception {
-    log.debug("{} decode", ctx.channel());
+    log.debug("{} id={} decode", ctx.channel(), msg.header().getId());
     try {
       byte[] plainText = crypto.decrypt(msg.getBody().array());
       EncryptionMethod encryptionMethod = multiMapper.read(

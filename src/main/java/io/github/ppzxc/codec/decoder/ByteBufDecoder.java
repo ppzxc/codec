@@ -35,7 +35,7 @@ public class ByteBufDecoder extends MessageToMessageDecoder<ByteBuf> {
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
-    log.debug("{} decode", ctx.channel());
+    log.debug("{} id=[BEFORE DECODE] decode", ctx.channel());
     preCondition(msg);
     Header header = Header.builder()
       .id(msg.readInt())
@@ -45,6 +45,7 @@ public class ByteBufDecoder extends MessageToMessageDecoder<ByteBuf> {
       .reserved(msg.readByte())
       .bodyLength(msg.readInt())
       .build();
+    log.debug("{} id={} decode", ctx.channel(), header.getId());
     ByteBuf body = getBody(header, msg);
     postCondition(header, body);
     if (header.getType() == HandShakeMessage.HEADER_TYPE_CODE) {
