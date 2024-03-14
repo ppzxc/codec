@@ -3,7 +3,6 @@ package io.github.ppzxc.codec.exception;
 public enum CodecProblem {
   BLANK_BODY,
   LESS_THAN_MINIMUM_MESSAGE_LENGTH,
-  CORRUPTED_BODY_LENGTH,
   NOT_SAME_LENGTH,
   MISSING_LINE_DELIMITER,
   NOT_SUPPORTED_BODY_LENGTH,
