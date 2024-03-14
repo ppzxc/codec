@@ -31,7 +31,7 @@ public class OutboundMessageEncoder extends MessageToMessageEncoder<OutboundMess
 
   @Override
   protected void encode(ChannelHandlerContext ctx, OutboundMessage msg, List<Object> out) throws Exception {
-    log.debug("{} encode", ctx.channel());
+    log.debug("{} id={} encode", ctx.channel(), msg.header().getId());
     try {
       byte[] body = makeBody(msg);
       int bodyLength = body.length + Header.MINIMUM_BODY_LENGTH;
