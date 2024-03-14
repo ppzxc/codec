@@ -97,4 +97,16 @@ public class Header implements Serializable {
       return new Header(id, type, status, encoding, reserved, bodyLength);
     }
   }
+
+  @Override
+  public String toString() {
+    return "Header{" +
+      "id=" + id +
+      ", type=" + type +
+      ", status=" + status +
+      ", encoding=" + encoding +
+      ", reserved=" + reserved +
+      ", bodyLength=" + bodyLength +
+      '}';
+  }
 }
