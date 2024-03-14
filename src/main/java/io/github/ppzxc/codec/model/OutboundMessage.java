@@ -28,6 +28,11 @@ public class OutboundMessage extends AbstractMessage {
     return new Builder();
   }
 
+  @Override
+  public String toString() {
+    return "OutboundMessage{header=" + header + ", body=[MASKED]}";
+  }
+
   @JsonPOJOBuilder(withPrefix = "")
   public static final class Builder {
 

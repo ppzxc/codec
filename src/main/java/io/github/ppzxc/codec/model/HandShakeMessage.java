@@ -23,6 +23,11 @@ public class HandShakeMessage extends AbstractMessage {
     return new HandShakeBuilder();
   }
 
+  @Override
+  public String toString() {
+    return "HandShakeMessage{header=" + header + ", encryptionMethod=" + encryptionMethod + "}";
+  }
+
   public static final class HandShakeBuilder {
 
     private Header header;
@@ -44,10 +49,5 @@ public class HandShakeMessage extends AbstractMessage {
     public HandShakeMessage build() {
       return new HandShakeMessage(header, encryptionMethod);
     }
-  }
-
-  @Override
-  public String toString() {
-    return "HandShakeMessage{" + "encryptionMethod=" + encryptionMethod + ", header=" + header + "}";
   }
 }

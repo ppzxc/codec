@@ -26,6 +26,11 @@ public class InboundMessage extends AbstractMessage {
     return body;
   }
 
+  @Override
+  public String toString() {
+    return "InboundMessage{header=" + header + ", body=[MASKED]}";
+  }
+
   public static final class Builder {
 
     private Header header;

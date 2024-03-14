@@ -33,4 +33,9 @@ public enum EncryptionType {
       .findAny()
       .orElse(EncryptionType.NONE);
   }
+
+  @Override
+  public String toString() {
+    return name() + "(" + code + ")";
+  }
 }

@@ -48,6 +48,17 @@ public class EncryptionMethod implements Serializable {
     return new Builder();
   }
 
+  @Override
+  public String toString() {
+    return "EncryptionMethod{" +
+      "type=" + type +
+      ", mode=" + mode +
+      ", padding=" + padding +
+      ", iv=" + iv +
+      ", symmetricKey=" + symmetricKey +
+      '}';
+  }
+
   @JsonPOJOBuilder(withPrefix = "")
   public static final class Builder {
 

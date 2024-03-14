@@ -34,4 +34,9 @@ public enum EncryptionPadding {
       .findAny()
       .orElse(EncryptionPadding.NONE);
   }
+
+  @Override
+  public String toString() {
+    return name() + "(" + code + ")";
+  }
 }
