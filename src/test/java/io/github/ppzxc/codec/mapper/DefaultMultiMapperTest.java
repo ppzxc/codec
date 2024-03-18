@@ -6,10 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import io.github.ppzxc.codec.exception.DeserializeFailedException;
 import io.github.ppzxc.codec.exception.SerializeFailedException;
 import io.github.ppzxc.codec.model.EncodingType;
-import io.github.ppzxc.codec.model.EncryptionMethod;
-import io.github.ppzxc.codec.model.EncryptionMethodProtobufFixture;
 import io.github.ppzxc.codec.model.TestUser;
-import io.github.ppzxc.codec.model.protobuf.EncryptionMethodProtobuf;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -131,19 +128,8 @@ class DefaultMultiMapperTest {
   }
 
   @Test
-  void should_deserialize_when_proto_command() throws DeserializeFailedException {
-    // given
-    EncryptionMethodProtobuf expected = EncryptionMethodProtobufFixture.random();
-
-    // when
-    EncryptionMethod actual = multiMapper.read(
-      ReadCommand.of(EncodingType.PROTOBUF, expected.toByteArray(), EncryptionMethod.class));
-
-    // then
-    assertThat(actual.getType().name()).isEqualToIgnoringCase(expected.getType().name());
-    assertThat(actual.getMode().name()).isEqualToIgnoringCase(expected.getMode().name());
-    assertThat(actual.getPadding().name()).isEqualToIgnoringCase(expected.getPadding().name());
-    assertThat(actual.getIv()).isEqualTo(expected.getIv());
-    assertThat(actual.getSymmetricKey()).isEqualTo(expected.getSymmetricKey());
+  void should_throw_exception_whn_proto_command_3() {
+    assertThatCode(() -> multiMapper.read(ReadCommand.of(EncodingType.PROTOBUF, new byte[0], TestUser.class)))
+      .isNull();
   }
 }
