@@ -17,6 +17,7 @@ import io.netty.channel.ChannelOutboundHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.util.ReferenceCountUtil;
 import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.List;
@@ -38,46 +39,51 @@ public abstract class AbstractHandshakeHandler extends ByteToMessageDecoder impl
   public abstract void addHandler(ChannelPipeline pipeline, Crypto crypto);
 
   @Override
-  protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-    log.debug("{} id=[NO-ID] decode", ctx.channel());
-    // check corrupted length
-    int readableBytes = in.readableBytes();
-    if (readableBytes < HandshakeHeader.MINIMUM_LENGTH) {
-      throw new HandshakeException(readableBytes, CodecProblemCode.SHORT_LENGTH);
-    }
-
-    // check field
-    HandshakeHeader handShakeHeader = validateHeader(in);
-
-    // decrypt body
-    byte[] encryptedHandShakeBody = new byte[in.readableBytes()];
-    in.readBytes(encryptedHandShakeBody);
-    byte[] cipherText;
+  protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
     try {
-      cipherText = rsaCrypto.decrypt(encryptedHandShakeBody);
+      log.debug("{} id=[NO-ID] decode", ctx.channel());
+      // check corrupted length
+      int readableBytes = msg.readableBytes();
+      if (readableBytes < HandshakeHeader.MINIMUM_LENGTH) {
+        throw new HandshakeException(readableBytes, CodecProblemCode.SHORT_LENGTH);
+      }
+
+      // check field
+      HandshakeHeader handShakeHeader = validateHeader(msg);
+
+      // decrypt body
+      byte[] encryptedHandShakeBody = new byte[msg.readableBytes()];
+      msg.readBytes(encryptedHandShakeBody);
+      byte[] cipherText;
+      try {
+        cipherText = rsaCrypto.decrypt(encryptedHandShakeBody);
+      } catch (Exception e) {
+        throw new HandshakeException(e, CodecProblemCode.DECRYPT_FAIL);
+      }
+      byte[] ivParameter = Arrays.copyOfRange(cipherText, 0, HandshakeHeader.IV_PARAMETER_LENGTH);
+      byte[] symmetricKey = Arrays.copyOfRange(cipherText, HandshakeHeader.IV_PARAMETER_LENGTH, cipherText.length);
+
+      // check body
+      if (Arrays.stream(HandshakeHeader.AES_KEY_SIZES).noneMatch(aesKeySize -> aesKeySize == symmetricKey.length)) {
+        throw new HandshakeException("rejected: key " + symmetricKey.length, CodecProblemCode.INVALID_KEY_SIZE);
+      }
+
+      // make aes crypto
+      Crypto aesCrypto;
+      try {
+        aesCrypto = getAesCrypto(handShakeHeader, ivParameter, symmetricKey);
+      } catch (Exception e) {
+        throw new HandshakeException(e, CodecProblemCode.CRYPTO_CREATE_FAIL);
+      }
+
+      ChannelPipeline pipeline = ctx.pipeline();
+      addHandler(pipeline, aesCrypto);
+      pipeline.remove(this);
+      ctx.channel().writeAndFlush(createResult(CodecProblemCode.OK));
     } catch (Exception e) {
-      throw new HandshakeException(e, CodecProblemCode.DECRYPT_FAIL);
+      ReferenceCountUtil.release(msg);
+      throw e;
     }
-    byte[] ivParameter = Arrays.copyOfRange(cipherText, 0, HandshakeHeader.IV_PARAMETER_LENGTH);
-    byte[] symmetricKey = Arrays.copyOfRange(cipherText, HandshakeHeader.IV_PARAMETER_LENGTH, cipherText.length);
-
-    // check body
-    if (Arrays.stream(HandshakeHeader.AES_KEY_SIZES).noneMatch(aesKeySize -> aesKeySize == symmetricKey.length)) {
-      throw new HandshakeException("rejected: key " + symmetricKey.length, CodecProblemCode.INVALID_KEY_SIZE);
-    }
-
-    // make aes crypto
-    Crypto aesCrypto;
-    try {
-      aesCrypto = getAesCrypto(handShakeHeader, ivParameter, symmetricKey);
-    } catch (Exception e) {
-      throw new HandshakeException(e, CodecProblemCode.CRYPTO_CREATE_FAIL);
-    }
-
-    ChannelPipeline pipeline = ctx.pipeline();
-    addHandler(pipeline, aesCrypto);
-    pipeline.remove(this);
-    ctx.channel().writeAndFlush(createResult(CodecProblemCode.OK));
   }
 
   private HandshakeHeader validateHeader(ByteBuf in) throws HandshakeException {
@@ -135,7 +141,7 @@ public abstract class AbstractHandshakeHandler extends ByteToMessageDecoder impl
 
     ctx.channel()
       .writeAndFlush(result)
-      .addListener((ChannelFutureListener) future -> future.channel().disconnect());
+      .addListener((ChannelFutureListener) future -> future.channel().close());
   }
 
   private ByteBuf createResult(CodecProblemCode unrecognized) {
@@ -180,6 +186,13 @@ public abstract class AbstractHandshakeHandler extends ByteToMessageDecoder impl
   public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise)
     throws Exception {
     ctx.write(msg);
+//    if (msg instanceof ByteBuf) {
+//      ctx.write(msg).addListener(future -> ReferenceCountUtil.safeRelease(msg));
+//    } else {
+//      UnsupportedMessageTypeException exception = new UnsupportedMessageTypeException(ByteBuf.class);
+//      ReferenceCountUtil.safeRelease(msg);
+//      promise.setFailure(exception);
+//    }
   }
 
   @Override
