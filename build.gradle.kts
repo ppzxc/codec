@@ -30,8 +30,10 @@ dependencies {
 
     testImplementation(rootProject.libs.org.junit.jupiter)
     testImplementation(rootProject.libs.org.assertj.core)
+    testImplementation(rootProject.libs.org.mockito.core)
 
     testFixturesImplementation(rootProject.libs.io.netty.buffer)
+    testFixturesImplementation(rootProject.libs.io.netty.codec)
     testFixturesImplementation(rootProject.libs.io.github.ppzxc.fixh)
 }
 

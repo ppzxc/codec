@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class FixedConstructorLengthFieldBasedFrameDecoder extends LengthFieldBasedFrameDecoder {
 
+  public static final int DEFAULT_LENGTH_FILED_LENGTH = 4;
   private static final Logger log = LoggerFactory.getLogger(FixedConstructorLengthFieldBasedFrameDecoder.class);
 
   public FixedConstructorLengthFieldBasedFrameDecoder(int maxFrameLength, int lengthFieldOffset, int lengthFieldLength,
@@ -16,7 +17,7 @@ public class FixedConstructorLengthFieldBasedFrameDecoder extends LengthFieldBas
   }
 
   public static FixedConstructorLengthFieldBasedFrameDecoder defaultConfiguration() {
-    return new FixedConstructorLengthFieldBasedFrameDecoder(1024 * 1024 * 4, 8, 4, 0, 0, true);
+    return new FixedConstructorLengthFieldBasedFrameDecoder(1024 * 1024 * 4, 0, 4, 0, 0, true);
   }
 
   @Override

@@ -1,41 +1,30 @@
 package io.github.ppzxc.codec.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 
 public enum EncryptionType {
-  NONE("NONE"),
-  ADVANCED_ENCRYPTION_STANDARD("AES");
+  NONE((byte) 0x00),
+  ADVANCED_ENCRYPTION_STANDARD((byte) 0x01);
 
-  private final String code;
+  private final byte code;
 
-  EncryptionType(String code) {
+  EncryptionType(byte code) {
     this.code = code;
   }
 
-  @JsonValue
-  public String getCode() {
+  public byte getCode() {
     return code;
   }
 
-  @JsonCreator
-  public static EncryptionType of(String value) {
+  public static EncryptionType of(byte value) {
     return Arrays.stream(EncryptionType.values())
-      .filter(status -> status.code.equalsIgnoreCase(value))
-      .findAny()
-      .orElse(ofName(value));
-  }
-
-  public static EncryptionType ofName(String value) {
-    return Arrays.stream(EncryptionType.values())
-      .filter(status -> status.name().equalsIgnoreCase(value))
+      .filter(status -> status.code == value)
       .findAny()
       .orElse(EncryptionType.NONE);
   }
 
   @Override
   public String toString() {
-    return name() + "(" + code + ")";
+    return "EncryptionType." + name() + "(" + code + ")";
   }
 }

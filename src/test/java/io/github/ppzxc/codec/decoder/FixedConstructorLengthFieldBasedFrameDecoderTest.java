@@ -30,7 +30,7 @@ class FixedConstructorLengthFieldBasedFrameDecoderTest {
   @RepeatedTest(10)
   void should_return_given_byte_array() {
     // given: random header with empty body.
-    byte[] given = ByteArrayFixture.randomWithEmptyBody();
+    byte[] given = ByteArrayFixture.random(new byte[0]);
 
     // when
     channel.writeInbound(Unpooled.copiedBuffer(given));
@@ -44,7 +44,7 @@ class FixedConstructorLengthFieldBasedFrameDecoderTest {
   @RepeatedTest(10)
   void should_throw_when_negative_body_length() {
     // given
-    ByteBuf given = Unpooled.copiedBuffer(ByteArrayFixture.randomWithBody(IntUtils.giveMeNegative()));
+    ByteBuf given = Unpooled.copiedBuffer(ByteArrayFixture.create(IntUtils.giveMeNegative()));
 
     // when, then
     assertThatCode(() -> channel.writeInbound(given))
@@ -52,7 +52,7 @@ class FixedConstructorLengthFieldBasedFrameDecoderTest {
   }
 
   @ParameterizedTest
-  @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11})
+  @ValueSource(ints = {1, 2, 3})
   void should_wait_when_header_size_is_less_then_default_size(int headerLength) {
     // given
     byte[] given = ByteArrayUtils.giveMeOne(headerLength);
@@ -72,7 +72,7 @@ class FixedConstructorLengthFieldBasedFrameDecoderTest {
     ByteBuf given = Unpooled.buffer(12 * messageCount);
     List<byte[]> givenList = new ArrayList<>();
     for (int i = 0; i < messageCount; i++) {
-      byte[] givenMessage = ByteArrayFixture.randomWithEmptyBody();
+      byte[] givenMessage = ByteArrayFixture.random();
       givenList.add(givenMessage);
       given.writeBytes(givenMessage);
     }
@@ -83,7 +83,7 @@ class FixedConstructorLengthFieldBasedFrameDecoderTest {
     // then
     assertThat(channel.inboundMessages()).hasSize(messageCount);
     for (byte[] actual : givenList) {
-      byte[] read = new byte[12];
+      byte[] read = new byte[actual.length];
       channel.<ByteBuf>readInbound().readBytes(read);
       assertThat(read).isEqualTo(actual);
     }

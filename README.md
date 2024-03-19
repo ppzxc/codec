@@ -84,18 +84,18 @@ The end of the body should always end with 'CrLf'.
   0                   1                   2                   3
   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- | HandShakeType |  EncryptType  |  EncryptMode  | EncryptPadding|
+ | HandShakeType |      Type     |     Mode      |    Padding    |
  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
   0                   1                   2                   3
   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 ```
 
-| name            | length | binary | range      | hexadecimal |
-|-----------------|--------|--------|------------|-------------|
-| HandShake Type  | 1 byte | 8 bit  | -128 ~ 127 | 0x00 ~ 0xff |
-| Encrypt Type    | 1 byte | 8 bit  | -128 ~ 127 | 0x00 ~ 0xff |
-| Encrypt Mode    | 1 byte | 8 bit  | -128 ~ 127 | 0x00 ~ 0xff |
-| Encrypt Padding | 1 byte | 8 bit  | -128 ~ 127 | 0x00 ~ 0xff |
+| name           | length | binary | range      | hexadecimal | description        |
+|----------------|--------|--------|------------|-------------|--------------------|
+| HandShake Type | 1 byte | 8 bit  | -128 ~ 127 | 0x00 ~ 0xff | hand shake type    |
+| Type           | 1 byte | 8 bit  | -128 ~ 127 | 0x00 ~ 0xff | encryption type    |
+| Mode           | 1 byte | 8 bit  | -128 ~ 127 | 0x00 ~ 0xff | encryption mode    |
+| Padding        | 1 byte | 8 bit  | -128 ~ 127 | 0x00 ~ 0xff | encryption padding |
 
 ### body
 

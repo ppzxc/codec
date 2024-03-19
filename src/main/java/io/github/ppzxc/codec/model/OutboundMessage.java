@@ -15,12 +15,7 @@ public class OutboundMessage extends AbstractMessage {
     this.body = body;
   }
 
-  @Override
-  public Header header() {
-    return header;
-  }
-
-  public Object getBody() {
+  public Object body() {
     return body;
   }
 
@@ -30,7 +25,7 @@ public class OutboundMessage extends AbstractMessage {
 
   @Override
   public String toString() {
-    return "OutboundMessage{header=" + header + ", body=[MASKED]}";
+    return "OutboundMessage{header=" + header() + ", body=[MASKED]}";
   }
 
   @JsonPOJOBuilder(withPrefix = "")

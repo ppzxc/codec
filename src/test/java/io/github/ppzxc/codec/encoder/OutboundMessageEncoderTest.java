@@ -2,22 +2,20 @@ package io.github.ppzxc.codec.encoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import io.github.ppzxc.codec.exception.DeserializeFailedException;
-import io.github.ppzxc.codec.exception.MessageEncodeFailedException;
-import io.github.ppzxc.codec.exception.CodecProblemException;
-import io.github.ppzxc.codec.mapper.DefaultMultiMapper;
-import io.github.ppzxc.codec.mapper.MultiMapper;
-import io.github.ppzxc.codec.mapper.ReadCommand;
-import io.github.ppzxc.codec.model.EncodingType;
+import io.github.ppzxc.codec.exception.SerializeFailedException;
+import io.github.ppzxc.codec.mapper.Mapper;
+import io.github.ppzxc.codec.model.Header;
 import io.github.ppzxc.codec.model.HeaderFixture;
 import io.github.ppzxc.codec.model.OutboundMessage;
 import io.github.ppzxc.codec.model.OutboundMessageFixture;
-import io.github.ppzxc.codec.model.TestUser;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
-import io.github.ppzxc.crypto.CryptoFactory;
 import io.github.ppzxc.crypto.CryptoProvider;
+import io.github.ppzxc.fixh.ByteArrayUtils;
 import io.github.ppzxc.fixh.ExceptionUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -29,7 +27,7 @@ import org.junit.jupiter.api.RepeatedTest;
 class OutboundMessageEncoderTest {
 
   private Crypto crypto;
-  private MultiMapper multiMapper;
+  private Mapper mapper;
   private EmbeddedChannel channel;
 
   @BeforeAll
@@ -39,85 +37,89 @@ class OutboundMessageEncoderTest {
 
   @BeforeEach
   void setUp() {
-    crypto = CryptoFactory.aes128();
-    multiMapper = DefaultMultiMapper.create();
+    crypto = mock(Crypto.class);
+    mapper = mock(Mapper.class);
     channel = new EmbeddedChannel();
-    channel.pipeline().addLast(new OutboundMessageEncoder(crypto, multiMapper));
+    channel.pipeline().addLast(new OutboundMessageEncoder(crypto, mapper));
   }
 
   @RepeatedTest(10)
-  void should_encode_prepare_outbound_message() throws CryptoException, DeserializeFailedException {
+  void should_ByteBuf_when_null_body() {
     // given
-    TestUser given = TestUser.random();
-    OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.with(EncodingType.JSON), given);
+    OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.create(), null);
 
     // when
     channel.writeOutbound(expected);
     ByteBuf actual = channel.readOutbound();
 
     // then
-    assertThat(actual.readInt()).isEqualTo(expected.header().getId());
+    assertThat(actual.readableBytes()).isEqualTo(Header.MINIMUM_LENGTH);
+    assertThat(actual.readInt()).isEqualTo(Header.LINE_DELIMITER_LENGTH);
+    assertThat(actual.readLong()).isEqualTo(expected.header().getId());
     assertThat(actual.readByte()).isEqualTo(expected.header().getType());
     assertThat(actual.readByte()).isEqualTo(expected.header().getStatus());
     assertThat(actual.readByte()).isEqualTo(expected.header().getEncoding());
     assertThat(actual.readByte()).isEqualTo(expected.header().getReserved());
-    assertThat(actual.readInt()).isGreaterThan(2);
-    equalsBody(getBody(actual), given);
+    byte[] body = new byte[actual.readableBytes()];
+    actual.readBytes(body);
+    assertThat(body).isEqualTo(Header.LINE_DELIMITER);
   }
 
   @RepeatedTest(10)
-  void should_encode_prepare_outbound_message_when_null_body() {
+  void should_throw_SerializeFailedException() throws SerializeFailedException {
     // given
-    OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.random(), null);
-
-    // when
-    channel.writeOutbound(expected);
-    ByteBuf actual = channel.readOutbound();
-
-    // then
-    assertThat(actual.readInt()).isEqualTo(expected.header().getId());
-    assertThat(actual.readByte()).isEqualTo(expected.header().getType());
-    assertThat(actual.readByte()).isEqualTo(expected.header().getStatus());
-    assertThat(actual.readByte()).isEqualTo(expected.header().getEncoding());
-    assertThat(actual.readByte()).isEqualTo(expected.header().getReserved());
-    assertThat(actual.readInt()).isEqualTo(2);
-    checkLineDelimiter(getBody(actual));
-  }
-
-  @RepeatedTest(10)
-  void should_throw_exception_when_invalid_body() {
-    // given
-    OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.random(), new TestInvalidUser());
+    OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.create(), new Object());
 
     // when, then
+    when(mapper.write(any())).thenThrow(new SerializeFailedException());
     assertThatCode(() -> channel.writeOutbound(expected)).satisfies(throwable -> {
       assertThat(throwable).isInstanceOf(EncoderException.class);
-      assertThat(ExceptionUtils.findCause(throwable, CodecProblemException.class))
-        .isInstanceOf(CodecProblemException.class);
-      assertThat(ExceptionUtils.findCause(throwable, MessageEncodeFailedException.class))
-        .isInstanceOf(MessageEncodeFailedException.class);
+      assertThat(ExceptionUtils.findCause(throwable, SerializeFailedException.class)).isInstanceOf(
+        SerializeFailedException.class);
     });
   }
 
-  private byte[] getBody(ByteBuf actual) {
-    byte[] body = new byte[actual.readableBytes()];
+  @RepeatedTest(10)
+  void should_throw_CryptoException() throws SerializeFailedException, CryptoException {
+    // given
+    OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.create(), new Object());
+
+    // when, then
+    when(mapper.write(any())).thenReturn(new byte[0]);
+    when(crypto.encrypt((byte[]) any())).thenThrow(new CryptoException());
+    assertThatCode(() -> channel.writeOutbound(expected)).satisfies(throwable -> {
+      assertThat(throwable).isInstanceOf(EncoderException.class);
+      assertThat(ExceptionUtils.findCause(throwable, CryptoException.class)).isInstanceOf(
+        CryptoException.class);
+    });
+  }
+
+  @RepeatedTest(10)
+  void should_return_ByteBuf_when_exists_body() throws SerializeFailedException, CryptoException {
+    // given
+    byte[] expectedBody = ByteArrayUtils.giveMeOne(128);
+    OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.create(), new Object());
+
+    // when
+    when(mapper.write(any())).thenReturn(new byte[0]);
+    when(crypto.encrypt((byte[]) any())).thenReturn(expectedBody);
+    channel.writeOutbound(expected);
+    ByteBuf actual = channel.readOutbound();
+
+    // then
+    assertThat(actual.readableBytes()).isEqualTo(expectedBody.length + Header.MINIMUM_LENGTH);
+    int length = actual.readInt();
+    assertThat(length).isEqualTo(expectedBody.length + Header.LINE_DELIMITER_LENGTH);
+    assertThat(actual.readLong()).isEqualTo(expected.header().getId());
+    assertThat(actual.readByte()).isEqualTo(expected.header().getType());
+    assertThat(actual.readByte()).isEqualTo(expected.header().getStatus());
+    assertThat(actual.readByte()).isEqualTo(expected.header().getEncoding());
+    assertThat(actual.readByte()).isEqualTo(expected.header().getReserved());
+    byte[] body = new byte[actual.readableBytes() - Header.LINE_DELIMITER.length];
     actual.readBytes(body);
-    return body;
-  }
-
-  private void equalsBody(byte[] body, TestUser given) throws DeserializeFailedException, CryptoException {
-    assertThat(multiMapper.read(ReadCommand.of(EncodingType.JSON, crypto.decrypt(body), TestUser.class)))
-      .usingRecursiveComparison().isEqualTo(given);
-    assertThat((char) body[body.length - 2]).isEqualTo('\r');
-    assertThat((char) body[body.length - 1]).isEqualTo('\n');
-  }
-
-  private void checkLineDelimiter(byte[] body) {
-    assertThat((char) body[body.length - 2]).isEqualTo('\r');
-    assertThat((char) body[body.length - 1]).isEqualTo('\n');
-  }
-
-  private static class TestInvalidUser {
-
+    assertThat(body).isEqualTo(expectedBody);
+    byte[] lineDelimiter = new byte[Header.LINE_DELIMITER.length];
+    actual.readBytes(lineDelimiter);
+    assertThat(lineDelimiter).isEqualTo(Header.LINE_DELIMITER);
   }
 }

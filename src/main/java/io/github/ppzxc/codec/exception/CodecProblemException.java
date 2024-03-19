@@ -1,64 +1,66 @@
 package io.github.ppzxc.codec.exception;
 
+import io.github.ppzxc.codec.model.CodecProblemCode;
+
 public class CodecProblemException extends Exception {
 
   private static final long serialVersionUID = -927664338530046046L;
-  private final int id;
+  private final long id;
   private final String rejectedValue;
   private final String instance;
   private final transient Object[] args;
-  private final CodecProblem codecProblem;
+  private final CodecProblemCode codecProblemCode;
 
-  public CodecProblemException(int id, String rejectedValue, String instance, Object[] args,
-    CodecProblem codecProblem) {
+  public CodecProblemException(long id, String rejectedValue, String instance, Object[] args,
+    CodecProblemCode codecProblemCode) {
     this.id = id;
     this.rejectedValue = rejectedValue;
     this.instance = instance;
     this.args = args;
-    this.codecProblem = codecProblem;
+    this.codecProblemCode = codecProblemCode;
   }
 
-  public CodecProblemException(String message, int id, String rejectedValue, String instance, Object[] args,
-    CodecProblem codecProblem) {
+  public CodecProblemException(String message, long id, String rejectedValue, String instance, Object[] args,
+    CodecProblemCode codecProblemCode) {
     super(message);
     this.id = id;
     this.rejectedValue = rejectedValue;
     this.instance = instance;
     this.args = args;
-    this.codecProblem = codecProblem;
+    this.codecProblemCode = codecProblemCode;
   }
 
-  public CodecProblemException(String message, Throwable cause, int id, String rejectedValue, String instance,
-    Object[] args, CodecProblem codecProblem) {
+  public CodecProblemException(String message, Throwable cause, long id, String rejectedValue, String instance,
+    Object[] args, CodecProblemCode codecProblemCode) {
     super(message, cause);
     this.id = id;
     this.rejectedValue = rejectedValue;
     this.instance = instance;
     this.args = args;
-    this.codecProblem = codecProblem;
+    this.codecProblemCode = codecProblemCode;
   }
 
-  public CodecProblemException(Throwable cause, int id, String rejectedValue, String instance, Object[] args,
-    CodecProblem codecProblem) {
+  public CodecProblemException(Throwable cause, long id, String rejectedValue, String instance, Object[] args,
+    CodecProblemCode codecProblemCode) {
     super(cause);
     this.id = id;
     this.rejectedValue = rejectedValue;
     this.instance = instance;
     this.args = args;
-    this.codecProblem = codecProblem;
+    this.codecProblemCode = codecProblemCode;
   }
 
   public CodecProblemException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace,
-    int id, String rejectedValue, String instance, Object[] args, CodecProblem codecProblem) {
+    long id, String rejectedValue, String instance, Object[] args, CodecProblemCode codecProblemCode) {
     super(message, cause, enableSuppression, writableStackTrace);
     this.id = id;
     this.rejectedValue = rejectedValue;
     this.instance = instance;
     this.args = args;
-    this.codecProblem = codecProblem;
+    this.codecProblemCode = codecProblemCode;
   }
 
-  public int getId() {
+  public long getId() {
     return id;
   }
 
@@ -74,7 +76,7 @@ public class CodecProblemException extends Exception {
     return args;
   }
 
-  public CodecProblem getCodecProblem() {
-    return codecProblem;
+  public CodecProblemCode getCodecProblemCode() {
+    return codecProblemCode;
   }
 }

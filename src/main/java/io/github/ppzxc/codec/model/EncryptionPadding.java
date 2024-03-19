@@ -1,42 +1,31 @@
 package io.github.ppzxc.codec.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 
 public enum EncryptionPadding {
-  NONE("NONE"),
-  PKCS5PADDING("PKCS5Padding"),
-  PKCS7PADDING("PKCS7Padding");
+  NONE((byte) 0x00),
+  PKCS5PADDING((byte) 0x01),
+  PKCS7PADDING((byte) 0x02);
 
-  private final String code;
+  private final byte code;
 
-  EncryptionPadding(String code) {
+  EncryptionPadding(byte code) {
     this.code = code;
   }
 
-  @JsonValue
-  public String getCode() {
+  public byte getCode() {
     return code;
   }
 
-  @JsonCreator
-  public static EncryptionPadding of(String value) {
+  public static EncryptionPadding of(byte value) {
     return Arrays.stream(EncryptionPadding.values())
-      .filter(status -> status.code.equalsIgnoreCase(value))
-      .findAny()
-      .orElse(ofName(value));
-  }
-
-  public static EncryptionPadding ofName(String value) {
-    return Arrays.stream(EncryptionPadding.values())
-      .filter(status -> status.name().equalsIgnoreCase(value))
+      .filter(status -> status.code == value)
       .findAny()
       .orElse(EncryptionPadding.NONE);
   }
 
   @Override
   public String toString() {
-    return name() + "(" + code + ")";
+    return "EncryptionPadding." + name() + "(" + code + ")";
   }
 }
