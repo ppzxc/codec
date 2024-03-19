@@ -4,7 +4,7 @@
 
 - [netty](https://github.com/netty/netty) tcp codecs
 
-# codec inbound flow
+# codec inbound flow, before handshake
 
 ```text
             "Byte Array Stream"
@@ -15,11 +15,21 @@ FixedConstructorLengthFieldBasedFrameDecoder
                     |
                     |
                    \|/
-           SecureChannelHandler
+    HandShakeSimpleChannelInboundHandler
+```
+
+# codec inbound flow, after handshake
+
+```text
+            "Byte Array Stream"
                     |
                     |
                    \|/
-              ByteBufDecoder
+FixedConstructorLengthFieldBasedFrameDecoder
+                    |
+                    |
+                   \|/
+      EncryptedInboundMessageDecoder
                     |
                     |
                    \|/
@@ -43,7 +53,7 @@ FixedConstructorLengthFieldBasedFrameDecoder
 
 # message structure
 
-## rule
+## common rule
 
 ### body end rule
 
@@ -54,7 +64,7 @@ The end of the body should always end with 'CrLf'.
 - Server can verify that the Body Length is normal.
 - On the server side, the 'body length Delimiter' method and the 'CrLf Delimiter' method can be used interchangeably.
 
-## common structure
+## handShake
 
 ### header
 
@@ -64,38 +74,19 @@ The end of the body should always end with 'CrLf'.
  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  |                           Length                              |
  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-  0                   1                   2                   3
-  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-```
-
-| name   | length | binary | range                          | hexadecimal             |
-|--------|--------|--------|--------------------------------|-------------------------|
-| Length | 4 byte | 32 bit | -2,147,483,648 ~ 2,147,483,647 | 0x00000000 ~ 0xffffffff |
-
-### body
-
-- body is [handShake](#handshake) or [message](#message)
-
-## handShake
-
-### header
-
-```text
-  0                   1                   2                   3
-  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  | HandShakeType |      Type     |     Mode      |    Padding    |
  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
   0                   1                   2                   3
   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 ```
 
-| name           | length | binary | range      | hexadecimal | description        |
-|----------------|--------|--------|------------|-------------|--------------------|
-| HandShake Type | 1 byte | 8 bit  | -128 ~ 127 | 0x00 ~ 0xff | hand shake type    |
-| Type           | 1 byte | 8 bit  | -128 ~ 127 | 0x00 ~ 0xff | encryption type    |
-| Mode           | 1 byte | 8 bit  | -128 ~ 127 | 0x00 ~ 0xff | encryption mode    |
-| Padding        | 1 byte | 8 bit  | -128 ~ 127 | 0x00 ~ 0xff | encryption padding |
+| name           | length | binary | range                          | hexadecimal             |
+|----------------|--------|--------|--------------------------------|-------------------------|
+| Length         | 4 byte | 32 bit | -2,147,483,648 ~ 2,147,483,647 | 0x80000000 ~ 0x7fffffff |  
+| HandShake Type | 1 byte | 8 bit  | -128 ~ 127                     | 0x80 ~ 0x7f             |
+| Type           | 1 byte | 8 bit  | -128 ~ 127                     | 0x80 ~ 0x7f             |
+| Mode           | 1 byte | 8 bit  | -128 ~ 127                     | 0x80 ~ 0x7f             |
+| Padding        | 1 byte | 8 bit  | -128 ~ 127                     | 0x80 ~ 0x7f             |
 
 ### body
 
@@ -155,13 +146,14 @@ set 'default' if null padding.
   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 ```
 
-| name           | length   | binary   | range                          | hexadecimal             | type           |
-|----------------|----------|----------|--------------------------------|-------------------------|----------------|
-| Type           | 1 byte   | 8 bit    | -128 ~ 127                     | 0x00 ~ 0xff             | Signed Integer |
-| Mode           | 1 byte   | 8 bit    | -128 ~ 127                     | 0x00 ~ 0xff             | Signed Integer |
-| Padding        | 1 byte   | 8 bit    | -128 ~ 127                     | 0x00 ~ 0xff             | Signed Integer |
-| Body Length    | 4 byte   | 32 bit   | -2,147,483,648 ~ 2,147,483,647 | 0x00000000 ~ 0xffffffff | Signed Integer |
-| Encrypted Body | variable | variable | variable                       | variable                | variable       |
+| name           | length   | binary   | range                          | hexadecimal             |
+|----------------|----------|----------|--------------------------------|-------------------------|
+| Length         | 4 byte   | 32 bit   | -2,147,483,648 ~ 2,147,483,647 | 0x80000000 ~ 0x7fffffff |
+| HandShakeType  | 1 byte   | 8 bit    | -128 ~ 127                     | 0x80 ~ 0x7f             |
+| Type           | 1 byte   | 8 bit    | -128 ~ 127                     | 0x80 ~ 0x7f             |
+| Mode           | 1 byte   | 8 bit    | -128 ~ 127                     | 0x80 ~ 0x7f             |
+| Padding        | 1 byte   | 8 bit    | -128 ~ 127                     | 0x80 ~ 0x7f             |
+| Encrypted Body | variable | variable | variable                       | variable                |
 
 ### encrypted body rule
 
@@ -174,16 +166,74 @@ set 'default' if null padding.
 
 ## message
 
-### after handshake rule
+### header
 
 ```text
-After 'handshake', the body of all messages communicates using 'AES'.
+  0                   1                   2                   3
+  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ |                             Length                            |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ |                               ID                              |
+ |                                                               |                            
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ | HandShakeType |      Type     |     Mode      |    Padding    |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  0                   1                   2                   3
+  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 ```
 
-### overflow Id rule
+| name    | length | binary | range                                                  | hexadecimal                             |
+|---------|--------|--------|--------------------------------------------------------|-----------------------------------------|
+| Length  | 4 byte | 32 bit | -2,147,483,648 ~ 2,147,483,647                         | 0x80000000 ~ 0x7fffffff                 |
+| ID      | 8 byte | 64 bit | -9,223,372,036,854,775,808 ~ 9,223,372,036,854,775,807 | 0x8000000000000000 ~ 0x7fffffffffffffff |
+| Type    | 1 byte | 8 bit  | -128 ~ 127                                             | 0x80 ~ 0x7f                             |
+| Mode    | 1 byte | 8 bit  | -128 ~ 127                                             | 0x80 ~ 0x7f                             |
+| Padding | 1 byte | 8 bit  | -128 ~ 127                                             | 0x80 ~ 0x7f                             |
+
+### body
 
 ```text
-If 'ID' is out of the range of signed int32, it is set to the initial value.
+  0                   1                   2                   3
+  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ |                              ...                              |
+ |                              Body                             |
+ |                              ...                              |                            
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  0                   1                   2                   3
+  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+```
+
+| name | length   | binary   | 
+|------|----------|----------|
+| Body | variable | variable |
+
+### full
+
+```text
+  0                   1                   2                   3
+  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ |                             Length                            |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ |                              ...                              |
+ |                         Encrypted Body                        |
+ |                              ...                              |                            
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  0                   1                   2                   3
+  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+```
+
+| name   | length   | binary   | range                          | hexadecimal             |
+|--------|----------|----------|--------------------------------|-------------------------|
+| Length | 4 byte   | 32 bit   | -2,147,483,648 ~ 2,147,483,647 | 0x80000000 ~ 0x7fffffff |
+| Body   | variable | variable | variable                       | variable                |
+
+- encrypted body rule
+
+```text
+Except for the length field, all headers and bodies are encrypted by 'AES'.
 ```
 
 # usage
