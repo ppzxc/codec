@@ -12,6 +12,9 @@ import io.github.ppzxc.codec.model.EncryptionPadding;
 import io.github.ppzxc.codec.model.EncryptionType;
 import io.github.ppzxc.codec.model.HandshakeFixture;
 import io.github.ppzxc.codec.model.HandshakeHeader;
+import io.github.ppzxc.codec.model.Header;
+import io.github.ppzxc.codec.model.InboundMessage;
+import io.github.ppzxc.codec.model.InboundMessageFixture;
 import io.github.ppzxc.crypto.AsymmetricKeyFactory;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
@@ -19,16 +22,17 @@ import io.github.ppzxc.crypto.CryptoFactory;
 import io.github.ppzxc.crypto.CryptoProvider;
 import io.github.ppzxc.crypto.Transformation;
 import io.github.ppzxc.fixh.ByteArrayUtils;
+import io.github.ppzxc.fixh.StringUtils;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.handler.codec.base64.Base64;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -39,8 +43,8 @@ public class IntegrationTest {
   public static final String ENCRYPTED_INBOUND_MESSAGE_DECODER = "EncryptedInboundMessageDecoder";
   public static final String HAND_SHAKE_HANDLER = "HandShakeHandler";
   private static Crypto RSA_CRYPTO;
+  private static Crypto AES_CRYPTO;
   private static Mapper MAPPER;
-  private Crypto aesCrypto;
   private EmbeddedChannel channel;
 
   @BeforeAll
@@ -175,9 +179,8 @@ public class IntegrationTest {
     assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_KEY_SIZE.getCode());
   }
 
-  @Disabled
   @Test
-  void should_return_CRYPTO_CREATE_FAIL() throws CryptoException {
+  void should_return_OK() throws CryptoException {
     // given
     ByteBuf given = HandshakeFixture.withBody(RSA_CRYPTO.encrypt(ByteArrayUtils.giveMeOne(16 + 16)));
 
@@ -187,7 +190,52 @@ public class IntegrationTest {
 
     // then
     assertThat(actual.readInt()).isEqualTo(1);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.CRYPTO_CREATE_FAIL.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.OK.getCode());
+  }
+
+  @Test
+  void should_return_decrypted_inbound_message() throws CryptoException {
+    // given
+    Crypto crypto = handshake();
+    byte[] given = StringUtils.giveMeOne(512).getBytes(StandardCharsets.UTF_8);
+    InboundMessage expected = InboundMessageFixture.create(given);
+
+    // when
+    ByteBuf encryptedMessage = encryption(crypto, expected);
+    channel.writeInbound(encryptedMessage);
+    InboundMessage actual = channel.readInbound();
+
+    // then
+    assertThat(actual.header())
+      .usingRecursiveComparison()
+      .ignoringFields("length")
+      .isEqualTo(expected.header());
+    assertThat(actual.getBody()).isEqualTo(given);
+  }
+
+  private Crypto handshake() throws CryptoException {
+    byte[] key = ByteArrayUtils.giveMeOne(32);
+    byte[] iv = ByteArrayUtils.giveMeOne(16);
+    Crypto crypto = CryptoFactory.aes(key, Transformation.AES_CBC_PKCS7PADDING, CryptoProvider.BOUNCY_CASTLE, iv);
+    channel.writeInbound(HandshakeFixture.withBody(RSA_CRYPTO.encrypt(Unpooled.copiedBuffer(iv, key).array())));
+    channel.readOutbound();
+    return crypto;
+  }
+
+  public ByteBuf encryption(Crypto crypto, InboundMessage inboundMessage) throws CryptoException {
+    ByteBuf buffer = Unpooled.buffer(inboundMessage.getBody().length + Header.ID_FIELD_LENGTH + Header.PROTOCOL_FIELDS_LENGTH);
+    buffer.writeLong(inboundMessage.header().getId());
+    buffer.writeByte(inboundMessage.header().getType());
+    buffer.writeByte(inboundMessage.header().getStatus());
+    buffer.writeByte(inboundMessage.header().getEncoding());
+    buffer.writeByte(inboundMessage.header().getReserved());
+    buffer.writeBytes(inboundMessage.getBody());
+    byte[] cipherText = crypto.encrypt(buffer.array());
+    ByteBuf buffer2 = Unpooled.buffer();
+    buffer2.writeInt(cipherText.length + Header.LINE_DELIMITER_LENGTH);
+    buffer2.writeBytes(cipherText);
+    buffer2.writeBytes(Header.LINE_DELIMITER);
+    return buffer2;
   }
 
   private static class TestHandshakeSimpleChannelInboundHandler extends HandshakeSimpleChannelInboundHandler {
@@ -207,8 +255,9 @@ public class IntegrationTest {
       if (handShakeHeader.getEncryptionPadding() != EncryptionPadding.PKCS7PADDING) {
         throw new IllegalArgumentException(handShakeHeader.getEncryptionPadding().toString());
       }
-      return CryptoFactory.aes(symmetricKey, Transformation.AES_CBC_PKCS7PADDING, CryptoProvider.BOUNCY_CASTLE,
+      AES_CRYPTO = CryptoFactory.aes(symmetricKey, Transformation.AES_CBC_PKCS7PADDING, CryptoProvider.BOUNCY_CASTLE,
         ivParameter);
+      return AES_CRYPTO;
     }
 
     @Override

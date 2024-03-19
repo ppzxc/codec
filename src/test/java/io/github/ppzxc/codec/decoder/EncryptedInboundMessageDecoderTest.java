@@ -101,13 +101,12 @@ class EncryptedInboundMessageDecoderTest {
     // given
     byte[] expectedBody = ByteArrayUtils.giveMeOne(128);
     InboundMessage expectedMessage = InboundMessageFixture.create(expectedBody);
-    ByteBuf given = ByteArrayFixture.create(expectedMessage);
 
     // when
     when(crypto.decrypt((byte[]) any())).thenThrow(new NullPointerException());
 
     // then
-    assertThatCode(() -> channel.writeInbound(given)).satisfies(throwable -> {
+    assertThatCode(() -> channel.writeInbound(InboundMessageFixture.to(expectedMessage))).satisfies(throwable -> {
       assertThat(throwable).isInstanceOf(DecoderException.class);
       assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(NullPointerException.class);
       assertThat(ExceptionUtils.findCause(throwable, DecryptFailException.class))
