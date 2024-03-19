@@ -24,13 +24,13 @@ dependencies {
     implementation(rootProject.libs.org.slf4j.api)
     implementation(rootProject.libs.com.fasterxml.jackson.core.databind)
     implementation(rootProject.libs.com.fasterxml.jackson.datatype.jsr310)
-    implementation(rootProject.libs.de.undercouch.bson4jackson)
     implementation(rootProject.libs.io.github.ppzxc.fixh)
     implementation(rootProject.libs.io.github.ppzxc.crypto)
 
     testImplementation(rootProject.libs.org.junit.jupiter)
     testImplementation(rootProject.libs.org.assertj.core)
     testImplementation(rootProject.libs.org.mockito.core)
+    testImplementation(rootProject.libs.de.undercouch.bson4jackson)
 
     testFixturesImplementation(rootProject.libs.io.netty.buffer)
     testFixturesImplementation(rootProject.libs.io.netty.codec)
