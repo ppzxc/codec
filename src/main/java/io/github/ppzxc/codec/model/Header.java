@@ -1,29 +1,44 @@
 package io.github.ppzxc.codec.model;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.io.Serializable;
 
 public class Header implements Serializable {
 
-  public static final int MINIMUM_BODY_LENGTH = 2;
-  public static final int HEADER_LENGTH = 12;
-  private static final long serialVersionUID = 5464917518865088432L;
-  private final int id;
+  public static final int LENGTH_FIELD_LENGTH = 4;
+  public static final int ID_FIELD_LENGTH = 8;
+  public static final int PROTOCOL_FIELDS_LENGTH = 4;
+  public static final int LINE_DELIMITER_LENGTH = 2;
+  public static final int MINIMUM_LENGTH =
+    LENGTH_FIELD_LENGTH + ID_FIELD_LENGTH + PROTOCOL_FIELDS_LENGTH + LINE_DELIMITER_LENGTH;
+  public static final int LENGTH_WITHOUT_LENGTH_FIELD =
+    ID_FIELD_LENGTH + PROTOCOL_FIELDS_LENGTH + LINE_DELIMITER_LENGTH;
+  public static final byte[] LINE_DELIMITER = new byte[]{'\r', '\n'};
+  public static final ByteBuf LINE_DELIMITER_BYTE_BUF = Unpooled.unreleasableBuffer(
+    Unpooled.wrappedBuffer(LINE_DELIMITER));
+  private static final long serialVersionUID = 3858154716183837451L;
+  private final int length;
+  private final long id;
   private final byte type;
   private final byte status;
   private final byte encoding;
   private final byte reserved;
-  private final int bodyLength;
 
-  private Header(int id, byte type, byte status, byte encoding, byte reserved, int bodyLength) {
+  public Header(int length, long id, byte type, byte status, byte encoding, byte reserved) {
+    this.length = length;
     this.id = id;
     this.type = type;
     this.status = status;
     this.encoding = encoding;
     this.reserved = reserved;
-    this.bodyLength = bodyLength;
   }
 
-  public int getId() {
+  public int getLength() {
+    return length;
+  }
+
+  public long getId() {
     return id;
   }
 
@@ -43,70 +58,54 @@ public class Header implements Serializable {
     return reserved;
   }
 
-  public int getBodyLength() {
-    return bodyLength;
+  public static Builder builder() {
+    return new Builder();
   }
 
-  public static RawHeaderBuilder builder() {
-    return new RawHeaderBuilder();
-  }
+  public static final class Builder {
 
-  @Override
-  public String toString() {
-    return "Header{" +
-      "id=" + id +
-      ", type=" + type +
-      ", status=" + status +
-      ", encoding=" + encoding +
-      ", reserved=" + reserved +
-      ", bodyLength=" + bodyLength +
-      '}';
-  }
-
-  public static final class RawHeaderBuilder {
-
-    private int id;
+    private int length;
+    private long id;
     private byte type;
     private byte status;
     private byte encoding;
     private byte reserved;
-    private int bodyLength;
 
-    private RawHeaderBuilder() {
+    private Builder() {
     }
 
-    public RawHeaderBuilder id(int id) {
+    public Builder length(int length) {
+      this.length = length;
+      return this;
+    }
+
+    public Builder id(long id) {
       this.id = id;
       return this;
     }
 
-    public RawHeaderBuilder type(byte type) {
+    public Builder type(byte type) {
       this.type = type;
       return this;
     }
 
-    public RawHeaderBuilder status(byte status) {
+    public Builder status(byte status) {
       this.status = status;
       return this;
     }
 
-    public RawHeaderBuilder encoding(byte encoding) {
+    public Builder encoding(byte encoding) {
       this.encoding = encoding;
       return this;
     }
 
-    public RawHeaderBuilder reserved(byte reserved) {
+    public Builder reserved(byte reserved) {
       this.reserved = reserved;
       return this;
     }
 
-    public RawHeaderBuilder bodyLength(int bodyLength) {
-      this.bodyLength = bodyLength;
-      return this;
-    }
-
     public Header build() {
-      return new Header(id, type, status, encoding, reserved, bodyLength);
+      return new Header(length, id, type, status, encoding, reserved);
     }
   }
 }

@@ -5,7 +5,7 @@ import io.github.ppzxc.codec.exception.SerializeFailedException;
 
 public interface Mapper {
 
-  <T> T read(byte[] payload, Class<T> tClass) throws DeserializeFailedException;
+  <T> T read(ReadCommand<T> command) throws DeserializeFailedException;
 
-  <T> byte[] write(T payload) throws SerializeFailedException;
+  byte[] write(WriteCommand command) throws SerializeFailedException;
 }

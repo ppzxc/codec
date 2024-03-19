@@ -1,45 +1,34 @@
 package io.github.ppzxc.codec.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 
 public enum EncryptionMode {
-  NONE("NONE"),
-  ELECTRONIC_CODE_BLOCK("ECB"),
-  CIPHER_BLOCK_CHAINING("CBC"),
-  CIPHER_FEEDBACK("CFB"),
-  OUTPUT_FEEDBACK("OFB"),
-  COUNTER("CTR");
+  NONE((byte) 0x00),
+  ELECTRONIC_CODE_BLOCK((byte) 0x01),
+  CIPHER_BLOCK_CHAINING((byte) 0x02),
+  CIPHER_FEEDBACK((byte) 0x03),
+  OUTPUT_FEEDBACK((byte) 0x04),
+  COUNTER((byte) 0x05);
 
-  private final String code;
+  private final byte code;
 
-  EncryptionMode(String code) {
+  EncryptionMode(byte code) {
     this.code = code;
   }
 
-  @JsonValue
-  public String getCode() {
+  public byte getCode() {
     return code;
   }
 
-  @JsonCreator
-  public static EncryptionMode of(String value) {
+  public static EncryptionMode of(byte value) {
     return Arrays.stream(EncryptionMode.values())
-      .filter(status -> status.code.equalsIgnoreCase(value))
-      .findAny()
-      .orElse(ofName(value));
-  }
-
-  public static EncryptionMode ofName(String value) {
-    return Arrays.stream(EncryptionMode.values())
-      .filter(status -> status.name().equalsIgnoreCase(value))
+      .filter(status -> status.code == value)
       .findAny()
       .orElse(EncryptionMode.NONE);
   }
 
   @Override
   public String toString() {
-    return name() + "(" + code + ")";
+    return "EncryptionMode." + name() + "(" + code + ")";
   }
 }

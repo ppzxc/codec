@@ -1,10 +1,5 @@
 package io.github.ppzxc.codec.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import io.github.ppzxc.codec.model.OutboundMessage.Builder;
-
-@JsonDeserialize(builder = Builder.class)
 public class OutboundMessage extends AbstractMessage {
 
   private static final long serialVersionUID = 8111315643882184475L;
@@ -15,12 +10,7 @@ public class OutboundMessage extends AbstractMessage {
     this.body = body;
   }
 
-  @Override
-  public Header header() {
-    return header;
-  }
-
-  public Object getBody() {
+  public Object body() {
     return body;
   }
 
@@ -30,10 +20,9 @@ public class OutboundMessage extends AbstractMessage {
 
   @Override
   public String toString() {
-    return "OutboundMessage{header=" + header + ", body=[MASKED]}";
+    return "OutboundMessage{header=" + header() + ", body=[MASKED]}";
   }
 
-  @JsonPOJOBuilder(withPrefix = "")
   public static final class Builder {
 
     private Header header;

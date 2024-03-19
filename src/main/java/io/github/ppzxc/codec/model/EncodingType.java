@@ -7,7 +7,7 @@ public enum EncodingType {
   PROTOBUF((byte) 0x01),
   JSON((byte) 0x02),
   BSON((byte) 0x03),
-  JAVA_BINARY((byte) 0x04);
+  JAVA_SERIALIZE((byte) 0x04);
 
   private final byte code;
 
@@ -28,6 +28,6 @@ public enum EncodingType {
 
   @Override
   public String toString() {
-    return String.format("%s(0x%02x)", name(), code);
+    return String.format("EncodingType.%s(0x%02x)", name(), code);
   }
 }

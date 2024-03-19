@@ -11,8 +11,4 @@ public final class OutboundMessageFixture {
       .body(body)
       .build();
   }
-
-  public static OutboundMessage withBody(Object body) {
-    return create(HeaderFixture.emptyBody(), body);
-  }
 }

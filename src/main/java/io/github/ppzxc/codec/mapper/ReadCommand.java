@@ -3,7 +3,7 @@ package io.github.ppzxc.codec.mapper;
 import io.github.ppzxc.codec.model.EncodingType;
 import io.github.ppzxc.fixh.ObjectUtils;
 
-public class ReadCommand<T> {
+public final class ReadCommand<T> {
 
   private final EncodingType type;
   private final byte[] payload;

@@ -1,10 +1,9 @@
 package io.github.ppzxc.codec.encoder;
 
-import io.github.ppzxc.codec.exception.MessageEncodeFailedException;
+import io.github.ppzxc.codec.exception.OutboundMessageEncoderException;
 import io.github.ppzxc.codec.exception.SerializeFailedException;
-import io.github.ppzxc.codec.mapper.MultiMapper;
+import io.github.ppzxc.codec.mapper.Mapper;
 import io.github.ppzxc.codec.mapper.WriteCommand;
-import io.github.ppzxc.codec.model.AbstractMessage;
 import io.github.ppzxc.codec.model.EncodingType;
 import io.github.ppzxc.codec.model.Header;
 import io.github.ppzxc.codec.model.OutboundMessage;
@@ -22,37 +21,39 @@ public class OutboundMessageEncoder extends MessageToMessageEncoder<OutboundMess
 
   private static final Logger log = LoggerFactory.getLogger(OutboundMessageEncoder.class);
   private final Crypto crypto;
-  private final MultiMapper multiMapper;
+  private final Mapper mapper;
 
-  public OutboundMessageEncoder(Crypto crypto, MultiMapper multiMapper) {
+  public OutboundMessageEncoder(Crypto crypto, Mapper mapper) {
     this.crypto = crypto;
-    this.multiMapper = multiMapper;
+    this.mapper = mapper;
   }
 
   @Override
   protected void encode(ChannelHandlerContext ctx, OutboundMessage msg, List<Object> out) throws Exception {
     log.debug("{} id={} encode", ctx.channel(), msg.header().getId());
     try {
-      byte[] body = makeBody(msg);
-      int bodyLength = body.length + Header.MINIMUM_BODY_LENGTH;
-      ByteBuf buffer = Unpooled.buffer(bodyLength);
-      buffer.writeInt(msg.header().getId());
+      byte[] body = getBody(msg);
+      int bodyLength = body.length + Header.LINE_DELIMITER_LENGTH;
+      ByteBuf buffer = Unpooled.buffer(Header.ID_FIELD_LENGTH + bodyLength);
+      buffer.writeInt(bodyLength);
+      buffer.writeLong(msg.header().getId());
       buffer.writeByte(msg.header().getType());
       buffer.writeByte(msg.header().getStatus());
       buffer.writeByte(msg.header().getEncoding());
       buffer.writeByte(msg.header().getReserved());
-      buffer.writeInt(bodyLength);
       buffer.writeBytes(body);
-      buffer.writeBytes(AbstractMessage.LINE_DELIMITER);
+      buffer.writeBytes(Header.LINE_DELIMITER);
       out.add(buffer);
     } catch (Exception e) {
-      throw new MessageEncodeFailedException(msg.header(), e);
+      throw new OutboundMessageEncoderException(msg.header(), e);
     }
   }
 
-  private byte[] makeBody(OutboundMessage msg) throws CryptoException, SerializeFailedException {
-    return msg.getBody() == null ? new byte[0]
-      : crypto.encrypt(
-        multiMapper.write(WriteCommand.of(EncodingType.of(msg.header().getEncoding()), msg.getBody())));
+  private byte[] getBody(OutboundMessage msg) throws CryptoException, SerializeFailedException {
+    if (msg.body() == null) {
+      return new byte[0];
+    }
+    byte[] plainText = mapper.write(WriteCommand.of(EncodingType.of(msg.header().getEncoding()), msg.body()));
+    return crypto.encrypt(plainText);
   }
 }
