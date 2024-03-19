@@ -1,5 +1,7 @@
 package io.github.ppzxc.codec.decoder;
 
+import static io.github.ppzxc.codec.model.Header.LINE_DELIMITER_BYTE_BUF;
+
 import io.github.ppzxc.codec.exception.BlankBodyException;
 import io.github.ppzxc.codec.exception.CodecProblemException;
 import io.github.ppzxc.codec.exception.DecryptFailException;
@@ -55,7 +57,7 @@ public class EncryptedInboundMessageDecoder extends MessageToMessageDecoder<Byte
     if (initialReadableBytes < minimumLength) {
       throw new ShortLengthException(initialReadableBytes, minimumLength);
     }
-    if (!ByteBufUtil.equals(msg, msg.readableBytes() - 2, Unpooled.wrappedBuffer(Header.LINE_DELIMITER), 0, 2)) {
+    if (!ByteBufUtil.equals(msg, msg.readableBytes() - 2, LINE_DELIMITER_BYTE_BUF, 0, 2)) {
       throw new MissingLineDelimiterException();
     }
     int length = msg.readInt();

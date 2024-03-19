@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import io.github.ppzxc.codec.exception.HandshakeException;
 import io.github.ppzxc.codec.model.ByteArrayFixture;
 import io.github.ppzxc.codec.model.CodecProblemCode;
 import io.github.ppzxc.codec.model.HandshakeFixture;
@@ -25,7 +26,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-class AbstractHandshakeHandlerTest {
+class HandshakeSimpleChannelInboundHandlerTest {
 
   private Crypto rsaCrypto;
   private Crypto aesCrypto;
@@ -36,25 +37,14 @@ class AbstractHandshakeHandlerTest {
     rsaCrypto = mock(Crypto.class);
     aesCrypto = mock(Crypto.class);
     channel = new EmbeddedChannel();
-    channel.pipeline().addLast("Decoder", new AbstractHandshakeHandler(rsaCrypto) {
-      @Override
-      public Crypto getAesCrypto(HandshakeHeader handShakeHeader, byte[] ivParameter, byte[] symmetricKey)
-        throws Exception {
-        return aesCrypto;
-      }
-
-      @Override
-      public void addHandler(ChannelPipeline pipeline, Crypto crypto) {
-        pipeline.addLast(new EncryptedInboundMessageDecoder(crypto));
-      }
-    });
+    channel.pipeline().addLast("Decoder", getHandler());
   }
 
   @ParameterizedTest
   @ValueSource(ints = {1, 2, 3})
-  void should_return_failed_code_when_short_buffer(int value) {
+  void should_return_SHORT_LENGTH(int value) {
     // given
-    byte[] given = ByteArrayUtils.giveMeOne(value);
+    byte[] given = ByteArrayFixture.create(ByteArrayUtils.giveMeOne(value));
 
     // when
     channel.writeInbound(Unpooled.wrappedBuffer(given));
@@ -66,15 +56,29 @@ class AbstractHandshakeHandlerTest {
     assertThat(actual.readByte()).isEqualTo(CodecProblemCode.SHORT_LENGTH.getCode());
   }
 
-  @ParameterizedTest
-  @MethodSource("failedLengthRange")
-  void should_return_failed_code_when_short_length(int value) {
+  @Test
+  void should_return_MISSING_LINE_DELIMITER() {
     // given
-    byte[] given = ByteArrayFixture.create(value,
-      ByteArrayUtils.giveMeOne(HandshakeHeader.MINIMUM_LENGTH - HandshakeHeader.LENGTH_FIELD_LENGTH));
+    ByteBuf given = HandshakeFixture.missingLineDelimiter(ByteArrayUtils.giveMeOne(128));
 
     // when
-    channel.writeInbound(Unpooled.wrappedBuffer(given));
+    channel.writeInbound(given);
+    ByteBuf actual = channel.readOutbound();
+
+    // then
+    assertThat(actual.readableBytes()).isEqualTo(HandshakeHeader.RESULT_LENGTH);
+    assertThat(actual.readInt()).isEqualTo(1);
+    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.MISSING_LINE_DELIMITER.getCode());
+  }
+
+  @ParameterizedTest
+  @MethodSource("failedLengthRange")
+  void should_return_SHORT_LENGTH_FIELD(int value) {
+    // given
+    ByteBuf given = HandshakeFixture.withLengthAndBody(value, ByteArrayUtils.giveMeOne(256));
+
+    // when
+    channel.writeInbound(given);
     ByteBuf actual = channel.readOutbound();
 
     // then
@@ -89,7 +93,7 @@ class AbstractHandshakeHandlerTest {
     ByteBuf given = HandshakeFixture.wrongHandShakeType();
 
     // when
-    channel.writeInbound(Unpooled.wrappedBuffer(given));
+    channel.writeInbound(given);
     ByteBuf actual = channel.readOutbound();
 
     // then
@@ -104,7 +108,7 @@ class AbstractHandshakeHandlerTest {
     ByteBuf given = HandshakeFixture.wrongHandShakeType();
 
     // when
-    channel.writeInbound(Unpooled.wrappedBuffer(given));
+    channel.writeInbound(given);
     ByteBuf actual = channel.readOutbound();
 
     // then
@@ -119,7 +123,7 @@ class AbstractHandshakeHandlerTest {
     ByteBuf given = HandshakeFixture.wrongEncryptionType();
 
     // when
-    channel.writeInbound(Unpooled.wrappedBuffer(given));
+    channel.writeInbound(given);
     ByteBuf actual = channel.readOutbound();
 
     // then
@@ -134,7 +138,7 @@ class AbstractHandshakeHandlerTest {
     ByteBuf given = HandshakeFixture.wrongEncryptionMode();
 
     // when
-    channel.writeInbound(Unpooled.wrappedBuffer(given));
+    channel.writeInbound(given);
     ByteBuf actual = channel.readOutbound();
 
     // then
@@ -149,7 +153,7 @@ class AbstractHandshakeHandlerTest {
     ByteBuf given = HandshakeFixture.wrongEncryptionPadding();
 
     // when
-    channel.writeInbound(Unpooled.wrappedBuffer(given));
+    channel.writeInbound(given);
     ByteBuf actual = channel.readOutbound();
 
     // then
@@ -165,7 +169,7 @@ class AbstractHandshakeHandlerTest {
 
     // when
     when(rsaCrypto.decrypt((byte[]) any())).thenThrow(new NullPointerException());
-    channel.writeInbound(Unpooled.wrappedBuffer(given));
+    channel.writeInbound(given);
     ByteBuf actual = channel.readOutbound();
 
     // then
@@ -181,7 +185,7 @@ class AbstractHandshakeHandlerTest {
 
     // when
     when(rsaCrypto.decrypt((byte[]) any())).thenReturn(ByteArrayUtils.giveMeOne(31));
-    channel.writeInbound(Unpooled.wrappedBuffer(given));
+    channel.writeInbound(given);
     ByteBuf actual = channel.readOutbound();
 
     // then
@@ -191,13 +195,65 @@ class AbstractHandshakeHandlerTest {
   }
 
   @Test
+  void should_return_CRYPTO_CREATE_FAIL() throws CryptoException {
+    // given
+    channel.pipeline().replace("Decoder", "NewDecoder", getCryptoThrowHandler());
+    ByteBuf given = HandshakeFixture.wrongSymmetricKeySize();
+
+    // when
+    when(rsaCrypto.decrypt((byte[]) any())).thenReturn(ByteArrayUtils.giveMeOne(32));
+    channel.writeInbound(given);
+    ByteBuf actual = channel.readOutbound();
+
+    // then
+    assertThat(actual.readableBytes()).isEqualTo(HandshakeHeader.RESULT_LENGTH);
+    assertThat(actual.readInt()).isEqualTo(1);
+    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.CRYPTO_CREATE_FAIL.getCode());
+  }
+
+  @Test
+  void should_return_UNRECOGNIZED() throws CryptoException {
+    // given
+    channel.pipeline().replace("Decoder", "NewDecoder", getAddThrowHandler(new NullPointerException()));
+    ByteBuf given = HandshakeFixture.wrongSymmetricKeySize();
+
+    // when
+    when(rsaCrypto.decrypt((byte[]) any())).thenReturn(ByteArrayUtils.giveMeOne(32));
+    channel.writeInbound(given);
+    ByteBuf actual = channel.readOutbound();
+
+    // then
+    assertThat(actual.readableBytes()).isEqualTo(HandshakeHeader.RESULT_LENGTH);
+    assertThat(actual.readInt()).isEqualTo(1);
+    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.UNRECOGNIZED.getCode());
+  }
+
+  @Test
+  void should_return_ENCODE_FAIL() throws CryptoException {
+    // given
+    channel.pipeline().replace("Decoder", "NewDecoder",
+      getAddThrowHandler(new Exception(new HandshakeException("null", CodecProblemCode.ENCODE_FAIL))));
+    ByteBuf given = HandshakeFixture.wrongSymmetricKeySize();
+
+    // when
+    when(rsaCrypto.decrypt((byte[]) any())).thenReturn(ByteArrayUtils.giveMeOne(32));
+    channel.writeInbound(given);
+    ByteBuf actual = channel.readOutbound();
+
+    // then
+    assertThat(actual.readableBytes()).isEqualTo(HandshakeHeader.RESULT_LENGTH);
+    assertThat(actual.readInt()).isEqualTo(1);
+    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.ENCODE_FAIL.getCode());
+  }
+
+  @Test
   void should_return_removed_handler() throws CryptoException {
     // given
     ByteBuf given = HandshakeFixture.wrongSymmetricKeySize();
 
     // when
     when(rsaCrypto.decrypt((byte[]) any())).thenReturn(ByteArrayUtils.giveMeOne(32));
-    channel.writeInbound(Unpooled.wrappedBuffer(given));
+    channel.writeInbound(given);
     ByteBuf actual = channel.readOutbound();
 
     // then
@@ -212,7 +268,7 @@ class AbstractHandshakeHandlerTest {
     // given
     ByteBuf handShake = HandshakeFixture.wrongSymmetricKeySize();
     when(rsaCrypto.decrypt((byte[]) any())).thenReturn(ByteArrayUtils.giveMeOne(32));
-    channel.writeInbound(Unpooled.wrappedBuffer(handShake));
+    channel.writeInbound(handShake);
     channel.readOutbound();
     byte[] expectedBody = ByteArrayUtils.giveMeOne(128);
     InboundMessage expectedMessage = InboundMessageFixture.create(expectedBody);
@@ -228,9 +284,56 @@ class AbstractHandshakeHandlerTest {
     assertThat(actual).usingRecursiveComparison().isEqualTo(expectedMessage);
   }
 
+
   private static int[] failedLengthRange() {
     return IntStream.range(
         HandshakeHeader.LENGTH_FIELD_LENGTH, HandshakeHeader.MINIMUM_LENGTH - HandshakeHeader.LENGTH_FIELD_LENGTH)
       .toArray();
+  }
+
+  private HandshakeSimpleChannelInboundHandler getHandler() {
+    return new HandshakeSimpleChannelInboundHandler(rsaCrypto) {
+      @Override
+      public Crypto getAesCrypto(HandshakeHeader handShakeHeader, byte[] ivParameter, byte[] symmetricKey) {
+        return aesCrypto;
+      }
+
+      @Override
+      public void addHandler(ChannelPipeline pipeline, Crypto crypto) {
+        pipeline.addLast(new EncryptedInboundMessageDecoder(crypto));
+      }
+    };
+  }
+
+  private HandshakeSimpleChannelInboundHandler getCryptoThrowHandler() {
+    return new HandshakeSimpleChannelInboundHandler(rsaCrypto) {
+      @Override
+      public Crypto getAesCrypto(HandshakeHeader handShakeHeader, byte[] ivParameter, byte[] symmetricKey) {
+        throw new NullPointerException();
+      }
+
+      @Override
+      public void addHandler(ChannelPipeline pipeline, Crypto crypto) {
+        pipeline.addLast(new EncryptedInboundMessageDecoder(crypto));
+      }
+    };
+  }
+
+  private HandshakeSimpleChannelInboundHandler getAddThrowHandler(Exception exception) {
+    return new HandshakeSimpleChannelInboundHandler(rsaCrypto) {
+      @Override
+      public Crypto getAesCrypto(HandshakeHeader handShakeHeader, byte[] ivParameter, byte[] symmetricKey) {
+        return aesCrypto;
+      }
+
+      @Override
+      public void addHandler(ChannelPipeline pipeline, Crypto crypto) {
+        try {
+          throw exception;
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+    };
   }
 }

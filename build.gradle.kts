@@ -39,6 +39,7 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    systemProperty("io.netty.leakDetection.level", "advanced")
     finalizedBy(tasks.jacocoTestReport)
 }
 

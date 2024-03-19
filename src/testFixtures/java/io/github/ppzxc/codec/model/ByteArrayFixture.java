@@ -1,6 +1,5 @@
 package io.github.ppzxc.codec.model;
 
-import io.github.ppzxc.codec.decoder.FixedConstructorLengthFieldBasedFrameDecoder;
 import io.github.ppzxc.fixh.ByteArrayUtils;
 import io.github.ppzxc.fixh.IntUtils;
 import io.netty.buffer.ByteBuf;
@@ -12,17 +11,14 @@ public final class ByteArrayFixture {
   }
 
   public static byte[] create(int bodyLength, byte[] body) {
-    ByteBuf buffer = Unpooled.buffer(
-      FixedConstructorLengthFieldBasedFrameDecoder.DEFAULT_LENGTH_FILED_LENGTH + body.length);
+    ByteBuf buffer = Unpooled.buffer(body.length + Header.LENGTH_FIELD_LENGTH);
     buffer.writeInt(bodyLength);
     buffer.writeBytes(body);
     return buffer.array();
   }
 
   public static byte[] createWithLineDelimiter(int bodyLength, byte[] body) {
-    ByteBuf buffer = Unpooled.buffer(
-      FixedConstructorLengthFieldBasedFrameDecoder.DEFAULT_LENGTH_FILED_LENGTH + body.length
-        + Header.LINE_DELIMITER_LENGTH);
+    ByteBuf buffer = Unpooled.buffer(body.length + Header.MINIMUM_LENGTH);
     buffer.writeInt(bodyLength);
     buffer.writeBytes(body);
     buffer.writeBytes(Header.LINE_DELIMITER);
@@ -31,7 +27,7 @@ public final class ByteArrayFixture {
 
   public static byte[] create(int bodyLength) {
     ByteBuf buffer = Unpooled.buffer(
-      FixedConstructorLengthFieldBasedFrameDecoder.DEFAULT_LENGTH_FILED_LENGTH + Math.max(0, bodyLength));
+      Header.LENGTH_FIELD_LENGTH + Math.max(0, bodyLength));
     buffer.writeInt(bodyLength);
     if (bodyLength > 0) {
       buffer.writeBytes(ByteArrayUtils.giveMeOne(bodyLength));
@@ -41,7 +37,7 @@ public final class ByteArrayFixture {
 
   public static byte[] create(byte[] body) {
     ByteBuf buffer = Unpooled.buffer(
-      FixedConstructorLengthFieldBasedFrameDecoder.DEFAULT_LENGTH_FILED_LENGTH + body.length);
+      Header.LENGTH_FIELD_LENGTH + body.length);
     buffer.writeInt(body.length);
     if (body.length > 0) {
       buffer.writeBytes(body);

@@ -17,14 +17,14 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-class FixedConstructorLengthFieldBasedFrameDecoderTest {
+class FixedLengthFieldBasedFrameDecoderTest {
 
   private EmbeddedChannel channel;
 
   @BeforeEach
   void setUp() {
     channel = new EmbeddedChannel();
-    channel.pipeline().addLast(FixedConstructorLengthFieldBasedFrameDecoder.defaultConfiguration());
+    channel.pipeline().addLast(FixedLengthFieldBasedFrameDecoder.defaultConfiguration());
   }
 
   @RepeatedTest(10)

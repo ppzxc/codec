@@ -14,6 +14,59 @@ public final class HandshakeFixture {
   private HandshakeFixture() {
   }
 
+  private static ByteBuf create(int length, byte handshakeType, byte encryptionType, byte encryptionMode,
+    byte encryptionPadding, byte[] body, byte[] lineDelimiter) {
+    ByteBuf buffer = Unpooled.buffer();
+    buffer.writeInt(length);
+    buffer.writeByte(handshakeType);
+    buffer.writeByte(encryptionType);
+    buffer.writeByte(encryptionMode);
+    buffer.writeByte(encryptionPadding);
+    buffer.writeBytes(body);
+    if (lineDelimiter.length > 0) {
+      buffer.writeBytes(lineDelimiter);
+    }
+    return buffer;
+  }
+
+  private static ByteBuf create(byte handShakeType, byte encryptionType, byte encryptionMode, byte encryptionPadding,
+    byte[] iv, byte[] key) {
+    int fullLength = iv.length + key.length + HandshakeHeader.PROTOCOL_FIELDS_LENGTH + HandshakeHeader.LINE_DELIMITER_LENGTH;
+    ByteBuf body = Unpooled.buffer(iv.length + key.length);
+    body.writeBytes(iv);
+    body.writeBytes(key);
+    return create(fullLength, handShakeType, encryptionType, encryptionMode,
+      encryptionPadding, body.array(), HandshakeHeader.LINE_DELIMITER);
+  }
+
+  public static ByteBuf withBody(byte[] body) {
+    int length = body.length + HandshakeHeader.PROTOCOL_FIELDS_LENGTH + HandshakeHeader.LINE_DELIMITER_LENGTH;
+    return create(length, HandshakeType.RSA_1024.getCode(),
+      EncryptionType.ADVANCED_ENCRYPTION_STANDARD.getCode(), EncryptionMode.CIPHER_BLOCK_CHAINING.getCode(),
+      EncryptionPadding.PKCS7PADDING.getCode(), body, HandshakeHeader.LINE_DELIMITER);
+  }
+
+  public static ByteBuf withLength(int length) {
+    byte[] body = ByteArrayUtils.giveMeOne(
+      length - HandshakeHeader.PROTOCOL_FIELDS_LENGTH - HandshakeHeader.LINE_DELIMITER_LENGTH);
+    return create(length, HandshakeType.RSA_1024.getCode(),
+      EncryptionType.ADVANCED_ENCRYPTION_STANDARD.getCode(), EncryptionMode.CIPHER_BLOCK_CHAINING.getCode(),
+      EncryptionPadding.PKCS7PADDING.getCode(), body, HandshakeHeader.LINE_DELIMITER);
+  }
+
+  public static ByteBuf withLengthAndBody(int length, byte[] body) {
+    return create(length, HandshakeType.RSA_1024.getCode(),
+      EncryptionType.ADVANCED_ENCRYPTION_STANDARD.getCode(), EncryptionMode.CIPHER_BLOCK_CHAINING.getCode(),
+      EncryptionPadding.PKCS7PADDING.getCode(), body, HandshakeHeader.LINE_DELIMITER);
+  }
+
+  public static ByteBuf missingLineDelimiter(byte[] body) {
+    int length = body.length + HandshakeHeader.PROTOCOL_FIELDS_LENGTH;
+    return create(length, HandshakeType.RSA_1024.getCode(), EncryptionType.ADVANCED_ENCRYPTION_STANDARD.getCode(),
+      EncryptionMode.CIPHER_BLOCK_CHAINING.getCode(),
+      EncryptionPadding.PKCS7PADDING.getCode(), body, new byte[0]);
+  }
+
   public static ByteBuf wrongHandShakeType() {
     return create(getWrongHandShakeType(), EncryptionType.ADVANCED_ENCRYPTION_STANDARD.getCode(),
       EncryptionMode.CIPHER_BLOCK_CHAINING.getCode(), EncryptionPadding.PKCS7PADDING.getCode(),
@@ -40,7 +93,8 @@ public final class HandshakeFixture {
 
   public static ByteBuf wrongSymmetricKeySize() {
     return create(HandshakeType.RSA_1024.getCode(), EncryptionType.ADVANCED_ENCRYPTION_STANDARD.getCode(),
-      EncryptionMode.CIPHER_BLOCK_CHAINING.getCode(), EncryptionPadding.PKCS7PADDING.getCode(), ByteArrayUtils.giveMeOne(16),
+      EncryptionMode.CIPHER_BLOCK_CHAINING.getCode(), EncryptionPadding.PKCS7PADDING.getCode(),
+      ByteArrayUtils.giveMeOne(16),
       getWrongSymmetricKey());
   }
 
@@ -50,19 +104,6 @@ public final class HandshakeFixture {
       given = ByteArrayUtils.giveMeOne(IntUtils.giveMeOne(16, 32));
     }
     return given;
-  }
-
-  private static ByteBuf create(byte code, byte code1,
-    byte code2, byte wrongEncryptionPadding, byte[] bytes, byte[] bytes1) {
-    ByteBuf buffer = Unpooled.buffer(HandshakeHeader.MINIMUM_LENGTH);
-    buffer.writeInt(HandshakeHeader.MINIMUM_LENGTH - HandshakeHeader.LENGTH_FIELD_LENGTH);
-    buffer.writeByte(code);
-    buffer.writeByte(code1);
-    buffer.writeByte(code2);
-    buffer.writeByte(wrongEncryptionPadding);
-    buffer.writeBytes(bytes);
-    buffer.writeBytes(bytes1);
-    return buffer;
   }
 
   private static byte getHandShakeType() {
@@ -101,10 +142,9 @@ public final class HandshakeFixture {
   }
 
   private static byte getWrongEncryptionType() {
-    List<Byte> collect = Arrays.stream(EncryptionType.values())
+    return ByteUtils.giveMeOneWithout(Arrays.stream(EncryptionType.values())
       .map(EncryptionType::getCode)
-      .collect(Collectors.toList());
-    return ByteUtils.giveMeOneWithout(collect);
+      .collect(Collectors.toList()));
   }
 
   private static byte getWrongEncryptionMode() {

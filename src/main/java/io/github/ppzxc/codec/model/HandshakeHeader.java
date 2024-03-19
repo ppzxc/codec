@@ -8,9 +8,14 @@ public class HandshakeHeader implements Serializable {
   public static final int PROTOCOL_FIELDS_LENGTH = 4;
   public static final int IV_PARAMETER_LENGTH = 16;
   public static final int SYMMETRIC_KEY_FIELD_MINIMUM_LENGTH = 16;
+  public static final int LINE_DELIMITER_LENGTH = 2;
   public static final int MINIMUM_LENGTH =
-    LENGTH_FIELD_LENGTH + PROTOCOL_FIELDS_LENGTH + IV_PARAMETER_LENGTH + SYMMETRIC_KEY_FIELD_MINIMUM_LENGTH;
+    LENGTH_FIELD_LENGTH + PROTOCOL_FIELDS_LENGTH + IV_PARAMETER_LENGTH + SYMMETRIC_KEY_FIELD_MINIMUM_LENGTH
+      + LINE_DELIMITER_LENGTH;
+  public static final int MINIMUM_LENGTH_WITHOUT_LENGTH_FIELD =
+    PROTOCOL_FIELDS_LENGTH + IV_PARAMETER_LENGTH + SYMMETRIC_KEY_FIELD_MINIMUM_LENGTH + LINE_DELIMITER_LENGTH;
   public static final int RESULT_LENGTH = 5;
+  public static final byte[] LINE_DELIMITER = new byte[]{'\r', '\n'};
   public static final int[] AES_KEY_SIZES = new int[]{16, 24, 32};
   private static final long serialVersionUID = -7725222996410869058L;
   private final int length;

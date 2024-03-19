@@ -20,7 +20,7 @@ public enum HandshakeType {
 
   public static HandshakeType of(byte value) {
     return Arrays.stream(HandshakeType.values())
-      .filter(handShakeType -> handShakeType.code == value)
+      .filter(type -> type.code == value)
       .findAny()
       .orElse(HandshakeType.NONE);
   }

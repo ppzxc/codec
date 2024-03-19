@@ -6,18 +6,17 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FixedConstructorLengthFieldBasedFrameDecoder extends LengthFieldBasedFrameDecoder {
+public class FixedLengthFieldBasedFrameDecoder extends LengthFieldBasedFrameDecoder {
 
-  public static final int DEFAULT_LENGTH_FILED_LENGTH = 4;
-  private static final Logger log = LoggerFactory.getLogger(FixedConstructorLengthFieldBasedFrameDecoder.class);
+  private static final Logger log = LoggerFactory.getLogger(FixedLengthFieldBasedFrameDecoder.class);
 
-  public FixedConstructorLengthFieldBasedFrameDecoder(int maxFrameLength, int lengthFieldOffset, int lengthFieldLength,
+  public FixedLengthFieldBasedFrameDecoder(int maxFrameLength, int lengthFieldOffset, int lengthFieldLength,
     int lengthAdjustment, int initialBytesToStrip, boolean failFast) {
     super(maxFrameLength, lengthFieldOffset, lengthFieldLength, lengthAdjustment, initialBytesToStrip, failFast);
   }
 
-  public static FixedConstructorLengthFieldBasedFrameDecoder defaultConfiguration() {
-    return new FixedConstructorLengthFieldBasedFrameDecoder(1024 * 1024 * 4, 0, 4, 0, 0, true);
+  public static FixedLengthFieldBasedFrameDecoder defaultConfiguration() {
+    return new FixedLengthFieldBasedFrameDecoder(1024 * 1024 * 4, 0, 4, 0, 0, true);
   }
 
   @Override
