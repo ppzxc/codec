@@ -19,6 +19,7 @@ public enum CodecProblemCode {
   ENCODE_FAIL((byte) 0x0d),
   LENGTH_NOT_EQUALS_READABLE((byte) 0x0e),
   MISSING_LINE_DELIMITER((byte) 0x0f),
+  HANDSHAKE_TIMEOUT_NO_BEHAVIOR((byte) 0x10),
   ;
 
   private final byte code;

@@ -6,6 +6,7 @@ import io.github.ppzxc.codec.mapper.Mapper;
 import io.github.ppzxc.codec.mapper.WriteCommand;
 import io.github.ppzxc.codec.model.EncodingType;
 import io.github.ppzxc.codec.model.Header;
+import io.github.ppzxc.codec.model.LineDelimiter;
 import io.github.ppzxc.codec.model.OutboundMessage;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
@@ -33,7 +34,7 @@ public class OutboundMessageEncoder extends MessageToMessageEncoder<OutboundMess
     log.debug("{} id={} encode", ctx.channel(), msg.header().getId());
     try {
       byte[] body = getBody(msg);
-      int bodyLength = body.length + Header.LINE_DELIMITER_LENGTH;
+      int bodyLength = body.length + LineDelimiter.LENGTH;
       ByteBuf buffer = Unpooled.buffer(Header.ID_FIELD_LENGTH + bodyLength);
       buffer.writeInt(bodyLength);
       buffer.writeLong(msg.header().getId());
@@ -42,7 +43,7 @@ public class OutboundMessageEncoder extends MessageToMessageEncoder<OutboundMess
       buffer.writeByte(msg.header().getEncoding());
       buffer.writeByte(msg.header().getReserved());
       buffer.writeBytes(body);
-      buffer.writeBytes(Header.LINE_DELIMITER);
+      buffer.writeBytes(LineDelimiter.BYTE_ARRAY);
       out.add(buffer);
     } catch (Exception e) {
       throw new OutboundMessageEncoderException(msg.header(), e);

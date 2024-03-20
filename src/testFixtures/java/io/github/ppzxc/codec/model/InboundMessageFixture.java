@@ -20,7 +20,7 @@ public final class InboundMessageFixture {
   }
 
   public static InboundMessage create(byte[] body) {
-    return create(HeaderFixture.create(body.length + Header.LENGTH_WITHOUT_LENGTH_FIELD), body);
+    return create(HeaderFixture.create(body.length + Header.BODY_LENGTH), body);
   }
 
   public static ByteBuf to(InboundMessage inboundMessage) {
@@ -32,15 +32,15 @@ public final class InboundMessageFixture {
     buffer.writeByte(inboundMessage.header().getEncoding());
     buffer.writeByte(inboundMessage.header().getReserved());
     buffer.writeBytes(inboundMessage.getBody());
-    buffer.writeBytes(Header.LINE_DELIMITER);
+    buffer.writeBytes(LineDelimiter.BYTE_ARRAY);
     return buffer;
   }
 
   public static ByteBuf encryptedBodyOf(byte[] encryptedBody) {
     ByteBuf buffer = Unpooled.buffer();
-    buffer.writeInt(encryptedBody.length + Header.LINE_DELIMITER_LENGTH);
+    buffer.writeInt(encryptedBody.length + LineDelimiter.LENGTH);
     buffer.writeBytes(encryptedBody);
-    buffer.writeBytes(Header.LINE_DELIMITER);
+    buffer.writeBytes(LineDelimiter.BYTE_ARRAY);
     return buffer;
   }
 }

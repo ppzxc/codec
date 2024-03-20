@@ -21,7 +21,7 @@ public final class ByteArrayFixture {
     ByteBuf buffer = Unpooled.buffer(body.length + Header.MINIMUM_LENGTH);
     buffer.writeInt(bodyLength);
     buffer.writeBytes(body);
-    buffer.writeBytes(Header.LINE_DELIMITER);
+    buffer.writeBytes(LineDelimiter.BYTE_ARRAY);
     return buffer.array();
   }
 
@@ -62,7 +62,7 @@ public final class ByteArrayFixture {
     buffer.writeByte(given.header().getEncoding());
     buffer.writeByte(given.header().getReserved());
     buffer.writeBytes(given.getBody());
-    buffer.writeBytes(Header.LINE_DELIMITER);
+    buffer.writeBytes(LineDelimiter.BYTE_ARRAY);
     return buffer;
   }
 
@@ -101,7 +101,7 @@ public final class ByteArrayFixture {
     ByteBuf buffer = Unpooled.buffer();
     buffer.writeInt(length);
     buffer.writeBytes(body);
-    buffer.writeBytes(Header.LINE_DELIMITER);
+    buffer.writeBytes(LineDelimiter.BYTE_ARRAY);
     return buffer;
   }
 }

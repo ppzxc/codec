@@ -21,6 +21,7 @@ repositories {
 dependencies {
     implementation(rootProject.libs.io.netty.buffer)
     implementation(rootProject.libs.io.netty.codec)
+    implementation(rootProject.libs.io.netty.handler)
     implementation(rootProject.libs.org.slf4j.api)
     implementation(rootProject.libs.io.github.ppzxc.fixh)
     implementation(rootProject.libs.io.github.ppzxc.crypto)
@@ -31,6 +32,7 @@ dependencies {
 
     testFixturesImplementation(rootProject.libs.io.netty.buffer)
     testFixturesImplementation(rootProject.libs.io.netty.codec)
+    testFixturesImplementation(rootProject.libs.io.netty.handler)
     testFixturesImplementation(rootProject.libs.io.github.ppzxc.fixh)
     testFixturesImplementation(rootProject.libs.de.undercouch.bson4jackson)
     testFixturesImplementation(rootProject.libs.com.fasterxml.jackson.core.databind)

@@ -10,6 +10,7 @@ import io.github.ppzxc.codec.exception.SerializeFailedException;
 import io.github.ppzxc.codec.mapper.Mapper;
 import io.github.ppzxc.codec.model.Header;
 import io.github.ppzxc.codec.model.HeaderFixture;
+import io.github.ppzxc.codec.model.LineDelimiter;
 import io.github.ppzxc.codec.model.OutboundMessage;
 import io.github.ppzxc.codec.model.OutboundMessageFixture;
 import io.github.ppzxc.crypto.Crypto;
@@ -54,7 +55,7 @@ class OutboundMessageEncoderTest {
 
     // then
     assertThat(actual.readableBytes()).isEqualTo(Header.MINIMUM_LENGTH);
-    assertThat(actual.readInt()).isEqualTo(Header.LINE_DELIMITER_LENGTH);
+    assertThat(actual.readInt()).isEqualTo(LineDelimiter.LENGTH);
     assertThat(actual.readLong()).isEqualTo(expected.header().getId());
     assertThat(actual.readByte()).isEqualTo(expected.header().getType());
     assertThat(actual.readByte()).isEqualTo(expected.header().getStatus());
@@ -62,7 +63,7 @@ class OutboundMessageEncoderTest {
     assertThat(actual.readByte()).isEqualTo(expected.header().getReserved());
     byte[] body = new byte[actual.readableBytes()];
     actual.readBytes(body);
-    assertThat(body).isEqualTo(Header.LINE_DELIMITER);
+    assertThat(body).isEqualTo(LineDelimiter.BYTE_ARRAY);
   }
 
   @RepeatedTest(10)
@@ -109,17 +110,17 @@ class OutboundMessageEncoderTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(expectedBody.length + Header.MINIMUM_LENGTH);
     int length = actual.readInt();
-    assertThat(length).isEqualTo(expectedBody.length + Header.LINE_DELIMITER_LENGTH);
+    assertThat(length).isEqualTo(expectedBody.length + LineDelimiter.LENGTH);
     assertThat(actual.readLong()).isEqualTo(expected.header().getId());
     assertThat(actual.readByte()).isEqualTo(expected.header().getType());
     assertThat(actual.readByte()).isEqualTo(expected.header().getStatus());
     assertThat(actual.readByte()).isEqualTo(expected.header().getEncoding());
     assertThat(actual.readByte()).isEqualTo(expected.header().getReserved());
-    byte[] body = new byte[actual.readableBytes() - Header.LINE_DELIMITER.length];
+    byte[] body = new byte[actual.readableBytes() - LineDelimiter.BYTE_ARRAY.length];
     actual.readBytes(body);
     assertThat(body).isEqualTo(expectedBody);
-    byte[] lineDelimiter = new byte[Header.LINE_DELIMITER.length];
+    byte[] lineDelimiter = new byte[LineDelimiter.BYTE_ARRAY.length];
     actual.readBytes(lineDelimiter);
-    assertThat(lineDelimiter).isEqualTo(Header.LINE_DELIMITER);
+    assertThat(lineDelimiter).isEqualTo(LineDelimiter.BYTE_ARRAY);
   }
 }

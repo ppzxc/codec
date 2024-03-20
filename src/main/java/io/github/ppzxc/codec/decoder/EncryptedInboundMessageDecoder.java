@@ -9,13 +9,13 @@ import io.github.ppzxc.codec.exception.ShortLengthException;
 import io.github.ppzxc.codec.model.CodecProblemCode;
 import io.github.ppzxc.codec.model.Header;
 import io.github.ppzxc.codec.model.InboundMessage;
+import io.github.ppzxc.codec.model.LineDelimiter;
 import io.github.ppzxc.crypto.Crypto;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ public class EncryptedInboundMessageDecoder extends MessageToMessageDecoder<Byte
   }
 
   public EncryptedInboundMessageDecoder(Crypto crypto) {
-    this(crypto, Header.ID_FIELD_LENGTH + Header.LINE_DELIMITER_LENGTH);
+    this(crypto, Header.ID_FIELD_LENGTH + LineDelimiter.LENGTH);
   }
 
   @Override
@@ -56,7 +56,7 @@ public class EncryptedInboundMessageDecoder extends MessageToMessageDecoder<Byte
     if (initialReadableBytes < minimumLength) {
       throw new ShortLengthException(initialReadableBytes, minimumLength);
     }
-    if (!ByteBufUtil.equals(msg, msg.readableBytes() - 2, Header.LINE_DELIMITER_BYTE_BUF, 0, 2)) {
+    if (!ByteBufUtil.equals(msg, msg.readableBytes() - 2, LineDelimiter.BYTE_BUF, 0, 2)) {
       throw new MissingLineDelimiterException();
     }
     int length = msg.readInt();
