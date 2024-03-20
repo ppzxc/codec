@@ -1,7 +1,5 @@
 package io.github.ppzxc.codec.model;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import java.io.Serializable;
 
 public class Header implements Serializable {
@@ -9,14 +7,8 @@ public class Header implements Serializable {
   public static final int LENGTH_FIELD_LENGTH = 4;
   public static final int ID_FIELD_LENGTH = 8;
   public static final int PROTOCOL_FIELDS_LENGTH = 4;
-  public static final int LINE_DELIMITER_LENGTH = 2;
-  public static final int MINIMUM_LENGTH =
-    LENGTH_FIELD_LENGTH + ID_FIELD_LENGTH + PROTOCOL_FIELDS_LENGTH + LINE_DELIMITER_LENGTH;
-  public static final int LENGTH_WITHOUT_LENGTH_FIELD =
-    ID_FIELD_LENGTH + PROTOCOL_FIELDS_LENGTH + LINE_DELIMITER_LENGTH;
-  public static final byte[] LINE_DELIMITER = new byte[]{'\r', '\n'};
-  public static final ByteBuf LINE_DELIMITER_BYTE_BUF = Unpooled.unreleasableBuffer(
-    Unpooled.wrappedBuffer(LINE_DELIMITER));
+  public static final int BODY_LENGTH = ID_FIELD_LENGTH + PROTOCOL_FIELDS_LENGTH + LineDelimiter.LENGTH;
+  public static final int MINIMUM_LENGTH = LENGTH_FIELD_LENGTH + BODY_LENGTH;
   private static final long serialVersionUID = 3858154716183837451L;
   private final int length;
   private final long id;

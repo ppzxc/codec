@@ -31,33 +31,33 @@ public final class HandshakeFixture {
 
   private static ByteBuf create(byte handShakeType, byte encryptionType, byte encryptionMode, byte encryptionPadding,
     byte[] iv, byte[] key) {
-    int fullLength = iv.length + key.length + HandshakeHeader.PROTOCOL_FIELDS_LENGTH + HandshakeHeader.LINE_DELIMITER_LENGTH;
+    int fullLength = iv.length + key.length + HandshakeHeader.PROTOCOL_FIELDS_LENGTH + LineDelimiter.LENGTH;
     ByteBuf body = Unpooled.buffer(iv.length + key.length);
     body.writeBytes(iv);
     body.writeBytes(key);
     return create(fullLength, handShakeType, encryptionType, encryptionMode,
-      encryptionPadding, body.array(), HandshakeHeader.LINE_DELIMITER);
+      encryptionPadding, body.array(), LineDelimiter.BYTE_ARRAY);
   }
 
   public static ByteBuf withBody(byte[] body) {
-    int length = body.length + HandshakeHeader.PROTOCOL_FIELDS_LENGTH + HandshakeHeader.LINE_DELIMITER_LENGTH;
+    int length = body.length + HandshakeHeader.PROTOCOL_FIELDS_LENGTH + LineDelimiter.LENGTH;
     return create(length, HandshakeType.RSA_1024.getCode(),
       EncryptionType.ADVANCED_ENCRYPTION_STANDARD.getCode(), EncryptionMode.CIPHER_BLOCK_CHAINING.getCode(),
-      EncryptionPadding.PKCS7PADDING.getCode(), body, HandshakeHeader.LINE_DELIMITER);
+      EncryptionPadding.PKCS7PADDING.getCode(), body, LineDelimiter.BYTE_ARRAY);
   }
 
   public static ByteBuf withLength(int length) {
     byte[] body = ByteArrayUtils.giveMeOne(
-      length - HandshakeHeader.PROTOCOL_FIELDS_LENGTH - HandshakeHeader.LINE_DELIMITER_LENGTH);
+      length - HandshakeHeader.PROTOCOL_FIELDS_LENGTH - LineDelimiter.LENGTH);
     return create(length, HandshakeType.RSA_1024.getCode(),
       EncryptionType.ADVANCED_ENCRYPTION_STANDARD.getCode(), EncryptionMode.CIPHER_BLOCK_CHAINING.getCode(),
-      EncryptionPadding.PKCS7PADDING.getCode(), body, HandshakeHeader.LINE_DELIMITER);
+      EncryptionPadding.PKCS7PADDING.getCode(), body, LineDelimiter.BYTE_ARRAY);
   }
 
   public static ByteBuf withLengthAndBody(int length, byte[] body) {
     return create(length, HandshakeType.RSA_1024.getCode(),
       EncryptionType.ADVANCED_ENCRYPTION_STANDARD.getCode(), EncryptionMode.CIPHER_BLOCK_CHAINING.getCode(),
-      EncryptionPadding.PKCS7PADDING.getCode(), body, HandshakeHeader.LINE_DELIMITER);
+      EncryptionPadding.PKCS7PADDING.getCode(), body, LineDelimiter.BYTE_ARRAY);
   }
 
   public static ByteBuf missingLineDelimiter(byte[] body) {

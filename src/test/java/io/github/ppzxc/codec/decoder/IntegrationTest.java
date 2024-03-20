@@ -12,9 +12,11 @@ import io.github.ppzxc.codec.model.EncryptionPadding;
 import io.github.ppzxc.codec.model.EncryptionType;
 import io.github.ppzxc.codec.model.HandshakeFixture;
 import io.github.ppzxc.codec.model.HandshakeHeader;
+import io.github.ppzxc.codec.model.HandshakeResult;
 import io.github.ppzxc.codec.model.Header;
 import io.github.ppzxc.codec.model.InboundMessage;
 import io.github.ppzxc.codec.model.InboundMessageFixture;
+import io.github.ppzxc.codec.model.LineDelimiter;
 import io.github.ppzxc.crypto.AsymmetricKeyFactory;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
@@ -27,7 +29,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.embedded.EmbeddedChannel;
-import io.netty.handler.codec.base64.Base64;
+import io.netty.handler.timeout.IdleStateHandler;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -42,6 +44,8 @@ public class IntegrationTest {
   public static final String LENGTH_FIELD_BASE_FRAME_DECODER = "LengthFieldBaseFrameDecoder";
   public static final String ENCRYPTED_INBOUND_MESSAGE_DECODER = "EncryptedInboundMessageDecoder";
   public static final String HAND_SHAKE_HANDLER = "HandShakeHandler";
+  public static final String HANDSHAKE_IDLE_STATE_HANDLER = "HandshakeIdleStateHandler";
+  public static final String IDLE_STATE_HANDLER = "IdleStateHandler";
   private static Crypto RSA_CRYPTO;
   private static Crypto AES_CRYPTO;
   private static Mapper MAPPER;
@@ -57,6 +61,8 @@ public class IntegrationTest {
   @BeforeEach
   void setUp() {
     channel = new EmbeddedChannel();
+    channel.pipeline().addLast(IDLE_STATE_HANDLER, new IdleStateHandler(3, 2, 1));
+    channel.pipeline().addLast(HANDSHAKE_IDLE_STATE_HANDLER, new HandshakeTimeoutStateHandler(3, 2, 1));
     channel.pipeline()
       .addLast(LENGTH_FIELD_BASE_FRAME_DECODER, FixedLengthFieldBasedFrameDecoder.defaultConfiguration());
     channel.pipeline().addLast(HAND_SHAKE_HANDLER, new TestHandshakeSimpleChannelInboundHandler(RSA_CRYPTO));
@@ -73,8 +79,8 @@ public class IntegrationTest {
     ByteBuf actual = channel.readOutbound();
 
     // then
-    assertThat(actual.readableBytes()).isEqualTo(HandshakeHeader.RESULT_LENGTH);
-    assertThat(actual.readInt()).isEqualTo(1);
+    assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
+    assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
     assertThat(actual.readByte()).isEqualTo(CodecProblemCode.SHORT_LENGTH.getCode());
   }
 
@@ -88,8 +94,8 @@ public class IntegrationTest {
     ByteBuf actual = channel.readOutbound();
 
     // then
-    assertThat(actual.readableBytes()).isEqualTo(HandshakeHeader.RESULT_LENGTH);
-    assertThat(actual.readInt()).isEqualTo(1);
+    assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
+    assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
     assertThat(actual.readByte()).isEqualTo(CodecProblemCode.MISSING_LINE_DELIMITER.getCode());
   }
 
@@ -103,7 +109,7 @@ public class IntegrationTest {
     ByteBuf actual = channel.readOutbound();
 
     // then
-    assertThat(actual.readInt()).isEqualTo(1);
+    assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
     assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_HAND_SHAKE_TYPE.getCode());
   }
 
@@ -117,7 +123,7 @@ public class IntegrationTest {
     ByteBuf actual = channel.readOutbound();
 
     // then
-    assertThat(actual.readInt()).isEqualTo(1);
+    assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
     assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_ENCRYPTION_TYPE.getCode());
   }
 
@@ -132,7 +138,7 @@ public class IntegrationTest {
     ByteBuf actual = channel.readOutbound();
 
     // then
-    assertThat(actual.readInt()).isEqualTo(1);
+    assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
     assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_ENCRYPTION_MODE.getCode());
   }
 
@@ -146,7 +152,7 @@ public class IntegrationTest {
     ByteBuf actual = channel.readOutbound();
 
     // then
-    assertThat(actual.readInt()).isEqualTo(1);
+    assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
     assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_ENCRYPTION_PADDING.getCode());
   }
 
@@ -160,7 +166,7 @@ public class IntegrationTest {
     ByteBuf actual = channel.readOutbound();
 
     // then
-    assertThat(actual.readInt()).isEqualTo(1);
+    assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
     assertThat(actual.readByte()).isEqualTo(CodecProblemCode.DECRYPT_FAIL.getCode());
   }
 
@@ -174,8 +180,8 @@ public class IntegrationTest {
     ByteBuf actual = channel.readOutbound();
 
     // then
-    assertThat(actual.readableBytes()).isEqualTo(5);
-    assertThat(actual.readInt()).isEqualTo(1);
+    assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
+    assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
     assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_KEY_SIZE.getCode());
   }
 
@@ -189,7 +195,7 @@ public class IntegrationTest {
     ByteBuf actual = channel.readOutbound();
 
     // then
-    assertThat(actual.readInt()).isEqualTo(1);
+    assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
     assertThat(actual.readByte()).isEqualTo(CodecProblemCode.OK.getCode());
   }
 
@@ -223,7 +229,8 @@ public class IntegrationTest {
   }
 
   public ByteBuf encryption(Crypto crypto, InboundMessage inboundMessage) throws CryptoException {
-    ByteBuf buffer = Unpooled.buffer(inboundMessage.getBody().length + Header.ID_FIELD_LENGTH + Header.PROTOCOL_FIELDS_LENGTH);
+    ByteBuf buffer = Unpooled.buffer(
+      inboundMessage.getBody().length + Header.ID_FIELD_LENGTH + Header.PROTOCOL_FIELDS_LENGTH);
     buffer.writeLong(inboundMessage.header().getId());
     buffer.writeByte(inboundMessage.header().getType());
     buffer.writeByte(inboundMessage.header().getStatus());
@@ -232,9 +239,9 @@ public class IntegrationTest {
     buffer.writeBytes(inboundMessage.getBody());
     byte[] cipherText = crypto.encrypt(buffer.array());
     ByteBuf buffer2 = Unpooled.buffer();
-    buffer2.writeInt(cipherText.length + Header.LINE_DELIMITER_LENGTH);
+    buffer2.writeInt(cipherText.length + LineDelimiter.LENGTH);
     buffer2.writeBytes(cipherText);
-    buffer2.writeBytes(Header.LINE_DELIMITER);
+    buffer2.writeBytes(LineDelimiter.BYTE_ARRAY);
     return buffer2;
   }
 

@@ -15,6 +15,7 @@ import io.github.ppzxc.codec.model.ByteArrayFixture;
 import io.github.ppzxc.codec.model.Header;
 import io.github.ppzxc.codec.model.InboundMessage;
 import io.github.ppzxc.codec.model.InboundMessageFixture;
+import io.github.ppzxc.codec.model.LineDelimiter;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
 import io.github.ppzxc.fixh.ByteArrayUtils;
@@ -131,6 +132,6 @@ class EncryptedInboundMessageDecoderTest {
   }
 
   private static int[] allMessageLength() {
-    return IntStream.range(1, Header.ID_FIELD_LENGTH + Header.LINE_DELIMITER_LENGTH).toArray();
+    return IntStream.range(1, Header.ID_FIELD_LENGTH + LineDelimiter.LENGTH).toArray();
   }
 }
