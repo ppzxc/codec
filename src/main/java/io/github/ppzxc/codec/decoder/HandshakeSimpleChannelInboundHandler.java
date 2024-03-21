@@ -135,13 +135,21 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     ByteBuf result;
     if (cause instanceof HandshakeException) {
-      result = HandshakeResult.of(((HandshakeException) cause).getCodecProblemCode());
+      HandshakeException exception = (HandshakeException) cause;
+      result = HandshakeResult.of(exception.getCodecProblemCode());
+      log.info("{} id={} reject={} problem={} exception.message={}", ctx.channel(), exception.getId(),
+        exception.getRejectedValue(), exception.getCodecProblemCode(), exception.getMessage());
     } else {
       Throwable findCause = ExceptionUtils.findCause(cause, HandshakeException.class);
       if (findCause instanceof HandshakeException) {
-        result = HandshakeResult.of(((HandshakeException) findCause).getCodecProblemCode());
+        HandshakeException exception = (HandshakeException) findCause;
+        result = HandshakeResult.of(exception.getCodecProblemCode());
+        log.info("{} id={} reject={} problem={} exception.message={}", ctx.channel(), exception.getId(),
+          exception.getRejectedValue(), exception.getCodecProblemCode(), exception.getMessage());
       } else {
         result = HandshakeResult.of(CodecProblemCode.UNRECOGNIZED);
+        log.info("{} id=0 reject=0 problem={} exception.message={}", ctx.channel(), CodecProblemCode.UNRECOGNIZED,
+          cause.getMessage());
       }
     }
 
