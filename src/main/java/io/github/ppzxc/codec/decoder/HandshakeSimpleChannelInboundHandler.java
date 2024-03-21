@@ -17,7 +17,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateHandler;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
@@ -70,10 +69,6 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
 
     // check body
     if (Arrays.stream(HandshakeHeader.AES_KEY_SIZES).noneMatch(aesKeySize -> aesKeySize == symmetricKey.length)) {
-      log.debug("{} length={} iv={}", ctx.channel(), ivParameter.length,
-        new String(ivParameter, StandardCharsets.UTF_8));
-      log.debug("{} length={} key={}", ctx.channel(), symmetricKey.length,
-        new String(symmetricKey, StandardCharsets.UTF_8));
       throw new HandshakeException(symmetricKey.length, CodecProblemCode.INVALID_KEY_SIZE);
     }
 
