@@ -16,9 +16,9 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.timeout.IdleStateHandler;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,9 +82,10 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
 
     ChannelPipeline pipeline = ctx.pipeline();
     addHandler(pipeline, aesCrypto);
-    pipeline.remove(IdleStateHandler.class);
-    pipeline.remove(HandshakeTimeoutStateHandler.class);
-    pipeline.remove(this);
+    pipeline.names().stream()
+      .filter(Constants.HANDSHAKES::contains)
+      .collect(Collectors.toList())
+      .forEach(pipeline::remove);
     ctx.channel().writeAndFlush(HandshakeResult.of(CodecProblemCode.OK));
   }
 
