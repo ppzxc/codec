@@ -15,14 +15,16 @@ import io.github.ppzxc.codec.model.OutboundMessage;
 import io.github.ppzxc.codec.model.OutboundMessageFixture;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
+import io.github.ppzxc.crypto.CryptoFactory;
 import io.github.ppzxc.crypto.CryptoProvider;
 import io.github.ppzxc.fixh.ByteArrayUtils;
 import io.github.ppzxc.fixh.ExceptionUtils;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.EncoderException;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 
 class OutboundMessageEncoderTest {
@@ -36,17 +38,10 @@ class OutboundMessageEncoderTest {
     CryptoProvider.BOUNCY_CASTLE.addProvider();
   }
 
-  @BeforeEach
-  void setUp() {
-    crypto = mock(Crypto.class);
-    mapper = mock(Mapper.class);
-    channel = new EmbeddedChannel();
-    channel.pipeline().addLast(new OutboundMessageEncoder(crypto, mapper));
-  }
-
   @RepeatedTest(10)
-  void should_ByteBuf_when_null_body() {
+  void should_ByteBuf_when_null_body() throws CryptoException {
     // given
+    setting(CryptoFactory.aes128());
     OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.create(), null);
 
     // when
@@ -54,21 +49,23 @@ class OutboundMessageEncoderTest {
     ByteBuf actual = channel.readOutbound();
 
     // then
-    assertThat(actual.readableBytes()).isEqualTo(Header.MINIMUM_LENGTH);
-    assertThat(actual.readInt()).isEqualTo(LineDelimiter.LENGTH);
-    assertThat(actual.readLong()).isEqualTo(expected.header().getId());
-    assertThat(actual.readByte()).isEqualTo(expected.header().getType());
-    assertThat(actual.readByte()).isEqualTo(expected.header().getStatus());
-    assertThat(actual.readByte()).isEqualTo(expected.header().getEncoding());
-    assertThat(actual.readByte()).isEqualTo(expected.header().getReserved());
-    byte[] body = new byte[actual.readableBytes()];
-    actual.readBytes(body);
-    assertThat(body).isEqualTo(LineDelimiter.BYTE_ARRAY);
+    assertThat(ByteBufUtil.equals(actual, actual.readableBytes() - 2, LineDelimiter.BYTE_BUF, 0, 2)).isTrue();
+    assertThat(actual.readableBytes()).isEqualTo(Header.ENCRYPTED_EMPTY_FULL_LENGTH);
+    assertThat(actual.readInt()).isEqualTo(Header.ENCRYPTED_EMPTY_BODY_LENGTH);
+    byte[] cipherText = new byte[actual.readableBytes()];
+    actual.readBytes(cipherText);
+    ByteBuf actualBody = Unpooled.wrappedBuffer(crypto.decrypt(cipherText));
+    assertThat(actualBody.readLong()).isEqualTo(expected.header().getId());
+    assertThat(actualBody.readByte()).isEqualTo(expected.header().getType());
+    assertThat(actualBody.readByte()).isEqualTo(expected.header().getStatus());
+    assertThat(actualBody.readByte()).isEqualTo(expected.header().getEncoding());
+    assertThat(actualBody.readByte()).isEqualTo(expected.header().getReserved());
   }
 
   @RepeatedTest(10)
   void should_throw_SerializeFailedException() throws SerializeFailedException {
     // given
+    setting(CryptoFactory.aes128());
     OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.create(), new Object());
 
     // when, then
@@ -83,6 +80,7 @@ class OutboundMessageEncoderTest {
   @RepeatedTest(10)
   void should_throw_CryptoException() throws SerializeFailedException, CryptoException {
     // given
+    setting(mock(Crypto.class));
     OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.create(), new Object());
 
     // when, then
@@ -98,29 +96,35 @@ class OutboundMessageEncoderTest {
   @RepeatedTest(10)
   void should_return_ByteBuf_when_exists_body() throws SerializeFailedException, CryptoException {
     // given
+    setting(CryptoFactory.aes128());
     byte[] expectedBody = ByteArrayUtils.giveMeOne(128);
     OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.create(), new Object());
 
     // when
-    when(mapper.write(any())).thenReturn(new byte[0]);
-    when(crypto.encrypt((byte[]) any())).thenReturn(expectedBody);
+    when(mapper.write(any())).thenReturn(expectedBody);
     channel.writeOutbound(expected);
     ByteBuf actual = channel.readOutbound();
 
     // then
-    assertThat(actual.readableBytes()).isEqualTo(expectedBody.length + Header.MINIMUM_LENGTH);
-    int length = actual.readInt();
-    assertThat(length).isEqualTo(expectedBody.length + LineDelimiter.LENGTH);
-    assertThat(actual.readLong()).isEqualTo(expected.header().getId());
-    assertThat(actual.readByte()).isEqualTo(expected.header().getType());
-    assertThat(actual.readByte()).isEqualTo(expected.header().getStatus());
-    assertThat(actual.readByte()).isEqualTo(expected.header().getEncoding());
-    assertThat(actual.readByte()).isEqualTo(expected.header().getReserved());
-    byte[] body = new byte[actual.readableBytes() - LineDelimiter.BYTE_ARRAY.length];
-    actual.readBytes(body);
-    assertThat(body).isEqualTo(expectedBody);
-    byte[] lineDelimiter = new byte[LineDelimiter.BYTE_ARRAY.length];
-    actual.readBytes(lineDelimiter);
-    assertThat(lineDelimiter).isEqualTo(LineDelimiter.BYTE_ARRAY);
+    assertThat(ByteBufUtil.equals(actual, actual.readableBytes() - 2, LineDelimiter.BYTE_BUF, 0, 2)).isTrue();
+    assertThat(actual.readInt()).isGreaterThanOrEqualTo(crypto.encrypt(expectedBody).length + LineDelimiter.LENGTH);
+    byte[] cipherText = new byte[actual.readableBytes()];
+    actual.readBytes(cipherText);
+    ByteBuf actualBody = Unpooled.wrappedBuffer(crypto.decrypt(cipherText));
+    assertThat(actualBody.readLong()).isEqualTo(expected.header().getId());
+    assertThat(actualBody.readByte()).isEqualTo(expected.header().getType());
+    assertThat(actualBody.readByte()).isEqualTo(expected.header().getStatus());
+    assertThat(actualBody.readByte()).isEqualTo(expected.header().getEncoding());
+    assertThat(actualBody.readByte()).isEqualTo(expected.header().getReserved());
+    byte[] plainTextBody = new byte[actualBody.readableBytes()];
+    actualBody.readBytes(plainTextBody);
+    assertThat(plainTextBody).isEqualTo(expectedBody);
+  }
+
+  private void setting(Crypto crypto) {
+    this.crypto = crypto;
+    mapper = mock(Mapper.class);
+    channel = new EmbeddedChannel();
+    channel.pipeline().addLast(new OutboundMessageEncoder(crypto, mapper));
   }
 }
