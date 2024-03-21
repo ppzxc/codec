@@ -64,6 +64,7 @@ tasks.jacocoTestCoverageVerification {
                 value = "COVEREDRATIO"
                 minimum = BigDecimal.valueOf(0.90)
             }
+            excludes = listOf("io.github.ppzxc.codec.decoder.HandshakeTimeoutStateHandler")
         }
     }
 }

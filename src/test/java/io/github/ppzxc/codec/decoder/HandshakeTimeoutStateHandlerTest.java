@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import io.github.ppzxc.codec.model.CodecProblemCode;
 import io.github.ppzxc.codec.model.HandshakeResult;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -19,7 +18,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class HandshakeTimeoutStateHandlerTest {
 
-  public static final ByteBuf EXPECTED = HandshakeResult.of(CodecProblemCode.HANDSHAKE_TIMEOUT_NO_BEHAVIOR);
   private HandshakeTimeoutStateHandler handler;
 
   @BeforeEach
@@ -28,14 +26,14 @@ class HandshakeTimeoutStateHandlerTest {
   }
 
   @ParameterizedTest
-  @MethodSource("use")
-  void should_called_close(IdleStateEvent event) throws Exception {
+  @MethodSource("all")
+  void should_no_behavior(IdleStateEvent event) throws Exception {
     // given
     ChannelFuture future = mock(ChannelFuture.class);
     ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
 
     // when
-    when(ctx.writeAndFlush(eq(EXPECTED))).thenReturn(future);
+    when(ctx.writeAndFlush(eq(HandshakeResult.of(CodecProblemCode.HANDSHAKE_TIMEOUT_NO_BEHAVIOR)))).thenReturn(future);
     handler.eventReceived(ctx, event);
 
     // then
@@ -44,28 +42,46 @@ class HandshakeTimeoutStateHandlerTest {
   }
 
   @ParameterizedTest
-  @MethodSource("notUse")
-  void should_not_called_close(IdleStateEvent event) throws Exception {
+  @MethodSource("reader")
+  void should_no_incoming(IdleStateEvent event) throws Exception {
     // given
     ChannelFuture future = mock(ChannelFuture.class);
     ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
 
     // when
-    when(ctx.writeAndFlush(eq(EXPECTED))).thenReturn(future);
+    when(ctx.writeAndFlush(eq(HandshakeResult.of(CodecProblemCode.HANDSHAKE_TIMEOUT_NO_INCOMING)))).thenReturn(future);
     handler.eventReceived(ctx, event);
 
     // then
-    verify(ctx, times(0)).writeAndFlush(any());
-    verify(future, times(0)).addListener(any());
+    verify(ctx, times(1)).writeAndFlush(any());
+    verify(future, times(1)).addListener(any());
   }
 
-  private static IdleStateEvent[] use() {
-    return new IdleStateEvent[]{IdleStateEvent.ALL_IDLE_STATE_EVENT, IdleStateEvent.WRITER_IDLE_STATE_EVENT,
-      IdleStateEvent.READER_IDLE_STATE_EVENT};
+  @ParameterizedTest
+  @MethodSource("writer")
+  void should_no_outgoing(IdleStateEvent event) throws Exception {
+    // given
+    ChannelFuture future = mock(ChannelFuture.class);
+    ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
+
+    // when
+    when(ctx.writeAndFlush(eq(HandshakeResult.of(CodecProblemCode.HANDSHAKE_TIMEOUT_NO_OUTGOING)))).thenReturn(future);
+    handler.eventReceived(ctx, event);
+
+    // then
+    verify(ctx, times(1)).writeAndFlush(any());
+    verify(future, times(1)).addListener(any());
   }
 
-  private static IdleStateEvent[] notUse() {
-    return new IdleStateEvent[]{IdleStateEvent.FIRST_ALL_IDLE_STATE_EVENT, IdleStateEvent.FIRST_WRITER_IDLE_STATE_EVENT,
-      IdleStateEvent.FIRST_READER_IDLE_STATE_EVENT};
+  private static IdleStateEvent[] all() {
+    return new IdleStateEvent[]{IdleStateEvent.FIRST_ALL_IDLE_STATE_EVENT, IdleStateEvent.ALL_IDLE_STATE_EVENT};
+  }
+
+  private static IdleStateEvent[] reader() {
+    return new IdleStateEvent[]{IdleStateEvent.FIRST_READER_IDLE_STATE_EVENT, IdleStateEvent.READER_IDLE_STATE_EVENT};
+  }
+
+  private static IdleStateEvent[] writer() {
+    return new IdleStateEvent[]{IdleStateEvent.FIRST_WRITER_IDLE_STATE_EVENT, IdleStateEvent.WRITER_IDLE_STATE_EVENT};
   }
 }

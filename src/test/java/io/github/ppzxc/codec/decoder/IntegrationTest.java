@@ -62,7 +62,7 @@ public class IntegrationTest {
   void setUp() {
     channel = new EmbeddedChannel();
     channel.pipeline().addLast(IDLE_STATE_HANDLER, new IdleStateHandler(3, 2, 1));
-    channel.pipeline().addLast(HANDSHAKE_IDLE_STATE_HANDLER, new HandshakeTimeoutStateHandler(3, 2, 1));
+    channel.pipeline().addLast(HANDSHAKE_IDLE_STATE_HANDLER, new HandshakeTimeoutStateHandler());
     channel.pipeline()
       .addLast(LENGTH_FIELD_BASE_FRAME_DECODER, FixedLengthFieldBasedFrameDecoder.defaultConfiguration());
     channel.pipeline().addLast(HAND_SHAKE_HANDLER, new TestHandshakeSimpleChannelInboundHandler(RSA_CRYPTO));
