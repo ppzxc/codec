@@ -71,7 +71,7 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
     // check body
     if (Arrays.stream(HandshakeHeader.AES_KEY_SIZES).noneMatch(aesKeySize -> aesKeySize == symmetricKey.length)) {
       log.debug("{} length={} iv={}", ctx.channel(), ivParameter.length,
-        new String(symmetricKey, StandardCharsets.UTF_8));
+        new String(ivParameter, StandardCharsets.UTF_8));
       log.debug("{} length={} key={}", ctx.channel(), symmetricKey.length,
         new String(symmetricKey, StandardCharsets.UTF_8));
       throw new HandshakeException(symmetricKey.length, CodecProblemCode.INVALID_KEY_SIZE);
