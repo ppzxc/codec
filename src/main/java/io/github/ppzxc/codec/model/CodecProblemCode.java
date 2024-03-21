@@ -20,6 +20,8 @@ public enum CodecProblemCode {
   LENGTH_NOT_EQUALS_READABLE((byte) 0x0e),
   MISSING_LINE_DELIMITER((byte) 0x0f),
   HANDSHAKE_TIMEOUT_NO_BEHAVIOR((byte) 0x10),
+  HANDSHAKE_TIMEOUT_NO_INCOMING((byte) 0x11),
+  HANDSHAKE_TIMEOUT_NO_OUTGOING((byte) 0x12),
   ;
 
   private final byte code;

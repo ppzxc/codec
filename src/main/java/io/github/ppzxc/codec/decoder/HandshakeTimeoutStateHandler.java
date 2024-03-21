@@ -5,41 +5,47 @@ import io.github.ppzxc.codec.model.HandshakeResult;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleUserEventChannelHandler;
 import io.netty.handler.timeout.IdleStateEvent;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HandshakeTimeoutStateHandler extends SimpleUserEventChannelHandler<IdleStateEvent> {
 
   private static final Logger log = LoggerFactory.getLogger(HandshakeTimeoutStateHandler.class);
-  private final int readerTimeoutSeconds;
-  private final int writerTimeoutSeconds;
-  private final int allTimeoutSeconds;
+  private final long closeDelay;
+  private final TimeUnit timeUnit;
 
-  public HandshakeTimeoutStateHandler(int readerTimeoutSeconds, int writerTimeoutSeconds, int allTimeoutSeconds) {
-    this.readerTimeoutSeconds = readerTimeoutSeconds;
-    this.writerTimeoutSeconds = writerTimeoutSeconds;
-    this.allTimeoutSeconds = allTimeoutSeconds;
+  public HandshakeTimeoutStateHandler(long closeDelay, TimeUnit timeUnit) {
+    this.closeDelay = closeDelay;
+    this.timeUnit = timeUnit;
   }
 
   public HandshakeTimeoutStateHandler() {
-    this.readerTimeoutSeconds = 15;
-    this.writerTimeoutSeconds = 10;
-    this.allTimeoutSeconds = 5;
+    this.closeDelay = 1;
+    this.timeUnit = TimeUnit.SECONDS;
   }
 
   @Override
   protected void eventReceived(ChannelHandlerContext ctx, IdleStateEvent evt) throws Exception {
     log.debug("{} id=[NO-ID] event={} triggered", ctx.channel(), evt.toString());
-    if (isContainsTimeoutEvent(evt)) {
-      log.info("{} id=[NO-ID] event={} reader={} writer={} all={} no incoming handshake", ctx.channel(), evt,
-        readerTimeoutSeconds, writerTimeoutSeconds, allTimeoutSeconds);
-      ctx.writeAndFlush(HandshakeResult.of(CodecProblemCode.HANDSHAKE_TIMEOUT_NO_BEHAVIOR))
-        .addListener(ignored -> ctx.close());
+    switch (evt.state()) {
+      case ALL_IDLE:
+        log.info("{} id=[NO-ID] event={} no incoming and outgoing", ctx.channel(), evt);
+        action(ctx, CodecProblemCode.HANDSHAKE_TIMEOUT_NO_BEHAVIOR);
+        break;
+      case READER_IDLE:
+        log.info("{} id=[NO-ID] event={} no incoming", ctx.channel(), evt);
+        action(ctx, CodecProblemCode.HANDSHAKE_TIMEOUT_NO_INCOMING);
+        break;
+      case WRITER_IDLE:
+        log.info("{} id=[NO-ID] event={} no outgoing", ctx.channel(), evt);
+        action(ctx, CodecProblemCode.HANDSHAKE_TIMEOUT_NO_OUTGOING);
+        break;
     }
   }
 
-  private boolean isContainsTimeoutEvent(IdleStateEvent evt) {
-    return evt == IdleStateEvent.ALL_IDLE_STATE_EVENT || evt == IdleStateEvent.READER_IDLE_STATE_EVENT
-      || evt == IdleStateEvent.WRITER_IDLE_STATE_EVENT;
+  private void action(ChannelHandlerContext ctx, CodecProblemCode codecProblemCode) {
+    ctx.writeAndFlush(HandshakeResult.of(codecProblemCode))
+      .addListener(ignored -> ctx.executor().schedule(() -> ctx.close(), closeDelay, timeUnit));
   }
 }

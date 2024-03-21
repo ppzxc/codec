@@ -21,6 +21,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.timeout.IdleStateHandler;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
     aesCrypto = mock(Crypto.class);
     channel = new EmbeddedChannel();
     channel.pipeline().addLast(IDLE_STATE_HANDLER, new IdleStateHandler(3, 2, 1));
-    channel.pipeline().addLast(HANDSHAKE_TIMEOUT_STATE_HANDLER, new HandshakeTimeoutStateHandler(3, 2, 1));
+    channel.pipeline().addLast(HANDSHAKE_TIMEOUT_STATE_HANDLER, new HandshakeTimeoutStateHandler(1, TimeUnit.SECONDS));
     channel.pipeline().addLast(DECODER, getHandler());
   }
 
