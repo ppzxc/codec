@@ -9,6 +9,8 @@ public class Header implements Serializable {
   public static final int PROTOCOL_FIELDS_LENGTH = 4;
   public static final int BODY_LENGTH = ID_FIELD_LENGTH + PROTOCOL_FIELDS_LENGTH + LineDelimiter.LENGTH;
   public static final int MINIMUM_LENGTH = LENGTH_FIELD_LENGTH + BODY_LENGTH;
+  public static final int ENCRYPTED_EMPTY_FULL_LENGTH = 30;
+  public static final int ENCRYPTED_EMPTY_BODY_LENGTH = ENCRYPTED_EMPTY_FULL_LENGTH - LENGTH_FIELD_LENGTH;
   private static final long serialVersionUID = 3858154716183837451L;
   private final int length;
   private final long id;

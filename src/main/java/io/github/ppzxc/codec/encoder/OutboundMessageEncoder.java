@@ -33,28 +33,34 @@ public class OutboundMessageEncoder extends MessageToMessageEncoder<OutboundMess
   protected void encode(ChannelHandlerContext ctx, OutboundMessage msg, List<Object> out) throws Exception {
     log.debug("{} id={} encode", ctx.channel(), msg.header().getId());
     try {
-      byte[] body = getBody(msg);
-      int bodyLength = body.length + LineDelimiter.LENGTH;
-      ByteBuf buffer = Unpooled.buffer(Header.ID_FIELD_LENGTH + bodyLength);
-      buffer.writeInt(bodyLength);
-      buffer.writeLong(msg.header().getId());
-      buffer.writeByte(msg.header().getType());
-      buffer.writeByte(msg.header().getStatus());
-      buffer.writeByte(msg.header().getEncoding());
-      buffer.writeByte(msg.header().getReserved());
-      buffer.writeBytes(body);
+      byte[] encryptedPayload = getEncryptedPayload(msg);
+      ByteBuf buffer = Unpooled.buffer(Header.LENGTH_FIELD_LENGTH + encryptedPayload.length + LineDelimiter.LENGTH);
+      buffer.writeInt(encryptedPayload.length + LineDelimiter.LENGTH);
+      buffer.writeBytes(encryptedPayload);
       buffer.writeBytes(LineDelimiter.BYTE_ARRAY);
+      System.out.println(encryptedPayload.length + LineDelimiter.LENGTH);
       out.add(buffer);
     } catch (Exception e) {
       throw new OutboundMessageEncoderException(msg.header(), e);
     }
   }
 
-  private byte[] getBody(OutboundMessage msg) throws CryptoException, SerializeFailedException {
+  private byte[] getEncryptedPayload(OutboundMessage msg) throws SerializeFailedException, CryptoException {
+    byte[] mappedBody = getMappedBody(msg);
+    ByteBuf plainText = Unpooled.buffer(Header.ID_FIELD_LENGTH + Header.PROTOCOL_FIELDS_LENGTH + mappedBody.length);
+    plainText.writeLong(msg.header().getId());
+    plainText.writeByte(msg.header().getType());
+    plainText.writeByte(msg.header().getStatus());
+    plainText.writeByte(msg.header().getEncoding());
+    plainText.writeByte(msg.header().getReserved());
+    plainText.writeBytes(mappedBody);
+    return crypto.encrypt(plainText.array());
+  }
+
+  private byte[] getMappedBody(OutboundMessage msg) throws SerializeFailedException {
     if (msg.body() == null) {
       return new byte[0];
     }
-    byte[] plainText = mapper.write(WriteCommand.of(EncodingType.of(msg.header().getEncoding()), msg.body()));
-    return crypto.encrypt(plainText);
+    return mapper.write(WriteCommand.of(EncodingType.of(msg.header().getEncoding()), msg.body()));
   }
 }
