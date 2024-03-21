@@ -4,51 +4,49 @@
 
 - [netty](https://github.com/netty/netty) tcp codecs
 
-# codec inbound flow, before handshake
+# codec flow, before handshake
 
 ```text
-            "Byte Array Stream"
-                    |
-                    |
-                   \|/
-FixedConstructorLengthFieldBasedFrameDecoder
-                    |
-                    |
-                   \|/
-    HandShakeSimpleChannelInboundHandler
+            "Byte Array Stream"                     "Byte Array Stream"
+                    |                                      /|\
+                    |                                       |
+                   \|/                                      |
+FixedConstructorLengthFieldBasedFrameDecoder                |
+                    |                                       |
+                    |                                       |
+                   \|/                                      | 
+                    -----------------------------------------
+                    |                                       |
+                    |  HandShakeSimpleChannelInboundHandler |
+                    |                                       |
+                    ----------------------------------------     
 ```
 
 # codec inbound flow, after handshake
 
 ```text
-            "Byte Array Stream"
-                    |
-                    |
-                   \|/
-FixedConstructorLengthFieldBasedFrameDecoder
-                    |
-                    |
-                   \|/
-      EncryptedInboundMessageDecoder
-                    |
-                    |
-                   \|/
-             "InboundMessage"
-   ( require next decoder or handler )
-```
-
-# codec outbound flow
-
-```text
-   "Byte Array Stream"
-          /|\
-           |
-           |
- OutboundMessageEncoder
-          /|\
-           |
-           |
-    "OutboundMessage"
+            "Byte Array Stream"                            "Byte Array Stream"
+                    |                                             /|\
+                    |                                              |
+                   \|/                                             |
+FixedConstructorLengthFieldBasedFrameDecoder                       |
+                    |                                              |
+                    |                                              |
+                   \|/                                             |
+      EncryptedInboundMessageDecoder                     OutboundMessageEncoder
+                    |                                              |
+                    |                                              |
+                   \|/                                             |
+             "InboundMessage"                                      |
+   ( require next decoder or handler )                      "InboundMessage"
+                    |                                             /|\
+                    |                                              |
+                   \|/                                             |
+                    ------------------------------------------------
+                    |                                              |
+                    |         Some handler will handle it          |
+                    |                                              |
+                    ------------------------------------------------
 ```
 
 # message structure
@@ -243,12 +241,3 @@ Except for the length field, all headers and bodies are encrypted by 'AES'.
 ```
 implementation("io.github.ppzxc:codec:X.X.X")
 ```
-
-### encrypt handshake rule
-
-```text
-'handshake' uses 'rsa'.
-```
-
-- Public key algorithm for 'AES' key exchange.
-- The 'AES' key is provided by the client.
