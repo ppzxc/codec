@@ -13,12 +13,12 @@ import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.fixh.ExceptionUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +26,17 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
 
   private static final Logger log = LoggerFactory.getLogger(HandshakeSimpleChannelInboundHandler.class);
   private final Crypto rsaCrypto;
+  private final long closeDelay;
+  private final TimeUnit closeDelayTimeUnit;
+
+  public HandshakeSimpleChannelInboundHandler(Crypto rsaCrypto, long closeDelay, TimeUnit closeDelayTimeUnit) {
+    this.rsaCrypto = rsaCrypto;
+    this.closeDelay = closeDelay;
+    this.closeDelayTimeUnit = closeDelayTimeUnit;
+  }
 
   protected HandshakeSimpleChannelInboundHandler(Crypto rsaCrypto) {
-    this.rsaCrypto = rsaCrypto;
+    this(rsaCrypto, 1, TimeUnit.SECONDS);
   }
 
   public abstract Crypto getAesCrypto(HandshakeHeader handShakeHeader, byte[] ivParameter, byte[] symmetricKey);
@@ -139,6 +147,6 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
 
     ctx.channel()
       .writeAndFlush(result)
-      .addListener((ChannelFutureListener) future -> future.channel().close());
+      .addListener(ignored -> ctx.executor().schedule(() -> ctx.close(), closeDelay, closeDelayTimeUnit));
   }
 }
