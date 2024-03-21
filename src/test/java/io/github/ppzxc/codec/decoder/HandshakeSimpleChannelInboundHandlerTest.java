@@ -31,9 +31,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class HandshakeSimpleChannelInboundHandlerTest {
 
-  public static final String DECODER = "Decoder";
-  public static final String IDLE_STATE_HANDLER = "IdleStateHandler";
-  public static final String HANDSHAKE_TIMEOUT_STATE_HANDLER = "HandshakeTimeoutStateHandler";
   private Crypto rsaCrypto;
   private Crypto aesCrypto;
   private EmbeddedChannel channel;
@@ -43,9 +40,10 @@ class HandshakeSimpleChannelInboundHandlerTest {
     rsaCrypto = mock(Crypto.class);
     aesCrypto = mock(Crypto.class);
     channel = new EmbeddedChannel();
-    channel.pipeline().addLast(IDLE_STATE_HANDLER, new IdleStateHandler(3, 2, 1));
-    channel.pipeline().addLast(HANDSHAKE_TIMEOUT_STATE_HANDLER, new HandshakeTimeoutStateHandler(1, TimeUnit.SECONDS));
-    channel.pipeline().addLast(DECODER, getHandler());
+    channel.pipeline().addLast(Constants.HANDSHAKE_IDLE_STATE_HANDLER, new IdleStateHandler(3, 2, 1));
+    channel.pipeline()
+      .addLast(Constants.HANDSHAKE_TIMEOUT_STATE_HANDLER, new HandshakeTimeoutStateHandler(1, TimeUnit.SECONDS));
+    channel.pipeline().addLast(Constants.HANDSHAKE_HANDLER, getHandler());
   }
 
   @ParameterizedTest
@@ -205,7 +203,8 @@ class HandshakeSimpleChannelInboundHandlerTest {
   @Test
   void should_return_CRYPTO_CREATE_FAIL() throws CryptoException {
     // given
-    channel.pipeline().replace(DECODER, "NewDecoder", getCryptoThrowHandler());
+    channel.pipeline().replace(HandshakeSimpleChannelInboundHandler.class, "HandshakeSimpleChannelInboundHandler",
+      getCryptoThrowHandler());
     ByteBuf given = HandshakeFixture.wrongSymmetricKeySize();
 
     // when
@@ -222,7 +221,8 @@ class HandshakeSimpleChannelInboundHandlerTest {
   @Test
   void should_return_UNRECOGNIZED() throws CryptoException {
     // given
-    channel.pipeline().replace(DECODER, "NewDecoder", getAddThrowHandler(new NullPointerException()));
+    channel.pipeline()
+      .replace(Constants.HANDSHAKE_HANDLER, "NewDecoder", getAddThrowHandler(new NullPointerException()));
     ByteBuf given = HandshakeFixture.wrongSymmetricKeySize();
 
     // when
@@ -239,7 +239,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
   @Test
   void should_return_ENCODE_FAIL() throws CryptoException {
     // given
-    channel.pipeline().replace(DECODER, "NewDecoder",
+    channel.pipeline().replace(Constants.HANDSHAKE_HANDLER, "NewDecoder",
       getAddThrowHandler(new Exception(new HandshakeException("null", CodecProblemCode.ENCODE_FAIL))));
     ByteBuf given = HandshakeFixture.wrongSymmetricKeySize();
 
@@ -268,9 +268,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
     assertThat(actual.readByte()).isEqualTo(CodecProblemCode.OK.getCode());
-    assertThat(channel.pipeline().names()).doesNotContain(IDLE_STATE_HANDLER);
-    assertThat(channel.pipeline().names()).doesNotContain(HANDSHAKE_TIMEOUT_STATE_HANDLER);
-    assertThat(channel.pipeline().names()).doesNotContain(DECODER);
+    assertThat(channel.pipeline().names()).doesNotContainAnyElementsOf(Constants.HANDSHAKES);
   }
 
   @Test
@@ -294,6 +292,36 @@ class HandshakeSimpleChannelInboundHandlerTest {
     assertThat(actual).usingRecursiveComparison().isEqualTo(expectedMessage);
   }
 
+  @Test
+  void should_return_not_found_handshake_handler() throws CryptoException {
+    // given
+    channel.pipeline().replace(Constants.HANDSHAKE_HANDLER, Constants.HANDSHAKE_HANDLER,
+      new HandshakeSimpleChannelInboundHandler(rsaCrypto) {
+        @Override
+        public Crypto getAesCrypto(HandshakeHeader handShakeHeader, byte[] ivParameter, byte[] symmetricKey) {
+          return null;
+        }
+
+        @Override
+        public void addHandler(ChannelPipeline pipeline, Crypto crypto) {
+
+        }
+      });
+    ByteBuf given = HandshakeFixture.wrongSymmetricKeySize();
+
+    // when
+    when(rsaCrypto.decrypt((byte[]) any())).thenReturn(ByteArrayUtils.giveMeOne(32));
+    channel.writeInbound(given);
+    ByteBuf actual = channel.readOutbound();
+
+    // then
+    assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
+    assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
+    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.OK.getCode());
+    assertThat(channel.pipeline().names()).doesNotContainAnyElementsOf(Constants.HANDSHAKES);
+    assertThat(channel.pipeline().names()).hasSize(1);
+  }
+
 
   private static int[] failedLengthRange() {
     return IntStream.range(
@@ -310,6 +338,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
 
       @Override
       public void addHandler(ChannelPipeline pipeline, Crypto crypto) {
+        pipeline.addLast(FixedLengthFieldBasedFrameDecoder.defaultConfiguration());
         pipeline.addLast(new EncryptedInboundMessageDecoder(crypto));
       }
     };
@@ -324,6 +353,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
 
       @Override
       public void addHandler(ChannelPipeline pipeline, Crypto crypto) {
+        pipeline.addLast(FixedLengthFieldBasedFrameDecoder.defaultConfiguration());
         pipeline.addLast(new EncryptedInboundMessageDecoder(crypto));
       }
     };
