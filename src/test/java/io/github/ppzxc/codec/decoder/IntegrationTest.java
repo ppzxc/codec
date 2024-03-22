@@ -2,11 +2,12 @@ package io.github.ppzxc.codec.decoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.ppzxc.codec.encoder.OutboundMessageEncoder;
+import io.github.ppzxc.codec.Constants.LineDelimiter;
+import io.github.ppzxc.codec.encoder.OutboundProtocolEncoder;
 import io.github.ppzxc.codec.mapper.Mapper;
 import io.github.ppzxc.codec.mapper.MultiMapper;
 import io.github.ppzxc.codec.model.ByteArrayFixture;
-import io.github.ppzxc.codec.model.CodecProblemCode;
+import io.github.ppzxc.codec.model.CodecCode;
 import io.github.ppzxc.codec.model.EncryptionMode;
 import io.github.ppzxc.codec.model.EncryptionPadding;
 import io.github.ppzxc.codec.model.EncryptionType;
@@ -14,9 +15,8 @@ import io.github.ppzxc.codec.model.HandshakeFixture;
 import io.github.ppzxc.codec.model.HandshakeHeader;
 import io.github.ppzxc.codec.model.HandshakeResult;
 import io.github.ppzxc.codec.model.Header;
-import io.github.ppzxc.codec.model.InboundMessage;
 import io.github.ppzxc.codec.model.InboundMessageFixture;
-import io.github.ppzxc.codec.model.LineDelimiter;
+import io.github.ppzxc.codec.model.InboundProtocol;
 import io.github.ppzxc.crypto.AsymmetricKeyFactory;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
@@ -64,7 +64,7 @@ public class IntegrationTest {
     channel.pipeline().addLast(IDLE_STATE_HANDLER, new IdleStateHandler(3, 2, 1));
     channel.pipeline().addLast(HANDSHAKE_IDLE_STATE_HANDLER, new HandshakeTimeoutStateHandler());
     channel.pipeline()
-      .addLast(LENGTH_FIELD_BASE_FRAME_DECODER, FixedLengthFieldBasedFrameDecoder.defaultConfiguration());
+      .addLast(LENGTH_FIELD_BASE_FRAME_DECODER, CodecLengthFieldBasedFrameDecoder.defaultConfiguration());
     channel.pipeline().addLast(HAND_SHAKE_HANDLER, new TestHandshakeSimpleChannelInboundHandler(RSA_CRYPTO));
   }
 
@@ -81,7 +81,7 @@ public class IntegrationTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.SHORT_LENGTH.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.SHORT_LENGTH.getCode());
   }
 
   @Test
@@ -96,7 +96,7 @@ public class IntegrationTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.MISSING_LINE_DELIMITER.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.MISSING_LINE_DELIMITER.getCode());
   }
 
   @Test
@@ -110,7 +110,7 @@ public class IntegrationTest {
 
     // then
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_HAND_SHAKE_TYPE.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.INVALID_HAND_SHAKE_TYPE.getCode());
   }
 
   @Test
@@ -124,7 +124,7 @@ public class IntegrationTest {
 
     // then
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_ENCRYPTION_TYPE.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.INVALID_ENCRYPTION_TYPE.getCode());
   }
 
 
@@ -139,7 +139,7 @@ public class IntegrationTest {
 
     // then
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_ENCRYPTION_MODE.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.INVALID_ENCRYPTION_MODE.getCode());
   }
 
   @Test
@@ -153,7 +153,7 @@ public class IntegrationTest {
 
     // then
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_ENCRYPTION_PADDING.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.INVALID_ENCRYPTION_PADDING.getCode());
   }
 
   @Test
@@ -167,7 +167,7 @@ public class IntegrationTest {
 
     // then
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.DECRYPT_FAIL.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.DECRYPT_FAIL.getCode());
   }
 
   @Test
@@ -182,7 +182,7 @@ public class IntegrationTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_KEY_SIZE.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.INVALID_KEY_SIZE.getCode());
   }
 
   @Test
@@ -196,7 +196,7 @@ public class IntegrationTest {
 
     // then
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.OK.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.OK.getCode());
   }
 
   @Test
@@ -204,12 +204,12 @@ public class IntegrationTest {
     // given
     Crypto crypto = handshake();
     byte[] given = StringUtils.giveMeOne(512).getBytes(StandardCharsets.UTF_8);
-    InboundMessage expected = InboundMessageFixture.create(given);
+    InboundProtocol expected = InboundMessageFixture.create(given);
 
     // when
     ByteBuf encryptedMessage = encryption(crypto, expected);
     channel.writeInbound(encryptedMessage);
-    InboundMessage actual = channel.readInbound();
+    InboundProtocol actual = channel.readInbound();
 
     // then
     assertThat(actual.header())
@@ -228,7 +228,7 @@ public class IntegrationTest {
     return crypto;
   }
 
-  public ByteBuf encryption(Crypto crypto, InboundMessage inboundMessage) throws CryptoException {
+  public ByteBuf encryption(Crypto crypto, InboundProtocol inboundMessage) throws CryptoException {
     ByteBuf buffer = Unpooled.buffer(
       inboundMessage.getBody().length + Header.ID_FIELD_LENGTH + Header.PROTOCOL_FIELDS_LENGTH);
     buffer.writeLong(inboundMessage.header().getId());
@@ -270,9 +270,9 @@ public class IntegrationTest {
     @Override
     public void addHandler(ChannelPipeline pipeline, Crypto crypto) {
       pipeline.addAfter(LENGTH_FIELD_BASE_FRAME_DECODER, ENCRYPTED_INBOUND_MESSAGE_DECODER,
-        new EncryptedInboundMessageDecoder(crypto));
+        new EncryptedInboundProtocolDecoder(crypto));
       pipeline.addAfter(ENCRYPTED_INBOUND_MESSAGE_DECODER, "ENCRYPTED_INBOUND_MESSAGE_DECODER",
-        new OutboundMessageEncoder(crypto, MAPPER));
+        new OutboundProtocolEncoder(crypto, MAPPER));
     }
   }
 }

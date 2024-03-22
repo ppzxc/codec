@@ -6,13 +6,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import io.github.ppzxc.codec.exception.SerializeFailedException;
+import io.github.ppzxc.codec.Constants.LineDelimiter;
+import io.github.ppzxc.codec.exception.SerializeException;
 import io.github.ppzxc.codec.mapper.Mapper;
 import io.github.ppzxc.codec.model.Header;
 import io.github.ppzxc.codec.model.HeaderFixture;
-import io.github.ppzxc.codec.model.LineDelimiter;
-import io.github.ppzxc.codec.model.OutboundMessage;
 import io.github.ppzxc.codec.model.OutboundMessageFixture;
+import io.github.ppzxc.codec.model.OutboundProtocol;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
 import io.github.ppzxc.crypto.CryptoFactory;
@@ -27,7 +27,7 @@ import io.netty.handler.codec.EncoderException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
 
-class OutboundMessageEncoderTest {
+class OutboundProtocolEncoderTest {
 
   private Crypto crypto;
   private Mapper mapper;
@@ -42,7 +42,7 @@ class OutboundMessageEncoderTest {
   void should_ByteBuf_when_null_body() throws CryptoException {
     // given
     setting(CryptoFactory.aes128());
-    OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.create(), null);
+    OutboundProtocol expected = OutboundMessageFixture.create(HeaderFixture.create(), null);
 
     // when
     channel.writeOutbound(expected);
@@ -63,25 +63,25 @@ class OutboundMessageEncoderTest {
   }
 
   @RepeatedTest(10)
-  void should_throw_SerializeFailedException() throws SerializeFailedException {
+  void should_throw_SerializeFailedException() throws SerializeException {
     // given
     setting(CryptoFactory.aes128());
-    OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.create(), new Object());
+    OutboundProtocol expected = OutboundMessageFixture.create(HeaderFixture.create(), new Object());
 
     // when, then
-    when(mapper.write(any())).thenThrow(new SerializeFailedException());
+    when(mapper.write(any())).thenThrow(new SerializeException());
     assertThatCode(() -> channel.writeOutbound(expected)).satisfies(throwable -> {
       assertThat(throwable).isInstanceOf(EncoderException.class);
-      assertThat(ExceptionUtils.findCause(throwable, SerializeFailedException.class)).isInstanceOf(
-        SerializeFailedException.class);
+      assertThat(ExceptionUtils.findCause(throwable, SerializeException.class)).isInstanceOf(
+        SerializeException.class);
     });
   }
 
   @RepeatedTest(10)
-  void should_throw_CryptoException() throws SerializeFailedException, CryptoException {
+  void should_throw_CryptoException() throws SerializeException, CryptoException {
     // given
     setting(mock(Crypto.class));
-    OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.create(), new Object());
+    OutboundProtocol expected = OutboundMessageFixture.create(HeaderFixture.create(), new Object());
 
     // when, then
     when(mapper.write(any())).thenReturn(new byte[0]);
@@ -94,11 +94,11 @@ class OutboundMessageEncoderTest {
   }
 
   @RepeatedTest(10)
-  void should_return_ByteBuf_when_exists_body() throws SerializeFailedException, CryptoException {
+  void should_return_ByteBuf_when_exists_body() throws SerializeException, CryptoException {
     // given
     setting(CryptoFactory.aes128());
     byte[] expectedBody = ByteArrayUtils.giveMeOne(128);
-    OutboundMessage expected = OutboundMessageFixture.create(HeaderFixture.create(), new Object());
+    OutboundProtocol expected = OutboundMessageFixture.create(HeaderFixture.create(), new Object());
 
     // when
     when(mapper.write(any())).thenReturn(expectedBody);
@@ -125,6 +125,6 @@ class OutboundMessageEncoderTest {
     this.crypto = crypto;
     mapper = mock(Mapper.class);
     channel = new EmbeddedChannel();
-    channel.pipeline().addLast(new OutboundMessageEncoder(crypto, mapper));
+    channel.pipeline().addLast(new OutboundProtocolEncoder(crypto, mapper));
   }
 }

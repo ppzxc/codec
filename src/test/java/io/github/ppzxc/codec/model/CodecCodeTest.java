@@ -8,16 +8,16 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class CodecProblemCodeTest {
+class CodecCodeTest {
 
   @ParameterizedTest
   @MethodSource("getAll")
-  void should(CodecProblemCode expected) {
-    assertThat(CodecProblemCode.of(expected.getCode())).isEqualByComparingTo(expected);
+  void should(CodecCode expected) {
+    assertThat(CodecCode.of(expected.getCode())).isEqualByComparingTo(expected);
   }
 
-  private static List<CodecProblemCode> getAll() {
-    return Arrays.stream(CodecProblemCode.values())
+  private static List<CodecCode> getAll() {
+    return Arrays.stream(CodecCode.values())
       .collect(Collectors.toList());
   }
 }

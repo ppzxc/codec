@@ -1,15 +1,15 @@
 package io.github.ppzxc.codec.decoder;
 
-import io.github.ppzxc.codec.exception.BlankBodyException;
-import io.github.ppzxc.codec.exception.CodecProblemException;
-import io.github.ppzxc.codec.exception.DecryptFailException;
-import io.github.ppzxc.codec.exception.InvalidLengthException;
-import io.github.ppzxc.codec.exception.MissingLineDelimiterException;
-import io.github.ppzxc.codec.exception.ShortLengthException;
-import io.github.ppzxc.codec.model.CodecProblemCode;
+import io.github.ppzxc.codec.Constants.LineDelimiter;
+import io.github.ppzxc.codec.exception.BlankBodyCodecException;
+import io.github.ppzxc.codec.exception.CodecException;
+import io.github.ppzxc.codec.exception.DecryptCodecException;
+import io.github.ppzxc.codec.exception.InvalidLengthCodecException;
+import io.github.ppzxc.codec.exception.MissingLineDelimiterCodecException;
+import io.github.ppzxc.codec.exception.ShortLengthCodecException;
+import io.github.ppzxc.codec.model.CodecCode;
 import io.github.ppzxc.codec.model.Header;
-import io.github.ppzxc.codec.model.InboundMessage;
-import io.github.ppzxc.codec.model.LineDelimiter;
+import io.github.ppzxc.codec.model.InboundProtocol;
 import io.github.ppzxc.crypto.Crypto;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -20,18 +20,18 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EncryptedInboundMessageDecoder extends MessageToMessageDecoder<ByteBuf> {
+public class EncryptedInboundProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
 
-  private static final Logger log = LoggerFactory.getLogger(EncryptedInboundMessageDecoder.class);
+  private static final Logger log = LoggerFactory.getLogger(EncryptedInboundProtocolDecoder.class);
   private final Crypto crypto;
   private final int minimumLength;
 
-  public EncryptedInboundMessageDecoder(Crypto crypto, int minimumLength) {
+  public EncryptedInboundProtocolDecoder(Crypto crypto, int minimumLength) {
     this.crypto = crypto;
     this.minimumLength = minimumLength;
   }
 
-  public EncryptedInboundMessageDecoder(Crypto crypto) {
+  public EncryptedInboundProtocolDecoder(Crypto crypto) {
     this(crypto, Header.ID_FIELD_LENGTH + LineDelimiter.LENGTH);
   }
 
@@ -42,38 +42,38 @@ public class EncryptedInboundMessageDecoder extends MessageToMessageDecoder<Byte
     ByteBuf decryptedPlainText = getDecryptedPlainText(msg);
     Header header = getHeader(length, decryptedPlainText);
     byte[] body = getBody(decryptedPlainText);
-    out.add(InboundMessage.builder()
+    out.add(InboundProtocol.builder()
       .header(header)
       .body(body)
       .build());
   }
 
-  private int preConditionAndGetLength(ByteBuf msg) throws CodecProblemException {
+  private int preConditionAndGetLength(ByteBuf msg) throws CodecException {
     int initialReadableBytes = msg.readableBytes();
     if (initialReadableBytes == 0) {
-      throw new BlankBodyException("byte array require non null");
+      throw new BlankBodyCodecException("byte array require non null");
     }
     if (initialReadableBytes < minimumLength) {
-      throw new ShortLengthException(initialReadableBytes, minimumLength);
+      throw new ShortLengthCodecException(initialReadableBytes, minimumLength);
     }
     if (!ByteBufUtil.equals(msg, msg.readableBytes() - 2, LineDelimiter.BYTE_BUF, 0, 2)) {
-      throw new MissingLineDelimiterException();
+      throw new MissingLineDelimiterCodecException();
     }
     int length = msg.readInt();
     int readableBytes = msg.readableBytes();
     if (length != readableBytes) {
-      throw new InvalidLengthException(length, readableBytes);
+      throw new InvalidLengthCodecException(length, readableBytes);
     }
     return length;
   }
 
-  private ByteBuf getDecryptedPlainText(ByteBuf msg) throws DecryptFailException {
+  private ByteBuf getDecryptedPlainText(ByteBuf msg) throws DecryptCodecException {
     byte[] cipherText = new byte[msg.readableBytes()];
     msg.readBytes(cipherText);
     try {
       return Unpooled.wrappedBuffer(crypto.decrypt(cipherText));
     } catch (Exception e) {
-      throw new DecryptFailException(e, CodecProblemCode.DECRYPT_FAIL);
+      throw new DecryptCodecException(e, CodecCode.DECRYPT_FAIL);
     }
   }
 

@@ -1,6 +1,6 @@
 package io.github.ppzxc.codec.decoder;
 
-import io.github.ppzxc.codec.model.CodecProblemCode;
+import io.github.ppzxc.codec.model.CodecCode;
 import io.github.ppzxc.codec.model.HandshakeResult;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleUserEventChannelHandler;
@@ -31,21 +31,21 @@ public class HandshakeTimeoutStateHandler extends SimpleUserEventChannelHandler<
     switch (evt.state()) {
       case ALL_IDLE:
         log.info("{} id=[NO-ID] event={} no incoming and outgoing", ctx.channel(), evt);
-        action(ctx, CodecProblemCode.HANDSHAKE_TIMEOUT_NO_BEHAVIOR);
+        action(ctx, CodecCode.HANDSHAKE_TIMEOUT_NO_BEHAVIOR);
         break;
       case READER_IDLE:
         log.info("{} id=[NO-ID] event={} no incoming", ctx.channel(), evt);
-        action(ctx, CodecProblemCode.HANDSHAKE_TIMEOUT_NO_INCOMING);
+        action(ctx, CodecCode.HANDSHAKE_TIMEOUT_NO_INCOMING);
         break;
       case WRITER_IDLE:
         log.info("{} id=[NO-ID] event={} no outgoing", ctx.channel(), evt);
-        action(ctx, CodecProblemCode.HANDSHAKE_TIMEOUT_NO_OUTGOING);
+        action(ctx, CodecCode.HANDSHAKE_TIMEOUT_NO_OUTGOING);
         break;
     }
   }
 
-  private void action(ChannelHandlerContext ctx, CodecProblemCode codecProblemCode) {
-    ctx.writeAndFlush(HandshakeResult.of(codecProblemCode))
+  private void action(ChannelHandlerContext ctx, CodecCode codecCode) {
+    ctx.writeAndFlush(HandshakeResult.of(codecCode))
       .addListener(ignored -> ctx.executor().schedule(() -> ctx.close(), closeDelay, timeUnit));
   }
 }

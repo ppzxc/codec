@@ -1,13 +1,13 @@
 package io.github.ppzxc.codec.encoder;
 
-import io.github.ppzxc.codec.exception.OutboundMessageEncoderException;
-import io.github.ppzxc.codec.exception.SerializeFailedException;
+import io.github.ppzxc.codec.Constants.LineDelimiter;
+import io.github.ppzxc.codec.exception.OutboundCodecException;
+import io.github.ppzxc.codec.exception.SerializeException;
 import io.github.ppzxc.codec.mapper.Mapper;
 import io.github.ppzxc.codec.mapper.WriteCommand;
 import io.github.ppzxc.codec.model.EncodingType;
 import io.github.ppzxc.codec.model.Header;
-import io.github.ppzxc.codec.model.LineDelimiter;
-import io.github.ppzxc.codec.model.OutboundMessage;
+import io.github.ppzxc.codec.model.OutboundProtocol;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
 import io.netty.buffer.ByteBuf;
@@ -18,19 +18,19 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OutboundMessageEncoder extends MessageToMessageEncoder<OutboundMessage> {
+public class OutboundProtocolEncoder extends MessageToMessageEncoder<OutboundProtocol> {
 
-  private static final Logger log = LoggerFactory.getLogger(OutboundMessageEncoder.class);
+  private static final Logger log = LoggerFactory.getLogger(OutboundProtocolEncoder.class);
   private final Crypto crypto;
   private final Mapper mapper;
 
-  public OutboundMessageEncoder(Crypto crypto, Mapper mapper) {
+  public OutboundProtocolEncoder(Crypto crypto, Mapper mapper) {
     this.crypto = crypto;
     this.mapper = mapper;
   }
 
   @Override
-  protected void encode(ChannelHandlerContext ctx, OutboundMessage msg, List<Object> out) throws Exception {
+  protected void encode(ChannelHandlerContext ctx, OutboundProtocol msg, List<Object> out) throws Exception {
     log.debug("{} id={} encode", ctx.channel(), msg.header().getId());
     try {
       byte[] encryptedPayload = getEncryptedPayload(msg);
@@ -41,11 +41,11 @@ public class OutboundMessageEncoder extends MessageToMessageEncoder<OutboundMess
       System.out.println(encryptedPayload.length + LineDelimiter.LENGTH);
       out.add(buffer);
     } catch (Exception e) {
-      throw new OutboundMessageEncoderException(msg.header(), e);
+      throw new OutboundCodecException(msg.header(), e);
     }
   }
 
-  private byte[] getEncryptedPayload(OutboundMessage msg) throws SerializeFailedException, CryptoException {
+  private byte[] getEncryptedPayload(OutboundProtocol msg) throws SerializeException, CryptoException {
     byte[] mappedBody = getMappedBody(msg);
     ByteBuf plainText = Unpooled.buffer(Header.ID_FIELD_LENGTH + Header.PROTOCOL_FIELDS_LENGTH + mappedBody.length);
     plainText.writeLong(msg.header().getId());
@@ -57,7 +57,7 @@ public class OutboundMessageEncoder extends MessageToMessageEncoder<OutboundMess
     return crypto.encrypt(plainText.array());
   }
 
-  private byte[] getMappedBody(OutboundMessage msg) throws SerializeFailedException {
+  private byte[] getMappedBody(OutboundProtocol msg) throws SerializeException {
     if (msg.body() == null) {
       return new byte[0];
     }

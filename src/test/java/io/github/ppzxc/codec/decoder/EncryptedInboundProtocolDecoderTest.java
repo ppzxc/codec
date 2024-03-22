@@ -6,16 +6,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import io.github.ppzxc.codec.exception.BlankBodyException;
-import io.github.ppzxc.codec.exception.DecryptFailException;
-import io.github.ppzxc.codec.exception.InvalidLengthException;
-import io.github.ppzxc.codec.exception.MissingLineDelimiterException;
-import io.github.ppzxc.codec.exception.ShortLengthException;
+import io.github.ppzxc.codec.Constants.LineDelimiter;
+import io.github.ppzxc.codec.exception.BlankBodyCodecException;
+import io.github.ppzxc.codec.exception.DecryptCodecException;
+import io.github.ppzxc.codec.exception.InvalidLengthCodecException;
+import io.github.ppzxc.codec.exception.MissingLineDelimiterCodecException;
+import io.github.ppzxc.codec.exception.ShortLengthCodecException;
 import io.github.ppzxc.codec.model.ByteArrayFixture;
 import io.github.ppzxc.codec.model.Header;
-import io.github.ppzxc.codec.model.InboundMessage;
 import io.github.ppzxc.codec.model.InboundMessageFixture;
-import io.github.ppzxc.codec.model.LineDelimiter;
+import io.github.ppzxc.codec.model.InboundProtocol;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
 import io.github.ppzxc.fixh.ByteArrayUtils;
@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class EncryptedInboundMessageDecoderTest {
+class EncryptedInboundProtocolDecoderTest {
 
   private Crypto crypto;
   private EmbeddedChannel channel;
@@ -40,7 +40,7 @@ class EncryptedInboundMessageDecoderTest {
   void setUp() {
     crypto = mock(Crypto.class);
     channel = new EmbeddedChannel();
-    channel.pipeline().addLast(new EncryptedInboundMessageDecoder(crypto));
+    channel.pipeline().addLast(new EncryptedInboundProtocolDecoder(crypto));
   }
 
   @Test
@@ -51,8 +51,8 @@ class EncryptedInboundMessageDecoderTest {
     // when, then
     assertThatCode(() -> channel.writeInbound(Unpooled.wrappedBuffer(given))).satisfies(throwable -> {
       assertThat(throwable).isInstanceOf(DecoderException.class);
-      assertThat(ExceptionUtils.findCause(throwable, BlankBodyException.class))
-        .isInstanceOf(BlankBodyException.class);
+      assertThat(ExceptionUtils.findCause(throwable, BlankBodyCodecException.class))
+        .isInstanceOf(BlankBodyCodecException.class);
     });
   }
 
@@ -65,8 +65,8 @@ class EncryptedInboundMessageDecoderTest {
     // when, then
     assertThatCode(() -> channel.writeInbound(Unpooled.wrappedBuffer(given))).satisfies(throwable -> {
       assertThat(throwable).isInstanceOf(DecoderException.class);
-      assertThat(ExceptionUtils.findCause(throwable, ShortLengthException.class))
-        .isInstanceOf(ShortLengthException.class);
+      assertThat(ExceptionUtils.findCause(throwable, ShortLengthCodecException.class))
+        .isInstanceOf(ShortLengthCodecException.class);
     });
   }
 
@@ -78,8 +78,8 @@ class EncryptedInboundMessageDecoderTest {
     // when, then
     assertThatCode(() -> channel.writeInbound(given)).satisfies(throwable -> {
       assertThat(throwable).isInstanceOf(DecoderException.class);
-      assertThat(ExceptionUtils.findCause(throwable, MissingLineDelimiterException.class))
-        .isInstanceOf(MissingLineDelimiterException.class);
+      assertThat(ExceptionUtils.findCause(throwable, MissingLineDelimiterCodecException.class))
+        .isInstanceOf(MissingLineDelimiterCodecException.class);
     });
   }
 
@@ -92,8 +92,8 @@ class EncryptedInboundMessageDecoderTest {
     assertThatCode(() -> channel.writeInbound(given)).satisfies(
       throwable -> {
         assertThat(throwable).isInstanceOf(DecoderException.class);
-        assertThat(ExceptionUtils.findCause(throwable, InvalidLengthException.class))
-          .isInstanceOf(InvalidLengthException.class);
+        assertThat(ExceptionUtils.findCause(throwable, InvalidLengthCodecException.class))
+          .isInstanceOf(InvalidLengthCodecException.class);
       });
   }
 
@@ -101,7 +101,7 @@ class EncryptedInboundMessageDecoderTest {
   void should_throw_DecryptFailException() throws CryptoException {
     // given
     byte[] expectedBody = ByteArrayUtils.giveMeOne(128);
-    InboundMessage expectedMessage = InboundMessageFixture.create(expectedBody);
+    InboundProtocol expectedMessage = InboundMessageFixture.create(expectedBody);
 
     // when
     when(crypto.decrypt((byte[]) any())).thenThrow(new NullPointerException());
@@ -110,8 +110,8 @@ class EncryptedInboundMessageDecoderTest {
     assertThatCode(() -> channel.writeInbound(InboundMessageFixture.to(expectedMessage))).satisfies(throwable -> {
       assertThat(throwable).isInstanceOf(DecoderException.class);
       assertThat(ExceptionUtils.getRootCause(throwable)).isInstanceOf(NullPointerException.class);
-      assertThat(ExceptionUtils.findCause(throwable, DecryptFailException.class))
-        .isInstanceOf(DecryptFailException.class);
+      assertThat(ExceptionUtils.findCause(throwable, DecryptCodecException.class))
+        .isInstanceOf(DecryptCodecException.class);
     });
   }
 
@@ -119,13 +119,13 @@ class EncryptedInboundMessageDecoderTest {
   void should_return_InboundMessage() throws CryptoException {
     // given
     byte[] expectedBody = ByteArrayUtils.giveMeOne(128);
-    InboundMessage expectedMessage = InboundMessageFixture.create(expectedBody);
+    InboundProtocol expectedMessage = InboundMessageFixture.create(expectedBody);
     ByteBuf given = ByteArrayFixture.create(expectedMessage);
 
     // when
     when(crypto.decrypt((byte[]) any())).thenReturn(ByteArrayFixture.withoutLengthFieldAndLineDelimiter(expectedMessage).array());
     channel.writeInbound(given);
-    InboundMessage actual = channel.readInbound();
+    InboundProtocol actual = channel.readInbound();
 
     // then
     assertThat(actual).usingRecursiveComparison().isEqualTo(expectedMessage);

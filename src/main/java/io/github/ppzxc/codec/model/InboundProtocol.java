@@ -2,12 +2,12 @@ package io.github.ppzxc.codec.model;
 
 import io.github.ppzxc.fixh.ObjectUtils;
 
-public class InboundMessage extends AbstractMessage {
+public class InboundProtocol extends AbstractProtocol {
 
   private static final long serialVersionUID = -8173604055646973726L;
   private final byte[] body;
 
-  private InboundMessage(Header header, byte[] body) {
+  private InboundProtocol(Header header, byte[] body) {
     super(header);
     this.body = body;
   }
@@ -43,8 +43,8 @@ public class InboundMessage extends AbstractMessage {
       return this;
     }
 
-    public InboundMessage build() {
-      return new InboundMessage(header, body);
+    public InboundProtocol build() {
+      return new InboundProtocol(header, body);
     }
   }
 }

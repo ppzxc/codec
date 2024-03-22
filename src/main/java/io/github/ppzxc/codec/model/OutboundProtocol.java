@@ -1,11 +1,11 @@
 package io.github.ppzxc.codec.model;
 
-public class OutboundMessage extends AbstractMessage {
+public class OutboundProtocol extends AbstractProtocol {
 
   private static final long serialVersionUID = 8111315643882184475L;
   private final Object body;
 
-  private OutboundMessage(Header header, Object body) {
+  private OutboundProtocol(Header header, Object body) {
     super(header);
     this.body = body;
   }
@@ -41,8 +41,8 @@ public class OutboundMessage extends AbstractMessage {
       return this;
     }
 
-    public OutboundMessage build() {
-      return new OutboundMessage(header, body);
+    public OutboundProtocol build() {
+      return new OutboundProtocol(header, body);
     }
   }
 }

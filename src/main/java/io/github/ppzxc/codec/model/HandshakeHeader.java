@@ -1,5 +1,6 @@
 package io.github.ppzxc.codec.model;
 
+import io.github.ppzxc.codec.Constants;
 import java.io.Serializable;
 
 public class HandshakeHeader implements Serializable {
@@ -10,8 +11,7 @@ public class HandshakeHeader implements Serializable {
   public static final int SYMMETRIC_KEY_FIELD_MINIMUM_LENGTH = 16;
   public static final int MINIMUM_LENGTH =
     LENGTH_FIELD_LENGTH + PROTOCOL_FIELDS_LENGTH + IV_PARAMETER_LENGTH + SYMMETRIC_KEY_FIELD_MINIMUM_LENGTH
-      + LineDelimiter.LENGTH;
-  public static final int[] AES_KEY_SIZES = new int[]{16, 24, 32};
+      + Constants.LineDelimiter.LENGTH;
   private static final long serialVersionUID = -7725222996410869058L;
   private final int length;
   private final HandshakeType handShakeType;

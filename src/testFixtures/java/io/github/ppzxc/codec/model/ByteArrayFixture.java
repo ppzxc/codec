@@ -1,5 +1,6 @@
 package io.github.ppzxc.codec.model;
 
+import io.github.ppzxc.codec.Constants;
 import io.github.ppzxc.fixh.ByteArrayUtils;
 import io.github.ppzxc.fixh.IntUtils;
 import io.netty.buffer.ByteBuf;
@@ -21,7 +22,7 @@ public final class ByteArrayFixture {
     ByteBuf buffer = Unpooled.buffer(body.length + Header.MINIMUM_LENGTH);
     buffer.writeInt(bodyLength);
     buffer.writeBytes(body);
-    buffer.writeBytes(LineDelimiter.BYTE_ARRAY);
+    buffer.writeBytes(Constants.LineDelimiter.BYTE_ARRAY);
     return buffer.array();
   }
 
@@ -53,7 +54,7 @@ public final class ByteArrayFixture {
     return random(ByteArrayUtils.giveMeOne(IntUtils.giveMeOne(64, 128)));
   }
 
-  public static ByteBuf create(InboundMessage given) {
+  public static ByteBuf create(InboundProtocol given) {
     ByteBuf buffer = Unpooled.buffer();
     buffer.writeInt(given.header().getLength());
     buffer.writeLong(given.header().getId());
@@ -62,11 +63,11 @@ public final class ByteArrayFixture {
     buffer.writeByte(given.header().getEncoding());
     buffer.writeByte(given.header().getReserved());
     buffer.writeBytes(given.getBody());
-    buffer.writeBytes(LineDelimiter.BYTE_ARRAY);
+    buffer.writeBytes(Constants.LineDelimiter.BYTE_ARRAY);
     return buffer;
   }
 
-  public static ByteBuf withoutLengthFieldAndLineDelimiter(InboundMessage given) {
+  public static ByteBuf withoutLengthFieldAndLineDelimiter(InboundProtocol given) {
     ByteBuf buffer = Unpooled.buffer(Header.ID_FIELD_LENGTH + Header.PROTOCOL_FIELDS_LENGTH + given.getBody().length);
     buffer.writeLong(given.header().getId());
     buffer.writeByte(given.header().getType());
@@ -77,7 +78,7 @@ public final class ByteArrayFixture {
     return buffer;
   }
 
-  public static ByteBuf withoutLineDelimiter(InboundMessage given) {
+  public static ByteBuf withoutLineDelimiter(InboundProtocol given) {
     ByteBuf buffer = Unpooled.buffer();
     buffer.writeInt(Header.LENGTH_FIELD_LENGTH + given.getBody().length);
     buffer.writeLong(given.header().getId());
@@ -101,7 +102,7 @@ public final class ByteArrayFixture {
     ByteBuf buffer = Unpooled.buffer();
     buffer.writeInt(length);
     buffer.writeBytes(body);
-    buffer.writeBytes(LineDelimiter.BYTE_ARRAY);
+    buffer.writeBytes(Constants.LineDelimiter.BYTE_ARRAY);
     return buffer;
   }
 }

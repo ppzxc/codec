@@ -1,5 +1,6 @@
 package io.github.ppzxc.codec.model;
 
+import io.github.ppzxc.codec.Constants;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -8,22 +9,22 @@ public final class InboundMessageFixture {
   private InboundMessageFixture() {
   }
 
-  public static InboundMessage create(Header header, byte[] body) {
-    return InboundMessage.builder()
+  public static InboundProtocol create(Header header, byte[] body) {
+    return InboundProtocol.builder()
       .header(header)
       .body(body)
       .build();
   }
 
-  public static InboundMessage create(int length, byte[] body) {
+  public static InboundProtocol create(int length, byte[] body) {
     return create(HeaderFixture.create(length), body);
   }
 
-  public static InboundMessage create(byte[] body) {
+  public static InboundProtocol create(byte[] body) {
     return create(HeaderFixture.create(body.length + Header.BODY_LENGTH), body);
   }
 
-  public static ByteBuf to(InboundMessage inboundMessage) {
+  public static ByteBuf to(InboundProtocol inboundMessage) {
     ByteBuf buffer = Unpooled.buffer();
     buffer.writeInt(inboundMessage.header().getLength());
     buffer.writeLong(inboundMessage.header().getId());
@@ -32,15 +33,15 @@ public final class InboundMessageFixture {
     buffer.writeByte(inboundMessage.header().getEncoding());
     buffer.writeByte(inboundMessage.header().getReserved());
     buffer.writeBytes(inboundMessage.getBody());
-    buffer.writeBytes(LineDelimiter.BYTE_ARRAY);
+    buffer.writeBytes(Constants.LineDelimiter.BYTE_ARRAY);
     return buffer;
   }
 
   public static ByteBuf encryptedBodyOf(byte[] encryptedBody) {
     ByteBuf buffer = Unpooled.buffer();
-    buffer.writeInt(encryptedBody.length + LineDelimiter.LENGTH);
+    buffer.writeInt(encryptedBody.length + Constants.LineDelimiter.LENGTH);
     buffer.writeBytes(encryptedBody);
-    buffer.writeBytes(LineDelimiter.BYTE_ARRAY);
+    buffer.writeBytes(Constants.LineDelimiter.BYTE_ARRAY);
     return buffer;
   }
 }

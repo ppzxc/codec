@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.undercouch.bson4jackson.BsonFactory;
-import io.github.ppzxc.codec.exception.DeserializeFailedException;
-import io.github.ppzxc.codec.exception.SerializeFailedException;
+import io.github.ppzxc.codec.exception.DeserializeException;
+import io.github.ppzxc.codec.exception.SerializeException;
 import io.github.ppzxc.codec.model.EncodingType;
 import java.io.IOException;
 import java.util.Locale;
@@ -36,26 +36,26 @@ public class BsonMapper implements Mapper {
   }
 
   @Override
-  public <T> T read(ReadCommand<T> command) throws DeserializeFailedException {
+  public <T> T read(ReadCommand<T> command) throws DeserializeException {
     if (command.getType() != EncodingType.BSON) {
       throw new IllegalArgumentException(command.getType().toString());
     }
     try {
       return objectMapper.readValue(command.getPayload(), command.getTargetClass());
     } catch (IOException e) {
-      throw new DeserializeFailedException(e);
+      throw new DeserializeException(e);
     }
   }
 
   @Override
-  public byte[] write(WriteCommand command) throws SerializeFailedException {
+  public byte[] write(WriteCommand command) throws SerializeException {
     if (command.getType() != EncodingType.BSON) {
       throw new IllegalArgumentException(command.getType().toString());
     }
     try {
       return objectMapper.writeValueAsBytes(command.getPayload());
     } catch (IOException e) {
-      throw new SerializeFailedException(e);
+      throw new SerializeException(e);
     }
   }
 }
