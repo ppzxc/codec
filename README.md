@@ -118,10 +118,6 @@ The end of the body should always end with 'CrLf'.
 
 - 16 or 24 or 32 byte variable length.
 
-```text
-NONE 
-```
-
 ### before encrypt
 
 ```text
