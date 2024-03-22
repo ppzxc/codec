@@ -161,7 +161,7 @@ set 'default' if null padding.
  |                               ID                              |
  |                                                               |                            
  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- | HandShakeType |      Type     |     Mode      |    Padding    |
+ |     Type    |    Status     |   Encoding    |    Reserved     |
  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  |                              ...                              |
  |                              Body                             |
@@ -171,14 +171,15 @@ set 'default' if null padding.
   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 ```
 
-| type   | name    | length   | binary   | range                                                  | hexadecimal                             |
-|--------|---------|----------|----------|--------------------------------------------------------|-----------------------------------------|
-| Header | Length  | 4 byte   | 32 bit   | -2,147,483,648 ~ 2,147,483,647                         | 0x80000000 ~ 0x7fffffff                 |
-| Header | ID      | 8 byte   | 64 bit   | -9,223,372,036,854,775,808 ~ 9,223,372,036,854,775,807 | 0x8000000000000000 ~ 0x7fffffffffffffff |
-| Header | Type    | 1 byte   | 8 bit    | -128 ~ 127                                             | 0x80 ~ 0x7f                             |
-| Header | Mode    | 1 byte   | 8 bit    | -128 ~ 127                                             | 0x80 ~ 0x7f                             |
-| Header | Padding | 1 byte   | 8 bit    | -128 ~ 127                                             | 0x80 ~ 0x7f                             |
-| Body   | Body    | variable | variable | -                                                      | -                                       |
+| type   | name     | length   | binary   | range                                                  | hexadecimal                             |
+|--------|----------|----------|----------|--------------------------------------------------------|-----------------------------------------|
+| Header | Length   | 4 byte   | 32 bit   | -2,147,483,648 ~ 2,147,483,647                         | 0x80000000 ~ 0x7fffffff                 |
+| Header | ID       | 8 byte   | 64 bit   | -9,223,372,036,854,775,808 ~ 9,223,372,036,854,775,807 | 0x8000000000000000 ~ 0x7fffffffffffffff |
+| Header | Type     | 1 byte   | 8 bit    | -128 ~ 127                                             | 0x80 ~ 0x7f                             |
+| Header | Status   | 1 byte   | 8 bit    | -128 ~ 127                                             | 0x80 ~ 0x7f                             |
+| Header | Encoding | 1 byte   | 8 bit    | -128 ~ 127                                             | 0x80 ~ 0x7f                             |
+| Header | Reserved | 1 byte   | 8 bit    | -128 ~ 127                                             | 0x80 ~ 0x7f                             |
+| Body   | Body     | variable | variable | -                                                      | -                                       |
 
 ### after encrypt
 
