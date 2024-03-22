@@ -1,7 +1,7 @@
 package io.github.ppzxc.codec.mapper;
 
-import io.github.ppzxc.codec.exception.DeserializeFailedException;
-import io.github.ppzxc.codec.exception.SerializeFailedException;
+import io.github.ppzxc.codec.exception.DeserializeException;
+import io.github.ppzxc.codec.exception.SerializeException;
 
 public final class MultiMapper implements Mapper {
 
@@ -22,7 +22,7 @@ public final class MultiMapper implements Mapper {
   }
 
   @Override
-  public <T> T read(ReadCommand<T> command) throws DeserializeFailedException {
+  public <T> T read(ReadCommand<T> command) throws DeserializeException {
     switch (command.getType()) {
       case PROTOBUF:
         return protocolBufferMapper.read(command);
@@ -38,7 +38,7 @@ public final class MultiMapper implements Mapper {
   }
 
   @Override
-  public byte[] write(WriteCommand command) throws SerializeFailedException {
+  public byte[] write(WriteCommand command) throws SerializeException {
     switch (command.getType()) {
       case PROTOBUF:
         return protocolBufferMapper.write(command);

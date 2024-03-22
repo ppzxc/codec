@@ -7,7 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.github.ppzxc.codec.model.CodecProblemCode;
+import io.github.ppzxc.codec.model.CodecCode;
 import io.github.ppzxc.codec.model.HandshakeResult;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -33,7 +33,7 @@ class HandshakeTimeoutStateHandlerTest {
     ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
 
     // when
-    when(ctx.writeAndFlush(eq(HandshakeResult.of(CodecProblemCode.HANDSHAKE_TIMEOUT_NO_BEHAVIOR)))).thenReturn(future);
+    when(ctx.writeAndFlush(eq(HandshakeResult.of(CodecCode.HANDSHAKE_TIMEOUT_NO_BEHAVIOR)))).thenReturn(future);
     handler.eventReceived(ctx, event);
 
     // then
@@ -49,7 +49,7 @@ class HandshakeTimeoutStateHandlerTest {
     ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
 
     // when
-    when(ctx.writeAndFlush(eq(HandshakeResult.of(CodecProblemCode.HANDSHAKE_TIMEOUT_NO_INCOMING)))).thenReturn(future);
+    when(ctx.writeAndFlush(eq(HandshakeResult.of(CodecCode.HANDSHAKE_TIMEOUT_NO_INCOMING)))).thenReturn(future);
     handler.eventReceived(ctx, event);
 
     // then
@@ -65,7 +65,7 @@ class HandshakeTimeoutStateHandlerTest {
     ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
 
     // when
-    when(ctx.writeAndFlush(eq(HandshakeResult.of(CodecProblemCode.HANDSHAKE_TIMEOUT_NO_OUTGOING)))).thenReturn(future);
+    when(ctx.writeAndFlush(eq(HandshakeResult.of(CodecCode.HANDSHAKE_TIMEOUT_NO_OUTGOING)))).thenReturn(future);
     handler.eventReceived(ctx, event);
 
     // then

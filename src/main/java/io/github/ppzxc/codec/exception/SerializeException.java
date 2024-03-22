@@ -1,18 +1,18 @@
 package io.github.ppzxc.codec.exception;
 
-public class SerializeFailedException extends Exception {
+public class SerializeException extends Exception {
 
   private static final long serialVersionUID = -4862359733551583748L;
 
-  public SerializeFailedException() {
+  public SerializeException() {
     super("serialize failed");
   }
 
-  public SerializeFailedException(String message) {
+  public SerializeException(String message) {
     super(message);
   }
 
-  public SerializeFailedException(Throwable throwable) {
+  public SerializeException(Throwable throwable) {
     super("serialize failed", throwable);
   }
 }

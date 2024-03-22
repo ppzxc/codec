@@ -5,8 +5,8 @@ public final class OutboundMessageFixture {
   private OutboundMessageFixture() {
   }
 
-  public static OutboundMessage create(Header header, Object body) {
-    return OutboundMessage.builder()
+  public static OutboundProtocol create(Header header, Object body) {
+    return OutboundProtocol.builder()
       .header(header)
       .body(body)
       .build();

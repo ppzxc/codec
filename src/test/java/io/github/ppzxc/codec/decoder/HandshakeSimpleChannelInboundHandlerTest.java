@@ -5,14 +5,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import io.github.ppzxc.codec.exception.HandshakeException;
+import io.github.ppzxc.codec.Constants.CodecNames;
+import io.github.ppzxc.codec.exception.HandshakeCodecException;
 import io.github.ppzxc.codec.model.ByteArrayFixture;
-import io.github.ppzxc.codec.model.CodecProblemCode;
+import io.github.ppzxc.codec.model.CodecCode;
 import io.github.ppzxc.codec.model.HandshakeFixture;
 import io.github.ppzxc.codec.model.HandshakeHeader;
 import io.github.ppzxc.codec.model.HandshakeResult;
-import io.github.ppzxc.codec.model.InboundMessage;
 import io.github.ppzxc.codec.model.InboundMessageFixture;
+import io.github.ppzxc.codec.model.InboundProtocol;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.crypto.CryptoException;
 import io.github.ppzxc.fixh.ByteArrayUtils;
@@ -40,10 +41,10 @@ class HandshakeSimpleChannelInboundHandlerTest {
     rsaCrypto = mock(Crypto.class);
     aesCrypto = mock(Crypto.class);
     channel = new EmbeddedChannel();
-    channel.pipeline().addLast(Constants.HANDSHAKE_IDLE_STATE_HANDLER, new IdleStateHandler(3, 2, 1));
+    channel.pipeline().addLast(CodecNames.HANDSHAKE_IDLE_HANDLER, new IdleStateHandler(3, 2, 1));
     channel.pipeline()
-      .addLast(Constants.HANDSHAKE_TIMEOUT_STATE_HANDLER, new HandshakeTimeoutStateHandler(1, TimeUnit.SECONDS));
-    channel.pipeline().addLast(Constants.HANDSHAKE_HANDLER, getHandler());
+      .addLast(CodecNames.HANDSHAKE_TIMEOUT_HANDLER, new HandshakeTimeoutStateHandler(1, TimeUnit.SECONDS));
+    channel.pipeline().addLast(CodecNames.HANDSHAKE_CHANNEL_HANDLER, getHandler());
   }
 
   @ParameterizedTest
@@ -59,7 +60,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.SHORT_LENGTH.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.SHORT_LENGTH.getCode());
   }
 
   @Test
@@ -74,7 +75,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.MISSING_LINE_DELIMITER.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.MISSING_LINE_DELIMITER.getCode());
   }
 
   @ParameterizedTest
@@ -90,7 +91,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.SHORT_LENGTH_FIELD.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.SHORT_LENGTH_FIELD.getCode());
   }
 
   @Test
@@ -105,7 +106,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_HAND_SHAKE_TYPE.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.INVALID_HAND_SHAKE_TYPE.getCode());
   }
 
   @Test
@@ -120,7 +121,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_HAND_SHAKE_TYPE.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.INVALID_HAND_SHAKE_TYPE.getCode());
   }
 
   @Test
@@ -135,7 +136,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_ENCRYPTION_TYPE.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.INVALID_ENCRYPTION_TYPE.getCode());
   }
 
   @Test
@@ -150,7 +151,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_ENCRYPTION_MODE.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.INVALID_ENCRYPTION_MODE.getCode());
   }
 
   @Test
@@ -165,7 +166,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_ENCRYPTION_PADDING.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.INVALID_ENCRYPTION_PADDING.getCode());
   }
 
   @Test
@@ -181,7 +182,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.DECRYPT_FAIL.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.DECRYPT_FAIL.getCode());
   }
 
   @Test
@@ -197,7 +198,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.INVALID_KEY_SIZE.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.INVALID_KEY_SIZE.getCode());
   }
 
   @Test
@@ -215,14 +216,14 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.CRYPTO_CREATE_FAIL.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.CRYPTO_CREATE_FAIL.getCode());
   }
 
   @Test
   void should_return_UNRECOGNIZED() throws CryptoException {
     // given
     channel.pipeline()
-      .replace(Constants.HANDSHAKE_HANDLER, "NewDecoder", getAddThrowHandler(new NullPointerException()));
+      .replace(CodecNames.HANDSHAKE_CHANNEL_HANDLER, "NewDecoder", getAddThrowHandler(new NullPointerException()));
     ByteBuf given = HandshakeFixture.wrongSymmetricKeySize();
 
     // when
@@ -233,14 +234,14 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.UNRECOGNIZED.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.UNRECOGNIZED.getCode());
   }
 
   @Test
   void should_return_ENCODE_FAIL() throws CryptoException {
     // given
-    channel.pipeline().replace(Constants.HANDSHAKE_HANDLER, "NewDecoder",
-      getAddThrowHandler(new Exception(new HandshakeException("null", CodecProblemCode.ENCODE_FAIL))));
+    channel.pipeline().replace(CodecNames.HANDSHAKE_CHANNEL_HANDLER, "NewDecoder",
+      getAddThrowHandler(new Exception(new HandshakeCodecException("null", CodecCode.ENCODE_FAIL))));
     ByteBuf given = HandshakeFixture.wrongSymmetricKeySize();
 
     // when
@@ -251,7 +252,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.ENCODE_FAIL.getCode());
+    assertThat(actual.readByte()).isEqualTo(CodecCode.ENCODE_FAIL.getCode());
   }
 
   @Test
@@ -267,8 +268,8 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.OK.getCode());
-    assertThat(channel.pipeline().names()).doesNotContainAnyElementsOf(Constants.HANDSHAKES);
+    assertThat(actual.readByte()).isEqualTo(CodecCode.OK.getCode());
+    assertThat(channel.pipeline().names()).doesNotContainAnyElementsOf(CodecNames.HANDSHAKES);
   }
 
   @Test
@@ -279,14 +280,14 @@ class HandshakeSimpleChannelInboundHandlerTest {
     channel.writeInbound(handShake);
     channel.readOutbound();
     byte[] expectedBody = ByteArrayUtils.giveMeOne(128);
-    InboundMessage expectedMessage = InboundMessageFixture.create(expectedBody);
+    InboundProtocol expectedMessage = InboundMessageFixture.create(expectedBody);
     ByteBuf given = ByteArrayFixture.create(expectedMessage);
 
     // when
     when(aesCrypto.decrypt((byte[]) any())).thenReturn(
       ByteArrayFixture.withoutLengthFieldAndLineDelimiter(expectedMessage).array());
     channel.writeInbound(given);
-    InboundMessage actual = channel.readInbound();
+    InboundProtocol actual = channel.readInbound();
 
     // then
     assertThat(actual).usingRecursiveComparison().isEqualTo(expectedMessage);
@@ -295,7 +296,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
   @Test
   void should_return_not_found_handshake_handler() throws CryptoException {
     // given
-    channel.pipeline().replace(Constants.HANDSHAKE_HANDLER, Constants.HANDSHAKE_HANDLER,
+    channel.pipeline().replace(CodecNames.HANDSHAKE_CHANNEL_HANDLER, CodecNames.HANDSHAKE_CHANNEL_HANDLER,
       new HandshakeSimpleChannelInboundHandler(rsaCrypto) {
         @Override
         public Crypto getAesCrypto(HandshakeHeader handShakeHeader, byte[] ivParameter, byte[] symmetricKey) {
@@ -317,8 +318,8 @@ class HandshakeSimpleChannelInboundHandlerTest {
     // then
     assertThat(actual.readableBytes()).isEqualTo(HandshakeResult.LENGTH);
     assertThat(actual.readInt()).isEqualTo(HandshakeResult.BODY_LENGTH);
-    assertThat(actual.readByte()).isEqualTo(CodecProblemCode.OK.getCode());
-    assertThat(channel.pipeline().names()).doesNotContainAnyElementsOf(Constants.HANDSHAKES);
+    assertThat(actual.readByte()).isEqualTo(CodecCode.OK.getCode());
+    assertThat(channel.pipeline().names()).doesNotContainAnyElementsOf(CodecNames.HANDSHAKES);
     assertThat(channel.pipeline().names()).hasSize(1);
   }
 
@@ -338,8 +339,8 @@ class HandshakeSimpleChannelInboundHandlerTest {
 
       @Override
       public void addHandler(ChannelPipeline pipeline, Crypto crypto) {
-        pipeline.addLast(FixedLengthFieldBasedFrameDecoder.defaultConfiguration());
-        pipeline.addLast(new EncryptedInboundMessageDecoder(crypto));
+        pipeline.addLast(CodecLengthFieldBasedFrameDecoder.defaultConfiguration());
+        pipeline.addLast(new EncryptedInboundProtocolDecoder(crypto));
       }
     };
   }
@@ -353,8 +354,8 @@ class HandshakeSimpleChannelInboundHandlerTest {
 
       @Override
       public void addHandler(ChannelPipeline pipeline, Crypto crypto) {
-        pipeline.addLast(FixedLengthFieldBasedFrameDecoder.defaultConfiguration());
-        pipeline.addLast(new EncryptedInboundMessageDecoder(crypto));
+        pipeline.addLast(CodecLengthFieldBasedFrameDecoder.defaultConfiguration());
+        pipeline.addLast(new EncryptedInboundProtocolDecoder(crypto));
       }
     };
   }

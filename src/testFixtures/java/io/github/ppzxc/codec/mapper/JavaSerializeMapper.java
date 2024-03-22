@@ -1,7 +1,7 @@
 package io.github.ppzxc.codec.mapper;
 
-import io.github.ppzxc.codec.exception.DeserializeFailedException;
-import io.github.ppzxc.codec.exception.SerializeFailedException;
+import io.github.ppzxc.codec.exception.DeserializeException;
+import io.github.ppzxc.codec.exception.SerializeException;
 import io.github.ppzxc.codec.model.EncodingType;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,19 +19,19 @@ public class JavaSerializeMapper implements Mapper {
 
   @SuppressWarnings("all")
   @Override
-  public <T> T read(ReadCommand<T> command) throws DeserializeFailedException {
+  public <T> T read(ReadCommand<T> command) throws DeserializeException {
     if (command.getType() != EncodingType.JAVA_SERIALIZE) {
       throw new IllegalArgumentException(command.getType().toString());
     }
     try (ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(command.getPayload()))) {
       return (T) objectInputStream.readObject();
     } catch (Exception throwable) {
-      throw new DeserializeFailedException(throwable);
+      throw new DeserializeException(throwable);
     }
   }
 
   @Override
-  public byte[] write(WriteCommand command) throws SerializeFailedException {
+  public byte[] write(WriteCommand command) throws SerializeException {
     if (command.getType() != EncodingType.JAVA_SERIALIZE) {
       throw new IllegalArgumentException(command.getType().toString());
     }
@@ -40,7 +40,7 @@ public class JavaSerializeMapper implements Mapper {
       objectOutputStream.writeObject(command.getPayload());
       return byteArrayOutputStream.toByteArray();
     } catch (Exception throwable) {
-      throw new SerializeFailedException(throwable);
+      throw new SerializeException(throwable);
     }
   }
 }

@@ -2,7 +2,7 @@ package io.github.ppzxc.codec.model;
 
 import java.util.Arrays;
 
-public enum CodecProblemCode {
+public enum CodecCode {
   NONE((byte) 0x00),
   UNRECOGNIZED((byte) 0x01),
   OK((byte) 0x02),
@@ -26,7 +26,7 @@ public enum CodecProblemCode {
 
   private final byte code;
 
-  CodecProblemCode(byte code) {
+  CodecCode(byte code) {
     this.code = code;
   }
 
@@ -34,15 +34,15 @@ public enum CodecProblemCode {
     return code;
   }
 
-  public static CodecProblemCode of(byte value) {
-    return Arrays.stream(CodecProblemCode.values())
+  public static CodecCode of(byte value) {
+    return Arrays.stream(CodecCode.values())
       .filter(code -> code.code == value)
       .findAny()
-      .orElse(CodecProblemCode.NONE);
+      .orElse(CodecCode.NONE);
   }
 
   @Override
   public String toString() {
-    return "CodecProblemCode." + name() + "(" + code + ")";
+    return "CodecCode." + name() + "(" + code + ")";
   }
 }

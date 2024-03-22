@@ -1,14 +1,16 @@
 package io.github.ppzxc.codec.decoder;
 
-import io.github.ppzxc.codec.exception.HandshakeException;
-import io.github.ppzxc.codec.model.CodecProblemCode;
+import io.github.ppzxc.codec.Constants;
+import io.github.ppzxc.codec.Constants.CodecNames;
+import io.github.ppzxc.codec.Constants.LineDelimiter;
+import io.github.ppzxc.codec.exception.HandshakeCodecException;
+import io.github.ppzxc.codec.model.CodecCode;
 import io.github.ppzxc.codec.model.EncryptionMode;
 import io.github.ppzxc.codec.model.EncryptionPadding;
 import io.github.ppzxc.codec.model.EncryptionType;
 import io.github.ppzxc.codec.model.HandshakeHeader;
 import io.github.ppzxc.codec.model.HandshakeResult;
 import io.github.ppzxc.codec.model.HandshakeType;
-import io.github.ppzxc.codec.model.LineDelimiter;
 import io.github.ppzxc.crypto.Crypto;
 import io.github.ppzxc.fixh.ExceptionUtils;
 import io.netty.buffer.ByteBuf;
@@ -49,7 +51,7 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
     // check corrupted length
     int readableBytes = msg.readableBytes();
     if (readableBytes < HandshakeHeader.MINIMUM_LENGTH) {
-      throw new HandshakeException(readableBytes, CodecProblemCode.SHORT_LENGTH);
+      throw new HandshakeCodecException(readableBytes, CodecCode.SHORT_LENGTH);
     }
 
     // check field
@@ -62,14 +64,14 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
     try {
       cipherText = rsaCrypto.decrypt(encryptedHandShakeBody);
     } catch (Exception e) {
-      throw new HandshakeException(e, CodecProblemCode.DECRYPT_FAIL);
+      throw new HandshakeCodecException(e, CodecCode.DECRYPT_FAIL);
     }
     byte[] ivParameter = Arrays.copyOfRange(cipherText, 0, HandshakeHeader.IV_PARAMETER_LENGTH);
     byte[] symmetricKey = Arrays.copyOfRange(cipherText, HandshakeHeader.IV_PARAMETER_LENGTH, cipherText.length);
 
     // check body
-    if (Arrays.stream(HandshakeHeader.AES_KEY_SIZES).noneMatch(aesKeySize -> aesKeySize == symmetricKey.length)) {
-      throw new HandshakeException(symmetricKey.length, CodecProblemCode.INVALID_KEY_SIZE);
+    if (Arrays.stream(Constants.Crypto.SYMMETRIC_KEY_SIZE).noneMatch(aesKeySize -> aesKeySize == symmetricKey.length)) {
+      throw new HandshakeCodecException(symmetricKey.length, CodecCode.INVALID_KEY_SIZE);
     }
 
     // make aes crypto
@@ -77,51 +79,51 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
     try {
       aesCrypto = getAesCrypto(handShakeHeader, ivParameter, symmetricKey);
     } catch (Exception e) {
-      throw new HandshakeException(e, CodecProblemCode.CRYPTO_CREATE_FAIL);
+      throw new HandshakeCodecException(e, CodecCode.CRYPTO_CREATE_FAIL);
     }
 
     ChannelPipeline pipeline = ctx.pipeline();
     addHandler(pipeline, aesCrypto);
     pipeline.names().stream()
-      .filter(Constants.HANDSHAKES::contains)
+      .filter(CodecNames.HANDSHAKES::contains)
       .collect(Collectors.toList())
       .forEach(pipeline::remove);
-    ctx.channel().writeAndFlush(HandshakeResult.of(CodecProblemCode.OK));
+    ctx.channel().writeAndFlush(HandshakeResult.of(CodecCode.OK));
   }
 
-  private HandshakeHeader getHeaderAndValidation(ByteBuf msg) throws HandshakeException {
+  private HandshakeHeader getHeaderAndValidation(ByteBuf msg) throws HandshakeCodecException {
     // line delimiter
     if (!ByteBufUtil.equals(msg, msg.readableBytes() - 2, LineDelimiter.BYTE_BUF, 0, 2)) {
-      throw new HandshakeException("null", CodecProblemCode.MISSING_LINE_DELIMITER);
+      throw new HandshakeCodecException("null", CodecCode.MISSING_LINE_DELIMITER);
     }
     // length
     int length = msg.readInt();
     if (length < HandshakeHeader.MINIMUM_LENGTH - HandshakeHeader.LENGTH_FIELD_LENGTH) {
-      throw new HandshakeException(length, CodecProblemCode.SHORT_LENGTH_FIELD);
+      throw new HandshakeCodecException(length, CodecCode.SHORT_LENGTH_FIELD);
     }
     // handShake type
     byte rawHandShakeType = msg.readByte();
     HandshakeType handShakeType = HandshakeType.of(rawHandShakeType);
     if (handShakeType != HandshakeType.RSA_1024) {
-      throw new HandshakeException(rawHandShakeType, CodecProblemCode.INVALID_HAND_SHAKE_TYPE);
+      throw new HandshakeCodecException(rawHandShakeType, CodecCode.INVALID_HAND_SHAKE_TYPE);
     }
     // encryption type
     byte rawEncryptionType = msg.readByte();
     EncryptionType encryptionType = EncryptionType.of(rawEncryptionType);
     if (encryptionType != EncryptionType.ADVANCED_ENCRYPTION_STANDARD) {
-      throw new HandshakeException(rawEncryptionType, CodecProblemCode.INVALID_ENCRYPTION_TYPE);
+      throw new HandshakeCodecException(rawEncryptionType, CodecCode.INVALID_ENCRYPTION_TYPE);
     }
     // encryption mode
     byte rawEncryptionMode = msg.readByte();
     EncryptionMode encryptionMode = EncryptionMode.of(rawEncryptionMode);
     if (encryptionMode != EncryptionMode.CIPHER_BLOCK_CHAINING) {
-      throw new HandshakeException(rawEncryptionMode, CodecProblemCode.INVALID_ENCRYPTION_MODE);
+      throw new HandshakeCodecException(rawEncryptionMode, CodecCode.INVALID_ENCRYPTION_MODE);
     }
     // encryption padding
     byte rawEncryptionPadding = msg.readByte();
     EncryptionPadding encryptionPadding = EncryptionPadding.of(rawEncryptionPadding);
     if (encryptionPadding != EncryptionPadding.PKCS7PADDING) {
-      throw new HandshakeException(rawEncryptionPadding, CodecProblemCode.INVALID_ENCRYPTION_PADDING);
+      throw new HandshakeCodecException(rawEncryptionPadding, CodecCode.INVALID_ENCRYPTION_PADDING);
     }
     return HandshakeHeader.builder()
       .length(length)
@@ -135,21 +137,21 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
     ByteBuf result;
-    if (cause instanceof HandshakeException) {
-      HandshakeException exception = (HandshakeException) cause;
-      result = HandshakeResult.of(exception.getCodecProblemCode());
-      log.info("{} id={} reject={} problem={} exception.message={}", ctx.channel(), exception.getId(),
-        exception.getRejectedValue(), exception.getCodecProblemCode(), exception.getMessage());
+    if (cause instanceof HandshakeCodecException) {
+      HandshakeCodecException exception = (HandshakeCodecException) cause;
+      result = HandshakeResult.of(exception.getCodecCode());
+      log.info("{} id={} reject={} code={} exception.message={}", ctx.channel(), exception.getId(),
+        exception.getRejectedValue(), exception.getCodecCode(), exception.getMessage());
     } else {
-      Throwable findCause = ExceptionUtils.findCause(cause, HandshakeException.class);
-      if (findCause instanceof HandshakeException) {
-        HandshakeException exception = (HandshakeException) findCause;
-        result = HandshakeResult.of(exception.getCodecProblemCode());
-        log.info("{} id={} reject={} problem={} exception.message={}", ctx.channel(), exception.getId(),
-          exception.getRejectedValue(), exception.getCodecProblemCode(), exception.getMessage());
+      Throwable findCause = ExceptionUtils.findCause(cause, HandshakeCodecException.class);
+      if (findCause instanceof HandshakeCodecException) {
+        HandshakeCodecException exception = (HandshakeCodecException) findCause;
+        result = HandshakeResult.of(exception.getCodecCode());
+        log.info("{} id={} reject={} code={} exception.message={}", ctx.channel(), exception.getId(),
+          exception.getRejectedValue(), exception.getCodecCode(), exception.getMessage());
       } else {
-        result = HandshakeResult.of(CodecProblemCode.UNRECOGNIZED);
-        log.info("{} id=0 reject=0 problem={} exception.message={}", ctx.channel(), CodecProblemCode.UNRECOGNIZED,
+        result = HandshakeResult.of(CodecCode.UNRECOGNIZED);
+        log.info("{} id=0 reject=0 code={} exception.message={}", ctx.channel(), CodecCode.UNRECOGNIZED,
           cause.getMessage());
       }
     }
