@@ -19,6 +19,6 @@ public class HandshakeCodecException extends CodecException {
   }
 
   public HandshakeCodecException(Throwable cause, CodecCode codecCode) {
-    super(cause, DEFAULT_ID, DEFAULT_REJECT, INSTANCE_HANDSHAKE, new Object[]{}, codecCode);
+    super(cause, DEFAULT_ID, REJECT_UNRECOGNIZED, INSTANCE_HANDSHAKE, new Object[]{}, codecCode);
   }
 }

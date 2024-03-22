@@ -5,10 +5,15 @@ import io.github.ppzxc.codec.model.CodecCode;
 public class CodecException extends Exception {
 
   public static final long DEFAULT_ID = 0L;
-  public static final String DEFAULT_REJECT = "[UNRECOGNIZED]";
-  public static final String INSTANCE_DECODER = "/decoder";
+  public static final String DEFAULT_REJECT_TEMPLATE = "rejected: %s";
+  public static final String INSTANCE_HEADER = "/header";
+  public static final String INSTANCE_UNRECOGNIZED = "/unrecognized";
   public static final String INSTANCE_HANDSHAKE = "/handshake";
+  public static final String INSTANCE_DECODER = "/decoder";
   public static final String INSTANCE_ENCODER = "/encoder";
+  public static final String REJECT_UNRECOGNIZED = "[UNRECOGNIZED]";
+  public static final String REJECT_AUTHENTICATION = "[AUTHENTICATION]";
+  public static final String REJECT_BODY = "[BODY]";
   private static final long serialVersionUID = -927664338530046046L;
   private final long id;
   private final String rejectedValue;
