@@ -4,8 +4,8 @@ import java.util.Arrays;
 
 public enum CodecCode {
   NONE((byte) 0x00),
-  UNRECOGNIZED((byte) 0x01),
-  OK((byte) 0x02),
+  OK((byte) 0x01),
+  UNRECOGNIZED((byte) 0x02),
   SHORT_LENGTH((byte) 0x03),
   SHORT_LENGTH_FIELD((byte) 0x04),
   INVALID_HAND_SHAKE_TYPE((byte) 0x05),
