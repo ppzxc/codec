@@ -64,6 +64,64 @@ The end of the body should always end with 'CrLf'.
 
 ## handShake
 
+1. HandshakeType
+
+- required 'RSA 1024', other failure
+
+| name     | hex  |
+|----------|------|
+| NONE     | 0x00 |
+| RSA 1024 | 0x01 |
+| RSA 2048 | 0x02 |
+| RSA 4096 | 0x03 |
+
+2. Type
+
+- encryption type
+- require 'AES', other failure
+
+| name | hex  |
+|------|------|
+| NONE | 0x00 |
+| AES  | 0x01 |
+
+2. Mode
+
+- encryption mode
+- require 'CBC', other failure
+
+| name | hex  |
+|------|------|
+| NONE | 0x00 |
+| ECB  | 0x01 |
+| CBC  | 0x02 |
+| CFB  | 0x03 |
+| OFB  | 0x04 |
+| CTR  | 0x05 |
+
+3. Padding
+
+- encryption Padding
+- require 'PKCS 7 PADDING', other failure
+
+| name   | hex  |
+|--------|------|
+| NONE   | 0x00 |
+| PKCS#5 | 0x01 |
+| PKCS#7 | 0x02 |
+
+4. IV Parameter
+
+- require 16 byte fixed length.
+
+5. Symmetric Key
+
+- 16 or 24 or 32 byte variable length.
+
+```text
+NONE 
+```
+
 ### before encrypt
 
 ```text
@@ -182,6 +240,12 @@ set 'default' if null padding.
 | Body   | Body     | variable | variable | -                                                      | -                                       |
 
 ### after encrypt
+
+- encryption fields
+
+```text
+Id, Type, Status, Encoding, Reserved, Body
+```
 
 ```text
   0                   1                   2                   3
