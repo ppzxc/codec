@@ -10,9 +10,9 @@ public final class ReadCommand<T> {
   private final Class<T> targetClass;
 
   private ReadCommand(EncodingType type, byte[] payload, Class<T> targetClass) {
-    this.type = ObjectUtils.requireNonNull(type, "'type' is require non null");
-    this.payload = ObjectUtils.requireNonNull(payload, "'payload' is require non null");
-    this.targetClass = ObjectUtils.requireNonNull(targetClass, "'targetClass' is require non null");
+    this.type = ObjectUtils.requireNotNull(type, "'type' is require non null");
+    this.payload = ObjectUtils.requireNotNull(payload, "'payload' is require non null");
+    this.targetClass = ObjectUtils.requireNotNull(targetClass, "'targetClass' is require non null");
   }
 
   public EncodingType getType() {

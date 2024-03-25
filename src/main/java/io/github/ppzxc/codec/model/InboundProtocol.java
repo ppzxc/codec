@@ -34,12 +34,12 @@ public class InboundProtocol extends AbstractProtocol {
     }
 
     public Builder header(Header header) {
-      this.header = ObjectUtils.requireNonNull(header, "'Header' is require non null");
+      this.header = ObjectUtils.requireNotNull(header, "'Header' is require non null");
       return this;
     }
 
     public Builder body(byte[] body) {
-      this.body = ObjectUtils.requireNonNull(body, "'Body' is require non null");
+      this.body = ObjectUtils.requireNotNull(body, "'Body' is require non null");
       return this;
     }
 

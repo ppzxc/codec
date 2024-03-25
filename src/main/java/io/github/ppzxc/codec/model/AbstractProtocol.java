@@ -8,7 +8,7 @@ public abstract class AbstractProtocol implements Protocol {
   private final Header header;
 
   protected AbstractProtocol(Header header) {
-    this.header = ObjectUtils.requireNonNull(header, new NullPointerException("header is null"));
+    this.header = ObjectUtils.requireNotNull(header, new NullPointerException("header is null"));
   }
 
   @Override

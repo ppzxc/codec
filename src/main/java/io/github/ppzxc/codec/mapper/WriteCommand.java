@@ -9,8 +9,8 @@ public final class WriteCommand {
   private final Object payload;
 
   private WriteCommand(EncodingType type, Object payload) {
-    this.type = ObjectUtils.requireNonNull(type, "'type' is require non null");
-    this.payload = ObjectUtils.requireNonNull(payload, "'payload' is require non null");
+    this.type = ObjectUtils.requireNotNull(type, "'type' is require non null");
+    this.payload = ObjectUtils.requireNotNull(payload, "'payload' is require non null");
   }
 
   public static WriteCommand of(EncodingType type, Object payload) {
