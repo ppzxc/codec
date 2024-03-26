@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class EncryptedInboundProtocolDecoderTest {
+class ByteBufDecoderTest {
 
   private Crypto crypto;
   private EmbeddedChannel channel;
@@ -40,7 +40,7 @@ class EncryptedInboundProtocolDecoderTest {
   void setUp() {
     crypto = mock(Crypto.class);
     channel = new EmbeddedChannel();
-    channel.pipeline().addLast(new EncryptedInboundProtocolDecoder(crypto));
+    channel.pipeline().addLast(new ByteBufDecoder(crypto));
   }
 
   @Test

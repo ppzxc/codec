@@ -10,6 +10,11 @@ public enum HandshakeType {
 
   private final byte code;
 
+  @Override
+  public String toString() {
+    return "HandshakeType." + name() + "(" + code + ")";
+  }
+
   HandshakeType(byte code) {
     this.code = code;
   }

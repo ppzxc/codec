@@ -88,6 +88,17 @@ public class HandshakeHeader implements Serializable {
       return this;
     }
 
+    @Override
+    public String toString() {
+      return "Builder{" +
+        "length=" + length +
+        ", handShakeType=" + handShakeType +
+        ", encryptionType=" + encryptionType +
+        ", encryptionMode=" + encryptionMode +
+        ", encryptionPadding=" + encryptionPadding +
+        '}';
+    }
+
     public HandshakeHeader build() {
       return new HandshakeHeader(length, handShakeType, encryptionType, encryptionMode, encryptionPadding);
     }

@@ -18,6 +18,7 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -81,6 +82,10 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
     } catch (Exception e) {
       throw new HandshakeCodecException(e, CodecCode.CRYPTO_CREATE_FAIL);
     }
+
+    log.debug("{} id=[NO-ID] header={} iv.length={} key.length={} iv=[{}] symmetric=[{}] message=handshake success",
+      ctx.channel(), handShakeHeader, ivParameter.length, symmetricKey.length,
+      new String(ivParameter, StandardCharsets.UTF_8), new String(symmetricKey, StandardCharsets.UTF_8));
 
     ChannelPipeline pipeline = ctx.pipeline();
     addHandler(pipeline, aesCrypto);

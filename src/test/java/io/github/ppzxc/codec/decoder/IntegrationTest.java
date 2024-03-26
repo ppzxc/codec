@@ -42,7 +42,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 public class IntegrationTest {
 
   public static final String LENGTH_FIELD_BASE_FRAME_DECODER = "LengthFieldBaseFrameDecoder";
-  public static final String ENCRYPTED_INBOUND_MESSAGE_DECODER = "EncryptedInboundMessageDecoder";
+  public static final String BYTE_BUF_DECODER = "ByteBufDecoder";
   public static final String HAND_SHAKE_HANDLER = "HandShakeHandler";
   public static final String HANDSHAKE_IDLE_STATE_HANDLER = "HandshakeIdleStateHandler";
   public static final String IDLE_STATE_HANDLER = "IdleStateHandler";
@@ -269,9 +269,9 @@ public class IntegrationTest {
 
     @Override
     public void addHandler(ChannelPipeline pipeline, Crypto crypto) {
-      pipeline.addAfter(LENGTH_FIELD_BASE_FRAME_DECODER, ENCRYPTED_INBOUND_MESSAGE_DECODER,
-        new EncryptedInboundProtocolDecoder(crypto));
-      pipeline.addAfter(ENCRYPTED_INBOUND_MESSAGE_DECODER, "ENCRYPTED_INBOUND_MESSAGE_DECODER",
+      pipeline.addAfter(LENGTH_FIELD_BASE_FRAME_DECODER, BYTE_BUF_DECODER,
+        new ByteBufDecoder(crypto));
+      pipeline.addAfter(BYTE_BUF_DECODER, "ENCRYPTED_INBOUND_MESSAGE_DECODER",
         new OutboundProtocolEncoder(crypto, MAPPER));
     }
   }
