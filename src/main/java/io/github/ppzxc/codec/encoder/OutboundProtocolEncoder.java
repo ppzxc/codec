@@ -38,7 +38,6 @@ public class OutboundProtocolEncoder extends MessageToMessageEncoder<OutboundPro
       buffer.writeInt(encryptedPayload.length + LineDelimiter.LENGTH);
       buffer.writeBytes(encryptedPayload);
       buffer.writeBytes(LineDelimiter.BYTE_ARRAY);
-      System.out.println(encryptedPayload.length + LineDelimiter.LENGTH);
       out.add(buffer);
     } catch (Exception e) {
       throw new OutboundCodecException(msg.header(), e);
