@@ -340,7 +340,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
       @Override
       public void addHandler(ChannelPipeline pipeline, Crypto crypto) {
         pipeline.addLast(CodecLengthFieldBasedFrameDecoder.defaultConfiguration());
-        pipeline.addLast(new EncryptedInboundProtocolDecoder(crypto));
+        pipeline.addLast(new ByteBufDecoder(crypto));
       }
     };
   }
@@ -355,7 +355,7 @@ class HandshakeSimpleChannelInboundHandlerTest {
       @Override
       public void addHandler(ChannelPipeline pipeline, Crypto crypto) {
         pipeline.addLast(CodecLengthFieldBasedFrameDecoder.defaultConfiguration());
-        pipeline.addLast(new EncryptedInboundProtocolDecoder(crypto));
+        pipeline.addLast(new ByteBufDecoder(crypto));
       }
     };
   }

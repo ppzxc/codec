@@ -20,19 +20,19 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EncryptedInboundProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
+public class ByteBufDecoder extends MessageToMessageDecoder<ByteBuf> {
 
-  private static final Logger log = LoggerFactory.getLogger(EncryptedInboundProtocolDecoder.class);
+  private static final Logger log = LoggerFactory.getLogger(ByteBufDecoder.class);
   private final Crypto crypto;
-  private final int minimumLength;
+  private final int minimumReadableBytes;
 
-  public EncryptedInboundProtocolDecoder(Crypto crypto, int minimumLength) {
+  public ByteBufDecoder(Crypto crypto, int minimumReadableBytes) {
     this.crypto = crypto;
-    this.minimumLength = minimumLength;
+    this.minimumReadableBytes = minimumReadableBytes;
   }
 
-  public EncryptedInboundProtocolDecoder(Crypto crypto) {
-    this(crypto, Header.ID_FIELD_LENGTH + LineDelimiter.LENGTH);
+  public ByteBufDecoder(Crypto crypto) {
+    this(crypto, Header.MINIMUM_LENGTH);
   }
 
   @Override
@@ -41,6 +41,7 @@ public class EncryptedInboundProtocolDecoder extends MessageToMessageDecoder<Byt
     int length = preConditionAndGetLength(msg);
     ByteBuf decryptedPlainText = getDecryptedPlainText(msg);
     Header header = getHeader(length, decryptedPlainText);
+    log.debug("{} id={} header={} decode", ctx.channel(), header.getId(), header);
     byte[] body = getBody(decryptedPlainText);
     out.add(InboundProtocol.builder()
       .header(header)
@@ -53,8 +54,8 @@ public class EncryptedInboundProtocolDecoder extends MessageToMessageDecoder<Byt
     if (initialReadableBytes == 0) {
       throw new BlankBodyCodecException("byte array require non null");
     }
-    if (initialReadableBytes < minimumLength) {
-      throw new ShortLengthCodecException(initialReadableBytes, minimumLength);
+    if (initialReadableBytes < minimumReadableBytes) {
+      throw new ShortLengthCodecException(initialReadableBytes, minimumReadableBytes);
     }
     if (!ByteBufUtil.equals(msg, msg.readableBytes() - 2, LineDelimiter.BYTE_BUF, 0, 2)) {
       throw new MissingLineDelimiterCodecException();
