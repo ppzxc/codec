@@ -5,7 +5,10 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Constants {
+public final class Constants {
+
+  private Constants() {
+  }
 
   public static final class Crypto {
 

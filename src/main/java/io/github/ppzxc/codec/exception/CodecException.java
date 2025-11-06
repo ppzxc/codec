@@ -60,16 +60,6 @@ public class CodecException extends Exception {
     this.codecCode = codecCode;
   }
 
-  public CodecException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace,
-    long id, String rejectedValue, String instance, Object[] args, CodecCode codecCode) {
-    super(message, cause, enableSuppression, writableStackTrace);
-    this.id = id;
-    this.rejectedValue = rejectedValue;
-    this.instance = instance;
-    this.args = args;
-    this.codecCode = codecCode;
-  }
-
   public long getId() {
     return id;
   }

@@ -6,11 +6,11 @@ import io.netty.buffer.Unpooled;
 
 public final class HandshakeResult {
 
-  public static int LENGTH_FIELD_LENGTH = 4;
-  public static int RESULT_FIELD_LENGTH = 1;
-  public static int BODY_LENGTH = RESULT_FIELD_LENGTH + Constants.LineDelimiter.LENGTH;
-  public static int LENGTH = LENGTH_FIELD_LENGTH + RESULT_FIELD_LENGTH + Constants.LineDelimiter.LENGTH;
-  public static int LENGTH_WITHOUT_LENGTH_FIELD = RESULT_FIELD_LENGTH + Constants.LineDelimiter.LENGTH;
+  public static final int LENGTH_FIELD_LENGTH = 4;
+  public static final int RESULT_FIELD_LENGTH = 1;
+  public static final int BODY_LENGTH = RESULT_FIELD_LENGTH + Constants.LineDelimiter.LENGTH;
+  public static final int LENGTH = LENGTH_FIELD_LENGTH + RESULT_FIELD_LENGTH + Constants.LineDelimiter.LENGTH;
+  public static final int LENGTH_WITHOUT_LENGTH_FIELD = RESULT_FIELD_LENGTH + Constants.LineDelimiter.LENGTH;
 
   private HandshakeResult() {
   }

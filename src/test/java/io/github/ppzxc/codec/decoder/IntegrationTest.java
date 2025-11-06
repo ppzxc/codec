@@ -46,16 +46,16 @@ public class IntegrationTest {
   public static final String HAND_SHAKE_HANDLER = "HandShakeHandler";
   public static final String HANDSHAKE_IDLE_STATE_HANDLER = "HandshakeIdleStateHandler";
   public static final String IDLE_STATE_HANDLER = "IdleStateHandler";
-  private static Crypto RSA_CRYPTO;
-  private static Crypto AES_CRYPTO;
-  private static Mapper MAPPER;
+  private static Crypto rsaCrypto;
+  private static Crypto aesCrypto;
+  private static Mapper mapper;
   private EmbeddedChannel channel;
 
   @BeforeAll
   static void beforeAll() throws NoSuchAlgorithmException, NoSuchProviderException {
     CryptoProvider.BOUNCY_CASTLE.addProvider();
-    RSA_CRYPTO = CryptoFactory.rsa(AsymmetricKeyFactory.generateRsa());
-    MAPPER = MultiMapper.create();
+    rsaCrypto = CryptoFactory.rsa(AsymmetricKeyFactory.generateRsa());
+    mapper = MultiMapper.create();
   }
 
   @BeforeEach
@@ -65,7 +65,7 @@ public class IntegrationTest {
     channel.pipeline().addLast(HANDSHAKE_IDLE_STATE_HANDLER, new HandshakeTimeoutStateHandler());
     channel.pipeline()
       .addLast(LENGTH_FIELD_BASE_FRAME_DECODER, CodecLengthFieldBasedFrameDecoder.defaultConfiguration());
-    channel.pipeline().addLast(HAND_SHAKE_HANDLER, new TestHandshakeSimpleChannelInboundHandler(RSA_CRYPTO));
+    channel.pipeline().addLast(HAND_SHAKE_HANDLER, new TestHandshakeSimpleChannelInboundHandler(rsaCrypto));
   }
 
   @ParameterizedTest
@@ -173,7 +173,7 @@ public class IntegrationTest {
   @Test
   void should_return_INVALID_KEY_SIZE() throws CryptoException {
     // given
-    ByteBuf given = HandshakeFixture.withBody(RSA_CRYPTO.encrypt(ByteArrayUtils.giveMeOne(16 + 20)));
+    ByteBuf given = HandshakeFixture.withBody(rsaCrypto.encrypt(ByteArrayUtils.giveMeOne(16 + 20)));
 
     // when
     channel.writeInbound(given);
@@ -188,7 +188,7 @@ public class IntegrationTest {
   @Test
   void should_return_OK() throws CryptoException {
     // given
-    ByteBuf given = HandshakeFixture.withBody(RSA_CRYPTO.encrypt(ByteArrayUtils.giveMeOne(16 + 16)));
+    ByteBuf given = HandshakeFixture.withBody(rsaCrypto.encrypt(ByteArrayUtils.giveMeOne(16 + 16)));
 
     // when
     channel.writeInbound(given);
@@ -223,7 +223,7 @@ public class IntegrationTest {
     byte[] key = ByteArrayUtils.giveMeOne(32);
     byte[] iv = ByteArrayUtils.giveMeOne(16);
     Crypto crypto = CryptoFactory.aes(key, Transformation.AES_CBC_PKCS7PADDING, CryptoProvider.BOUNCY_CASTLE, iv);
-    channel.writeInbound(HandshakeFixture.withBody(RSA_CRYPTO.encrypt(Unpooled.copiedBuffer(iv, key).array())));
+    channel.writeInbound(HandshakeFixture.withBody(IntegrationTest.rsaCrypto.encrypt(Unpooled.copiedBuffer(iv, key).array())));
     channel.readOutbound();
     return crypto;
   }
@@ -262,9 +262,9 @@ public class IntegrationTest {
       if (handShakeHeader.getEncryptionPadding() != EncryptionPadding.PKCS7PADDING) {
         throw new IllegalArgumentException(handShakeHeader.getEncryptionPadding().toString());
       }
-      AES_CRYPTO = CryptoFactory.aes(symmetricKey, Transformation.AES_CBC_PKCS7PADDING, CryptoProvider.BOUNCY_CASTLE,
+      aesCrypto = CryptoFactory.aes(symmetricKey, Transformation.AES_CBC_PKCS7PADDING, CryptoProvider.BOUNCY_CASTLE,
         ivParameter);
-      return AES_CRYPTO;
+      return aesCrypto;
     }
 
     @Override
@@ -272,7 +272,7 @@ public class IntegrationTest {
       pipeline.addAfter(LENGTH_FIELD_BASE_FRAME_DECODER, BYTE_BUF_DECODER,
         new ByteBufDecoder(crypto));
       pipeline.addAfter(BYTE_BUF_DECODER, "ENCRYPTED_INBOUND_MESSAGE_DECODER",
-        new OutboundProtocolEncoder(crypto, MAPPER));
+        new OutboundProtocolEncoder(crypto, mapper));
     }
   }
 }

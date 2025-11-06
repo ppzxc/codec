@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import jdk.internal.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,7 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
   private final long closeDelay;
   private final TimeUnit closeDelayTimeUnit;
 
-  public HandshakeSimpleChannelInboundHandler(Crypto rsaCrypto, long closeDelay, TimeUnit closeDelayTimeUnit) {
+  protected HandshakeSimpleChannelInboundHandler(Crypto rsaCrypto, long closeDelay, TimeUnit closeDelayTimeUnit) {
     this.rsaCrypto = rsaCrypto;
     this.closeDelay = closeDelay;
     this.closeDelayTimeUnit = closeDelayTimeUnit;
