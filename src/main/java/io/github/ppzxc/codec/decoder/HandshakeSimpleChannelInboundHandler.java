@@ -49,33 +49,33 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
     log.debug("{} id=[NO-ID] decode", ctx.channel());
-    // check corrupted length
     int readableBytes = msg.readableBytes();
     if (readableBytes < HandshakeHeader.MINIMUM_LENGTH) {
       throw new HandshakeCodecException(readableBytes, CodecCode.SHORT_LENGTH);
     }
 
-    // check field
     HandshakeHeader handShakeHeader = getHeaderAndValidation(msg);
 
-    // decrypt body
     byte[] encryptedHandShakeBody = new byte[msg.readableBytes()];
     msg.readBytes(encryptedHandShakeBody);
-    byte[] cipherText;
+    byte[] decryptedHandShakeBody;
     try {
-      cipherText = rsaCrypto.decrypt(encryptedHandShakeBody);
+      decryptedHandShakeBody = rsaCrypto.decrypt(encryptedHandShakeBody);
     } catch (Exception e) {
       throw new HandshakeCodecException(e, CodecCode.DECRYPT_FAIL);
     }
-    byte[] ivParameter = Arrays.copyOfRange(cipherText, 0, HandshakeHeader.IV_PARAMETER_LENGTH);
-    byte[] symmetricKey = Arrays.copyOfRange(cipherText, HandshakeHeader.IV_PARAMETER_LENGTH, cipherText.length);
 
-    // check body
+    byte[] ivParameter = Arrays.copyOfRange(decryptedHandShakeBody, 0, HandshakeHeader.IV_PARAMETER_LENGTH);
+    if (ivParameter.length != HandshakeHeader.IV_PARAMETER_LENGTH) {
+      throw new HandshakeCodecException(ivParameter.length, CodecCode.INVALID_IV_PARAMETER);
+    }
+
+    byte[] symmetricKey = Arrays.copyOfRange(decryptedHandShakeBody, HandshakeHeader.IV_PARAMETER_LENGTH,
+      decryptedHandShakeBody.length);
     if (Arrays.stream(Constants.Crypto.SYMMETRIC_KEY_SIZE).noneMatch(aesKeySize -> aesKeySize == symmetricKey.length)) {
       throw new HandshakeCodecException(symmetricKey.length, CodecCode.INVALID_KEY_SIZE);
     }
 
-    // make aes crypto
     Crypto aesCrypto;
     try {
       aesCrypto = getAesCrypto(handShakeHeader, ivParameter, symmetricKey);
@@ -83,9 +83,10 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
       throw new HandshakeCodecException(e, CodecCode.CRYPTO_CREATE_FAIL);
     }
 
+    String ivParameterString = new String(ivParameter, StandardCharsets.UTF_8);
+    String symmetricKeyString = new String(symmetricKey, StandardCharsets.UTF_8);
     log.debug("{} id=[NO-ID] header={} iv.length={} key.length={} iv=[{}] symmetric=[{}] message=handshake success",
-      ctx.channel(), handShakeHeader, ivParameter.length, symmetricKey.length,
-      new String(ivParameter, StandardCharsets.UTF_8), new String(symmetricKey, StandardCharsets.UTF_8));
+      ctx.channel(), handShakeHeader, ivParameter.length, symmetricKey.length, ivParameterString, symmetricKeyString);
 
     ChannelPipeline pipeline = ctx.pipeline();
     addHandler(pipeline, aesCrypto);
@@ -97,34 +98,28 @@ public abstract class HandshakeSimpleChannelInboundHandler extends SimpleChannel
   }
 
   private HandshakeHeader getHeaderAndValidation(ByteBuf msg) throws HandshakeCodecException {
-    // line delimiter
     if (!ByteBufUtil.equals(msg, msg.readableBytes() - 2, LineDelimiter.BYTE_BUF, 0, 2)) {
       throw new HandshakeCodecException("null", CodecCode.MISSING_LINE_DELIMITER);
     }
-    // length
     int length = msg.readInt();
     if (length < HandshakeHeader.MINIMUM_LENGTH - HandshakeHeader.LENGTH_FIELD_LENGTH) {
       throw new HandshakeCodecException(length, CodecCode.SHORT_LENGTH_FIELD);
     }
-    // handShake type
     byte rawHandShakeType = msg.readByte();
     HandshakeType handShakeType = HandshakeType.of(rawHandShakeType);
     if (handShakeType != HandshakeType.RSA_1024) {
       throw new HandshakeCodecException(rawHandShakeType, CodecCode.INVALID_HAND_SHAKE_TYPE);
     }
-    // encryption type
     byte rawEncryptionType = msg.readByte();
     EncryptionType encryptionType = EncryptionType.of(rawEncryptionType);
     if (encryptionType != EncryptionType.ADVANCED_ENCRYPTION_STANDARD) {
       throw new HandshakeCodecException(rawEncryptionType, CodecCode.INVALID_ENCRYPTION_TYPE);
     }
-    // encryption mode
     byte rawEncryptionMode = msg.readByte();
     EncryptionMode encryptionMode = EncryptionMode.of(rawEncryptionMode);
     if (encryptionMode != EncryptionMode.CIPHER_BLOCK_CHAINING) {
       throw new HandshakeCodecException(rawEncryptionMode, CodecCode.INVALID_ENCRYPTION_MODE);
     }
-    // encryption padding
     byte rawEncryptionPadding = msg.readByte();
     EncryptionPadding encryptionPadding = EncryptionPadding.of(rawEncryptionPadding);
     if (encryptionPadding != EncryptionPadding.PKCS7PADDING) {

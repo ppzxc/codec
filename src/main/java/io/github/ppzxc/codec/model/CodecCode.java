@@ -22,7 +22,8 @@ public enum CodecCode {
   HANDSHAKE_TIMEOUT_NO_BEHAVIOR((byte) 0x10),
   HANDSHAKE_TIMEOUT_NO_INCOMING((byte) 0x11),
   HANDSHAKE_TIMEOUT_NO_OUTGOING((byte) 0x12),
-  ;
+  INVALID_IV_PARAMETER((byte) 0x13),
+  INVALID_SYMMETRIC_KEY((byte) 0x14);
 
   private final byte code;
 
